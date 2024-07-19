@@ -1,16 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item android:title="Home"
-        android:id="@+id/home"
+    <item
+        android:id="@+id/itHome"
+        android:title="Home"
+        app:showAsAction="ifRoom"
         android:icon="@drawable/baseline_house_24"/>
-    <item android:title="Achievements"
-        android:id="@+id/achievement"
+    <item
+        android:title="Achievements"
+        android:id="@+id/itAchievement"
+        app:showAsAction="ifRoom"
         android:icon="@drawable/baseline_star_24"/>
-    <item android:title="Video"
-        android:id="@+id/video"
-        android:icon="@drawable/baseline_play_circle_24"/>
-    <item android:title="Settings"
-        android:id="@+id/settings"
+
+    <item
+        android:title="Settings"
+        android:id="@+id/itSettings"
+        app:showAsAction="ifRoom"
         android:icon="@drawable/baseline_settings_24"/>
 </menu>
