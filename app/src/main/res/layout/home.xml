@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".HomeActivity">
     
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/homepage"
@@ -21,7 +21,6 @@
         android:layout_marginHorizontal="20dp"
         android:elevation="8dp"
         android:translationZ="10dp"
-
         >
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottom_nav"

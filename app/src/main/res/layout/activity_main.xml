@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
@@ -7,26 +7,30 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/homepage"
+        android:layout_width="match_parent"
+        android:background="@color/dirtywhite"
+        android:layout_height="match_parent"
+        >
+    </androidx.viewpager2.widget.ViewPager2>
     <ImageView
-        android:id="@+id/imageView2"
-        android:layout_width="758dp"
-        android:layout_height="905dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.501"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/pic" />
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:srcCompat="@drawable/pic"
+        android:scaleType="centerCrop"
+        />
 
     <Button
-        android:id="@+id/button2"
-        android:layout_width="348dp"
-        android:layout_height="65dp"
-        android:layout_marginTop="796dp"
+        android:id="@+id/button"
+        android:layout_alignParentBottom="true"
+        android:layout_width="350dp"
+        android:layout_height="70dp"
+        android:layout_marginBottom="35dp"
+        android:layout_marginHorizontal="100dp"
+        android:translationZ="10dp"
         android:text="Get Started"
-        android:backgroundTint="#9E00FF"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.492"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:background="@drawable/button_rounded_1"
+        />
+</RelativeLayout>
