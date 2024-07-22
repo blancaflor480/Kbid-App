@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".HomeActivity">
-    
+
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/homepage"
         android:layout_width="match_parent"
@@ -14,24 +14,8 @@
         />
 
 
-        <TextView
-            android:layout_alignParentTop="true"
-            android:id="@+id/textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Welcome to Kid’s Bible "
-            android:layout_marginTop="25dp"
-            android:layout_marginLeft="25dp"
-            android:textStyle="bold"
-            android:textSize="25sp"
-            android:textColor="@android:color/black"
-            />
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:orientation="vertical">
 
-    </LinearLayout>
+
 
     <androidx.cardview.widget.CardView
         android:layout_width="wrap_content"
