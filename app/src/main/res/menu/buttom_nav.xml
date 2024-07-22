@@ -8,14 +8,16 @@
         app:showAsAction="ifRoom"
         android:icon="@drawable/baseline_house_24"/>
     <item
-        android:title="Achievements"
         android:id="@+id/itAchievement"
+        android:title="Achievements"
+
         app:showAsAction="ifRoom"
         android:icon="@drawable/baseline_star_24"/>
 
     <item
-        android:title="Settings"
         android:id="@+id/itSettings"
+        android:title="Settings"
+
         app:showAsAction="ifRoom"
         android:icon="@drawable/baseline_settings_24"/>
 </menu>

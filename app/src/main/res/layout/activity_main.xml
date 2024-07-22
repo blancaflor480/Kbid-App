@@ -31,6 +31,8 @@
         android:layout_marginHorizontal="100dp"
         android:translationZ="10dp"
         android:text="Get Started"
-        android:background="@drawable/button_rounded_1"
-        />
+        android:textColor="@android:color/white"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:background="@drawable/button_rounded_1" />
 </RelativeLayout>

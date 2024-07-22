@@ -12,12 +12,33 @@
         android:background="@color/dirtywhite"
         android:layout_height="match_parent"
         />
+
+
+        <TextView
+            android:layout_alignParentTop="true"
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Welcome to Kid’s Bible "
+            android:layout_marginTop="25dp"
+            android:layout_marginLeft="25dp"
+            android:textStyle="bold"
+            android:textSize="25sp"
+            android:textColor="@android:color/black"
+            />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="vertical">
+
+    </LinearLayout>
+
     <androidx.cardview.widget.CardView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         app:cardCornerRadius="30dp"
-        android:layout_marginBottom="5dp"
+        android:layout_marginBottom="15dp"
         android:layout_marginHorizontal="20dp"
         android:elevation="8dp"
         android:translationZ="10dp"
