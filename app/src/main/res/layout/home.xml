@@ -25,12 +25,13 @@
         >
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottom_nav"
+            app:labelVisibilityMode="labeled"
             android:layout_width="match_parent"
             app:backgroundTint="@color/white"
             app:itemIconTint="@color/color_bottom_nav"
-            app:itemTextColor="@color/color_bottom_nav"
             app:menu="@menu/buttom_nav"
             style="@style/BottomNavigationViewIconSize"
+            app:itemActiveIndicatorStyle="@style/BottomNavigationViewIconSize"
             android:layout_height="wrap_content"/>
 
     </androidx.cardview.widget.CardView>
