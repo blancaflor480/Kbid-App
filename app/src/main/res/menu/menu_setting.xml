@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/itOption"
+        android:title="Option"
+        app:showAsAction="always"
+        android:icon="@drawable/baseline_settings_24"
+        app:actionLayout="@layout/custom_menu_item"
+        />
+
+    <item
+        android:id="@+id/itAccount"
+        android:title="SignIn/SignUp"
+        app:showAsAction="always"
+        android:icon="@drawable/baseline_account_circle_24"
+        app:actionLayout="@layout/custom_menu_item"
+        />
+
+    <item
+        android:id="@+id/itAbout"
+        android:title="About Us"
+        app:showAsAction="always"
+        android:icon="@drawable/baseline_help_24"
+        app:actionLayout="@layout/custom_menu_item"
+        />
+
+    <item
+        android:id="@+id/itshare"
+        android:title="Share the App"
+        app:showAsAction="always"
+        android:icon="@drawable/baseline_share_24"
+        app:actionLayout="@layout/custom_menu_item"
+        />
+
+    <item
+        android:id="@+id/itchat"
+        android:title="Need the Help?"
+        app:showAsAction="always"
+        android:icon="@drawable/baseline_forum_24"
+        app:actionLayout="@layout/custom_menu_item"
+        />
+
+    <item
+        android:id="@+id/itexit"
+        android:title="Exit"
+        app:showAsAction="always"
+        android:icon="@drawable/baseline_exit_24"
+        app:actionLayout="@layout/custom_menu_item"
+        />
+</menu>
