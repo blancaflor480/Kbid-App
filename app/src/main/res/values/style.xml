@@ -18,4 +18,8 @@
         <!-- Make the shape circular -->
     </style>
 
+    <style name="ContinueButton" parent="@style/Widget.Material3.BottomNavigationView">
+
+        <item name="itemBackground">@drawable/rounded_corner_background</item>
+    </style>
 </resources>

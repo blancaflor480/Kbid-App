@@ -28,12 +28,25 @@
         android:layout_width="350dp"
         android:layout_height="70dp"
         android:layout_alignParentBottom="true"
-        android:layout_marginLeft="35dp"
-        android:layout_marginBottom="35dp"
-        android:fontFamily="@font/titanone_regular"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="60dp"
+
+        android:backgroundTint="#6F34EE"
+        android:fontFamily="@font/dangrek"
         android:text="Get Started"
         android:textColor="@android:color/white"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:translationZ="10dp" />
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/button_login"
+        android:layout_width="300dp"
+        android:layout_height="35dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="20dp"
+        android:fontFamily="@font/dangrek"
+        android:text="HAVE AN ACCOUNT LOGIN"
+        android:textAlignment="center"
+        android:textColor="@android:color/white"
+        android:textSize="20sp" />
 </RelativeLayout>

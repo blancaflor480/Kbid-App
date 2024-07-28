@@ -6,4 +6,6 @@
     <color name="dirtywhite">#E8E0E0</color>
     <color name="lightgreen">#629E46</color>
     <color name="lightred">#9E4646</color>
+    <color name="gray">#C4C4C4</color>
+    <color name="darkmin">#767676</color>
 </resources>
