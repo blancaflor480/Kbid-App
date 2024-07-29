@@ -1,13 +1,13 @@
 package com.example.myapplication;
 
-import android.annotation.SuppressLint;
-///import android.content.Intent;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -21,7 +21,6 @@ public class ChildAgeActivity extends AppCompatActivity {
     private EditText inputAge;
     private Button buttonContinue;
 
-    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,7 +30,11 @@ public class ChildAgeActivity extends AppCompatActivity {
         buttonContinue = findViewById(R.id.buttonContinue);
 
         // Enable Firebase offline capabilities
-        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+        try {
+            FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+        } catch (Exception e) {
+            e.printStackTrace(); // Log the exception
+        }
 
         // Initialize Firebase database reference
         myDb = FirebaseDatabase.getInstance();
@@ -71,26 +74,32 @@ public class ChildAgeActivity extends AppCompatActivity {
 
         // Set OnClickListener to the button
         buttonContinue.setOnClickListener(v -> {
-            String childName = inputAge.getText().toString().trim();
-            if (!childName.isEmpty()) {
-                saveNameToFirebase(childName);
+            String childAge = inputAge.getText().toString().trim();
+            if (!childAge.isEmpty()) {
+                saveAgeToFirebase(childAge);
             }
         });
     }
 
-    private void saveNameToFirebase(String name) {
-        // Generate a unique key for each name
+    private void saveAgeToFirebase(String age) {
+        // Generate a unique key for each age
         String key = myRef.push().getKey();
         if (key != null) {
-            myRef.child(key).setValue(name).addOnCompleteListener(task -> {
+            myRef.child(key).setValue(age).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     // Name saved successfully, navigate to ChildAgeActivity
-                  //  Intent intent = new Intent(ChildAgeActivity.this, ChildAgeActivity.class);
-                   // startActivity(intent);
+                    //Log.d(TAG, "Name saved successfully");
+                    Intent intent = new Intent(ChildAgeActivity.this, SkipageActivity.class);
+                    startActivity(intent);
                 } else {
                     // Handle the error
+                    // Log.e(TAG, "Failed to save name: ", task.getException());
+                    Toast.makeText(ChildAgeActivity.this, "Failed to save name", Toast.LENGTH_SHORT).show();
                 }
             });
+        } else {
+            // Log.e(TAG, "Failed to generate key");
+            Toast.makeText(ChildAgeActivity.this, "Failed to generate key", Toast.LENGTH_SHORT).show();
         }
     }
 }

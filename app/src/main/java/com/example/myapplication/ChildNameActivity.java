@@ -79,8 +79,6 @@ public class ChildNameActivity extends AppCompatActivity {
             String childName = inputName.getText().toString().trim();
             if (!childName.isEmpty()) {
                 saveNameToFirebase(childName);
-                Intent intent = new Intent(ChildNameActivity.this, ChildAgeActivity.class);
-                startActivity(intent);
             }
         });
     }
@@ -92,16 +90,17 @@ public class ChildNameActivity extends AppCompatActivity {
             myRef.child(key).setValue(name).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     // Name saved successfully, navigate to ChildAgeActivity
-                    Log.d(TAG, "Name saved successfully");
-
+                    //Log.d(TAG, "Name saved successfully");
+                    Intent intent = new Intent(ChildNameActivity.this, ChildAgeActivity.class);
+                    startActivity(intent);
                 } else {
                     // Handle the error
-                    Log.e(TAG, "Failed to save name: ", task.getException());
+                   // Log.e(TAG, "Failed to save name: ", task.getException());
                     Toast.makeText(ChildNameActivity.this, "Failed to save name", Toast.LENGTH_SHORT).show();
                 }
             });
         } else {
-            Log.e(TAG, "Failed to generate key");
+           // Log.e(TAG, "Failed to generate key");
             Toast.makeText(ChildNameActivity.this, "Failed to generate key", Toast.LENGTH_SHORT).show();
         }
     }
