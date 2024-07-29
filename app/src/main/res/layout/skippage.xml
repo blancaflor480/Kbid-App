@@ -5,10 +5,10 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ChildAgeActivity">
+    tools:context=".ChildNameActivity">
 
     <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/childage"
+        android:id="@+id/childname"
         android:layout_width="match_parent"
         android:background="@color/dirtywhite"
         android:layout_height="match_parent" >
@@ -17,7 +17,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@id/childage"
+        android:layout_alignTop="@id/childname"
         android:layout_centerInParent="true"
 
         android:background="@color/dirtywhite"
@@ -37,7 +37,7 @@
             android:layout_marginTop="16dp"
             android:layout_gravity="center"
             android:fontFamily="@font/dinroundedpro_bold"
-            android:text="How old is your child?"
+            android:text="Are you sure you want to skip?"
             android:textColor="@color/purple"
             android:textSize="22sp"
             android:textStyle="bold" />
@@ -49,38 +49,37 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:fontFamily="@font/dinroundedpro_regular"
-            android:text="We’ll personalized the experience for this age"
+            android:text="You’ll miss out on customized reports on your child’s progress and free offline Bible Kids."
+            android:textAlignment="center"
             android:textColor="@color/darkmin"
             android:textSize="18sp" />
 
-        <EditText
-            android:id="@+id/inputAge"
-            android:layout_width="match_parent"
-            android:layout_height="70dp"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/rounded_input_name"
-            android:ems="10"
-            android:layout_centerHorizontal="true"
-            android:fontFamily="@font/dinroundedpro_bold"
-            android:inputType="text"
-            android:padding="15dp"
-            android:hint="Age"
-            android:textColorHint="@color/darkmin"
-            android:textColor="@color/darkmin"
-            android:textSize="25sp" />
+
     </LinearLayout>
 
     <Button
-        android:id="@+id/buttonContinue"
+        android:id="@+id/buttonCreate"
         style="@style/BottomNavigationViewIconSize"
         android:layout_width="350dp"
         android:layout_height="70dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="60dp"
         android:backgroundTint="#6F34EE"
         android:fontFamily="@font/dangrek"
-        android:text="Continue"
+        android:text="Okay, I’LL Create An Account"
         android:textColor="@android:color/white"
         android:textSize="20sp"/>
+    <TextView
+        android:id="@+id/button_skip"
+        android:layout_width="300dp"
+        android:layout_height="35dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="20dp"
+        android:fontFamily="@font/dangrek"
+        android:text="SKIP"
+        android:textAlignment="center"
+        android:textColor="@color/purple"
+        android:textSize="20sp" />
 </RelativeLayout>

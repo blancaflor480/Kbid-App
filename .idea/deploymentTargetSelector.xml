@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="Kbid App">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2024-07-22T07:32:35.145444900Z">
+        <DropdownSelection timestamp="2024-07-29T04:03:19.037907100Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Bry\.android\avd\Low_Device_API_28.avd" />
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=QSKJBUJNPF5X8LV8" />
             </handle>
           </Target>
         </DropdownSelection>

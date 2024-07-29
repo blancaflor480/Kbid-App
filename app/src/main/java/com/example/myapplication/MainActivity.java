@@ -26,12 +26,13 @@ public class MainActivity extends AppCompatActivity {
 
         // Find the button by its ID
         Button getStartedButton = findViewById(R.id.button);
+
         // Set an OnClickListener on the button
         getStartedButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Create an Intent to start HomeActivity
-                Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+                // Create an Intent to start ChildNameActivity
+                Intent intent = new Intent(MainActivity.this, ChildNameActivity.class);
                 startActivity(intent);
             }
         });

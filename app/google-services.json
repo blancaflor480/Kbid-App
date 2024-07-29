@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "662917951633",
+    "firebase_url": "https://k-bidapp-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "k-bidapp",
+    "storage_bucket": "k-bidapp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:662917951633:android:5d03c1dc406404aaa20f30",
+        "android_client_info": {
+          "package_name": "com.example.myapplication"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBD781Q7QwWTgg5AqkWNbQYhnskhhZXu1M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
