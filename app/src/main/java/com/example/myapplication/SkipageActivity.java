@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,7 +27,7 @@ public class SkipageActivity extends AppCompatActivity {
 
         // Find the button by its ID
         Button createButton = findViewById(R.id.buttonCreate);
-       // Button button_skip= findViewById(R.id.button_skip);
+        TextView button_skip= findViewById(R.id.button_skip);
 
         // Set an OnClickListener on the button
         createButton.setOnClickListener(new View.OnClickListener() {
@@ -35,6 +36,15 @@ public class SkipageActivity extends AppCompatActivity {
                 // Create an Intent to start ChildNameActivity
 
                 Intent intent = new Intent(SkipageActivity.this,LoginUser.class);
+                startActivity(intent);
+            }
+        });
+        button_skip.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Create an Intent to start ChildNameActivity
+
+                Intent intent = new Intent(SkipageActivity.this,HomeActivity.class);
                 startActivity(intent);
             }
         });

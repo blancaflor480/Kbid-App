@@ -14,30 +14,30 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-public class LoginUser extends AppCompatActivity {
+public class SignupUser extends AppCompatActivity {
 
     private EditText inputEmail, inputPassword;
-    private Button buttonSignin, buttonCreate;
+    private Button buttonSignup, buttonCreate;
     private FirebaseAuth auth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.login_user);
+        setContentView(R.layout.signup_user);
 
         // Initialize Firebase Auth
         auth = FirebaseAuth.getInstance();
 
         inputEmail = findViewById(R.id.inputEmail);
         inputPassword = findViewById(R.id.inputPassword);
-        buttonSignin = findViewById(R.id.buttonSignin);
+        buttonSignup = findViewById(R.id.buttonSignup);
         buttonCreate = findViewById(R.id.buttonCreate);
 
-        buttonSignin.setOnClickListener(v -> loginUser());
-        buttonCreate.setOnClickListener(v -> startActivity(new Intent(LoginUser.this, SignupUser.class)));
+        buttonSignup.setOnClickListener(v -> registerUser());
+        buttonCreate.setOnClickListener(v -> startActivity(new Intent(SignupUser.this, LoginUser.class)));
     }
 
-    private void loginUser() {
+    private void registerUser() {
         String email = inputEmail.getText().toString().trim();
         String password = inputPassword.getText().toString().trim();
 
@@ -51,18 +51,23 @@ public class LoginUser extends AppCompatActivity {
             return;
         }
 
-        // Authenticate user
-        auth.signInWithEmailAndPassword(email, password)
+        if (password.length() < 6) {
+            Toast.makeText(getApplicationContext(), "Password too short, enter minimum 6 characters!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Create user
+        auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
                         // Sign in success, update UI with the signed-in user's information
-                        Log.d("LoginUser", "signInWithEmail:success");
+                        Log.d("SignupUser", "createUserWithEmail:success");
                         FirebaseUser user = auth.getCurrentUser();
-                        // Update UI or start a new activity here
+                        // Redirect to another activity or update UI
                     } else {
                         // If sign in fails, display a message to the user.
-                        Log.w("LoginUser", "signInWithEmail:failure", task.getException());
-                        Toast.makeText(LoginUser.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
+                        Log.w("SignupUser", "createUserWithEmail:failure", task.getException());
+                        Toast.makeText(SignupUser.this, "Authentication failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }

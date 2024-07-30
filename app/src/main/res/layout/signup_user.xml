@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ChildNameActivity">
+    tools:context=".SignupUser">
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/childname"
@@ -55,21 +55,27 @@
             android:textColorHint="@color/darkmin"
             android:textColor="@color/darkmin"
             android:textSize="25sp" />
-        <EditText
-            android:id="@+id/inputPassword"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/passwordLayout"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:background="@drawable/rounded_input_name"
-            android:ems="10"
-            android:layout_centerHorizontal="true"
-            android:fontFamily="@font/dinroundedpro_bold"
-            android:inputType="textPassword"
-            android:padding="15dp"
-            android:hint="Password"
             android:textColorHint="@color/darkmin"
             android:textColor="@color/darkmin"
-            android:textSize="25sp" />
+            app:endIconTint="@color/darkmin"
+            app:endIconMode="password_toggle">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/inputPassword"
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:background="@drawable/rounded_input_name"
+                android:fontFamily="@font/dinroundedpro_bold"
+                android:padding="15dp"
+                android:hint="Password"
+                android:inputType="textPassword"
+                android:textSize="25sp" />
+        </com.google.android.material.textfield.TextInputLayout>
         <Button
             android:id="@+id/buttonSignup"
             style="@style/BottomNavigationViewIconSize"
