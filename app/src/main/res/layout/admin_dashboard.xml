@@ -20,6 +20,7 @@
         android:layout_height="120dp"
         android:background="@color/blue"
         android:padding="26dp"
+        android:orientation="horizontal"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true">
 
@@ -32,6 +33,20 @@
             android:textSize="24sp"
             android:textStyle="bold"
             android:fontFamily="@font/dinroundedpro_bold"/>
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <ImageView
+            android:id="@+id/logout"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="end"
+            android:contentDescription="Logout icon"
+            android:src="@drawable/logout"
+            app:tint="@color/white"/>
     </LinearLayout>
 
     <LinearLayout
@@ -112,6 +127,7 @@
             android:rowCount="3">
 
             <FrameLayout
+
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_rowWeight="1"
