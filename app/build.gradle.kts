@@ -7,6 +7,10 @@ android {
     namespace = "com.example.myapplication"
     compileSdk = 34
 
+    buildFeatures {
+        viewBinding = true
+    }
+
     defaultConfig {
         applicationId = "com.example.myapplication"
         minSdk = 27
@@ -39,9 +43,11 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation(libs.firebase.database)
+    implementation(libs.firebase.firestore)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+    implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-database")
     implementation("com.google.android.material:material:1.5.0")

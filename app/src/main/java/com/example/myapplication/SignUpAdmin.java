@@ -17,9 +17,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SignupUser extends AppCompatActivity {
+public class SignUpAdmin extends AppCompatActivity {
 
-    private EditText inputEmail, inputPassword;
+    private EditText inputEmail, inputPassword, inputRole;
     private Button buttonSignup, buttonCreate;
     private FirebaseAuth auth;
     private FirebaseFirestore firestore;
@@ -27,7 +27,7 @@ public class SignupUser extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.signup_user);
+        setContentView(R.layout.signup_admin);
 
         // Initialize Firebase Auth and Firestore
         auth = FirebaseAuth.getInstance();
@@ -35,16 +35,18 @@ public class SignupUser extends AppCompatActivity {
 
         inputEmail = findViewById(R.id.inputEmail);
         inputPassword = findViewById(R.id.inputPassword);
+        inputRole = findViewById(R.id.inputRole); // Assuming there's an EditText for role input
         buttonSignup = findViewById(R.id.buttonSignup);
         buttonCreate = findViewById(R.id.buttonCreate);
 
         buttonSignup.setOnClickListener(v -> registerUser());
-        buttonCreate.setOnClickListener(v -> startActivity(new Intent(SignupUser.this, LoginUser.class)));
+        buttonCreate.setOnClickListener(v -> startActivity(new Intent(SignUpAdmin.this, LoginUser.class)));
     }
 
     private void registerUser() {
         String email = inputEmail.getText().toString().trim();
         String password = inputPassword.getText().toString().trim();
+        String role = inputRole.getText().toString().trim();
 
         if (TextUtils.isEmpty(email)) {
             Toast.makeText(getApplicationContext(), "Enter email address!", Toast.LENGTH_SHORT).show();
@@ -61,6 +63,11 @@ public class SignupUser extends AppCompatActivity {
             return;
         }
 
+        if (TextUtils.isEmpty(role)) {
+            Toast.makeText(getApplicationContext(), "Enter role (Admin or SuperAdmin)!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         // Create user
         auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
@@ -68,16 +75,16 @@ public class SignupUser extends AppCompatActivity {
                         // Sign in success, update UI with the signed-in user's information
                         Log.d("SignupUser", "createUserWithEmail:success");
                         FirebaseUser user = auth.getCurrentUser();
-                        addUserToFirestore(user, password);
+                        addUserToFirestore(user, password, role);
                     } else {
                         // If sign in fails, display a message to the user.
                         Log.w("SignupUser", "createUserWithEmail:failure", task.getException());
-                        Toast.makeText(SignupUser.this, "Authentication failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(SignUpAdmin.this, "Authentication failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
-    private void addUserToFirestore(FirebaseUser user, String password) {
+    private void addUserToFirestore(FirebaseUser user, String password, String role) {
         if (user == null) {
             Toast.makeText(this, "User is null. Cannot add to Firestore.", Toast.LENGTH_SHORT).show();
             return;
@@ -88,9 +95,16 @@ public class SignupUser extends AppCompatActivity {
         userData.put("email", user.getEmail());
         userData.put("uid", user.getUid());
         userData.put("password", password); // Store password (not recommended for production)
+        userData.put("role", role); // Add role to user data
+
+        // Determine collection based on role
+        String collection = "user";
+        if (role.equalsIgnoreCase("Admin") || role.equalsIgnoreCase("SuperAdmin")) {
+            collection = "admin";
+        }
 
         // Add user data to Firestore
-        firestore.collection("user").document(user.getUid())
+        firestore.collection(collection).document(user.getUid())
                 .set(userData)
                 .addOnSuccessListener(aVoid -> {
                     Log.d("SignupUser", "User added to Firestore successfully.");
@@ -98,13 +112,13 @@ public class SignupUser extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> {
                     Log.w("SignupUser", "Error adding user to Firestore", e);
-                    Toast.makeText(SignupUser.this, "Failed to add user to Firestore: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SignUpAdmin.this, "Failed to add user to Firestore: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
 
     private void navigateToHome() {
         // Navigate to the home screen or another activity
-        Intent intent = new Intent(SignupUser.this, HomeActivity.class);
+        Intent intent = new Intent(SignUpAdmin.this, AdminDashboard.class);
         startActivity(intent);
         finish(); // Close this activity
     }
