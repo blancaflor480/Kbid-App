@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group
+        android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/nav_home"
+            android:icon="@drawable/baseline_house_24"
+            android:title="Home"/>
+
+        <item
+            android:id="@+id/nav_user"
+            android:icon="@drawable/people"
+            android:title="@string/menu_user"/>
+
+        <item
+            android:id="@+id/nav_content"
+            android:icon="@drawable/camera_roll"
+            android:title="@string/menu_content"/>
+
+        <item
+            android:id="@+id/nav_analytics"
+            android:icon="@drawable/analytics"
+            android:title="@string/menu_record"/>
+        <item
+            android:id="@+id/nav_feedback"
+            android:icon="@drawable/feedback"
+            android:title="@string/menu_feedback"/>
+        <item
+            android:id="@+id/nav_setting"
+            android:icon="@drawable/settings"
+            android:title="@string/menu_settings"/>
+    </group>
+    <item
+        android:title="" android:background="@color/black">
+        <menu>
+
+            <item
+                android:id="@+id/nav_logout"
+                android:icon="@drawable/logout"
+                android:title="Logout"/>
+        </menu>
+
+    </item>
+
+</menu>

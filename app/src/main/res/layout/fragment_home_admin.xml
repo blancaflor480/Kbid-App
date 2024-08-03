@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/main"
-    tools:context=".AdminDashboard">
+    tools:context=".HomeAdminFragment">
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/childage"
@@ -28,7 +28,7 @@
             android:id="@+id/appName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Dashboard"
+            android:text="K-BID APP"
             android:textColor="@android:color/white"
             android:textSize="24sp"
             android:textStyle="bold"
@@ -39,7 +39,14 @@
             android:layout_height="wrap_content"
             android:layout_weight="1" />
 
-
+        <ImageView
+            android:id="@+id/logout"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="end"
+            android:contentDescription="Logout icon"
+            android:src="@drawable/logout"
+            app:tint="@color/white"/>
     </LinearLayout>
 
     <LinearLayout

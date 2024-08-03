@@ -22,6 +22,7 @@ public class LoginUser extends AppCompatActivity {
     private EditText inputEmail, inputPassword;
     private Button buttonSignin, buttonCreate;
     private TextView button_admin;
+    private TextView buttonHome;
     private FirebaseAuth auth;
     private FirebaseFirestore firestore;
 
@@ -45,6 +46,7 @@ public class LoginUser extends AppCompatActivity {
         buttonCreate.setOnClickListener(v -> startActivity(new Intent(LoginUser.this, SignupUser.class)));
         button_admin = findViewById(R.id.button_admin);
         button_admin.setOnClickListener(v -> startActivity(new Intent(LoginUser.this, SignUpAdmin.class)));
+      
     }
 
     private void loginUser() {
@@ -131,7 +133,7 @@ public class LoginUser extends AppCompatActivity {
 
     private void navigateToAdminDashboard() {
         // Navigate to the admin dashboard
-        Intent intent = new Intent(LoginUser.this, AdminDashboard.class);
+        Intent intent = new Intent(LoginUser.this, MainSidebarAdmin.class);
         startActivity(intent);
         finish(); // Close this activity
     }

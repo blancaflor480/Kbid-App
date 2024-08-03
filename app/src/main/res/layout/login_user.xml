@@ -111,7 +111,6 @@
             android:textColor="@color/purple"
             android:textSize="20sp" />
 
-
     </LinearLayout>
 
     <Button
