@@ -1,0 +1,7 @@
+<resources>
+    <string-array name="user_options_array">
+        <item>All users</item>
+        <item>User</item>
+        <item>Admin</item>
+    </string-array>
+</resources>

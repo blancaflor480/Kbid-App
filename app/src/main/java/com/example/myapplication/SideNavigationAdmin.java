@@ -1,32 +1,43 @@
 package com.example.myapplication;
 
+import static com.example.myapplication.R.id.nav_setting;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
 
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.content.Intent;
-import android.content.DialogInterface;
-import androidx.appcompat.app.AlertDialog;
 
+import com.example.myapplication.databinding.SideNavigationAdminBinding;
+import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import androidx.appcompat.app.AlertDialog;
 
-import com.google.android.material.navigation.NavigationView;
+public class SideNavigationAdmin extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-public class MainSidebarAdmin extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
-
+    private AppBarConfiguration mAppBarConfiguration;
+    private SideNavigationAdminBinding binding;
     private DrawerLayout drawerLayout;
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
@@ -34,17 +45,27 @@ public class MainSidebarAdmin extends AppCompatActivity implements NavigationVie
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.side_navmain);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        binding = SideNavigationAdminBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        Toolbar toolbar = binding.appBarSideNavigationAdmin.toolbar;
         setSupportActionBar(toolbar);
 
-        drawerLayout = findViewById(R.id.drawer_layout);
-        NavigationView navigationView = findViewById(R.id.nav_view);
+       // binding.appBarSideNavigationAdmin.fab.setOnClickListener(new View.OnClickListener() {
+         ///   @Override
+          ///  public void onClick(View view) {
+        ///        Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+         ///               .setAction("Action", null)
+         ///               .setAnchorView(R.id.fab).show();
+           /// }
+  ///      });
+
+        drawerLayout = binding.drawerLayout;
+        NavigationView navigationView = binding.navView;
         navigationView.setNavigationItemSelectedListener(this);
 
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open_nav,
-                R.string.close_nav);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open_nav, R.string.close_nav);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
@@ -55,10 +76,14 @@ public class MainSidebarAdmin extends AppCompatActivity implements NavigationVie
         // Fetch user data and set to nav header
         fetchUserData(navigationView);
 
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeAdminFragment()).commit();
-            navigationView.setCheckedItem(R.id.nav_home);
-        }
+        mAppBarConfiguration = new AppBarConfiguration.Builder(
+                R.id.nav_home, R.id.nav_user, R.id.nav_content, R.id.nav_record, R.id.nav_feedback, R.id.nav_setting)
+                .setOpenableLayout(drawerLayout)
+                .build();
+
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_side_navigation_admin);
+        NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
+        NavigationUI.setupWithNavController(navigationView, navController);
     }
 
     private void fetchUserData(NavigationView navigationView) {
@@ -84,10 +109,10 @@ public class MainSidebarAdmin extends AppCompatActivity implements NavigationVie
                             userNameTextView.setText(fullName.trim());
                             userEmailTextView.setText(email != null ? email : "No Email");
                         } else {
-                            Toast.makeText(MainSidebarAdmin.this, "User data not found", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(SideNavigationAdmin.this, "User data not found", Toast.LENGTH_SHORT).show();
                         }
                     } else {
-                        Toast.makeText(MainSidebarAdmin.this, "Failed to fetch user data", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(SideNavigationAdmin.this, "Failed to fetch user data", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -98,7 +123,7 @@ public class MainSidebarAdmin extends AppCompatActivity implements NavigationVie
     }
 
     private void redirectToLogin() {
-        Intent intent = new Intent(MainSidebarAdmin.this, LoginUser.class);
+        Intent intent = new Intent(SideNavigationAdmin.this, LoginUser.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
         finish();
@@ -108,40 +133,34 @@ public class MainSidebarAdmin extends AppCompatActivity implements NavigationVie
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int itemId = item.getItemId();
 
-        if (itemId == R.id.nav_home) {
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeAdminFragment()).commit();
-        } else if (itemId == R.id.nav_user) {
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new UserAdminFragment()).commit();
-        } else if (itemId == R.id.nav_content) {
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new ContentAdminFragment()).commit();
-        } else if (itemId == R.id.nav_analytics) {
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new AnlyticsAdminFragment()).commit();
-        } else if (itemId == R.id.nav_feedback) {
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new FeedbackAdminFragment()).commit();
-        } else if (itemId == R.id.nav_setting) {
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new SettingAdminFragment()).commit();
-        } else if (itemId == R.id.nav_logout) {
-            new AlertDialog.Builder(this)
-                    .setTitle("Logout")
-                    .setMessage("Are you sure you want to logout?")
-                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            // Sign out from Firebase
-                            FirebaseAuth.getInstance().signOut();
-                            Toast.makeText(MainSidebarAdmin.this, "Logout!", Toast.LENGTH_SHORT).show();
-                            Intent intent = new Intent(MainSidebarAdmin.this, LoginUser.class);
-                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                            startActivity(intent);
-                            finish(); // Finish current activity
-                        }
-                    })
-                    .setNegativeButton(android.R.string.no, null)
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .show();
+        if (itemId == R.id.nav_logout) {
+            // Navigate to LogoutFragment
+            NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_side_navigation_admin);
+            navController.navigate(R.id.nav_logout);
+            drawerLayout.closeDrawer(GravityCompat.START);
+            return true;
         }
 
+        // Handle navigation for other items
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_side_navigation_admin);
+        boolean handled = NavigationUI.onNavDestinationSelected(item, navController);
+
         drawerLayout.closeDrawer(GravityCompat.START);
+        return handled;
+    }
+
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.side_navigation_admin, menu);
         return true;
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_side_navigation_admin);
+        return NavigationUI.navigateUp(navController, mAppBarConfiguration) || super.onSupportNavigateUp();
     }
 
     @Override

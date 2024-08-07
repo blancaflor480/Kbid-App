@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.myapplication.ui.home;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,13 +20,14 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-public class HomeAdminFragment extends Fragment {
+
+public class HomeFragment extends Fragment {
 
     private TextView userNameTextView, userRoleTextView;
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
 
-    public HomeAdminFragment() {
+    public HomeFragment() {
         // Required empty public constructor
     }
 
@@ -39,10 +40,11 @@ public class HomeAdminFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.admin_dashboard, container, false);
+        View view = inflater.inflate(R.layout.fragment_home_admin, container, false);
 
         userNameTextView = view.findViewById(R.id.userName);
         userRoleTextView = view.findViewById(R.id.userRole);
+
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
