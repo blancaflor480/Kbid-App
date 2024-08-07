@@ -14,21 +14,47 @@
         android:layout_height="match_parent"
         />
 
-    <Spinner
-        android:id="@+id/user_dropdown"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="left|top"
-        android:layout_marginLeft="10dp"
+        android:orientation="horizontal"
+        android:layout_gravity="top"
         android:layout_marginTop="16dp"
-        android:entries="@array/user_options_array"/>
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp">
+
+        <Spinner
+            android:id="@+id/user_dropdown"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:entries="@array/user_options_array"/>
+
+        <SearchView
+            android:id="@+id/search_bar"
+            android:layout_width="0dp"
+            android:layout_height="25dp"
+            android:layout_weight="2"
+            android:queryHint="Search users"
+            android:iconifiedByDefault="false" />
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclep"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/dirtywhite"
-        android:layout_marginTop="50dp"/> <!-- Adjust margin to avoid overlap with Spinner -->
+        android:layout_marginTop="55dp"/> <!-- Adjust margin to avoid overlap with Spinner and SearchView -->
+
+    <TextView
+        android:id="@+id/not_found_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Not Found"
+        android:visibility="gone"
+        android:textSize="18sp"
+        android:textColor="@color/black" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"

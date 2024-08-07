@@ -3,14 +3,22 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    >
 
+    <ImageView
+        android:id="@+id/ivProfileImage"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center"
+        android:src="@drawable/ic_launcher_background" />
 
     <EditText
         android:id="@+id/etFirstName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="First Name" />
+        android:hint="First Name"
+    />
 
     <EditText
         android:id="@+id/etMiddleName"
@@ -28,10 +36,12 @@
         android:id="@+id/etBirthday"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Birthday" />
+        android:hint="Birthday"
+        android:focusable="false"
+        android:clickable="true"/>
 
-    <EditText
-        android:id="@+id/etGender"
+    <Spinner
+        android:id="@+id/spinnerGender"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Gender" />
@@ -39,7 +49,10 @@
     <Spinner
         android:id="@+id/spinnerRole"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        />
+
+
 
     <EditText
         android:id="@+id/etEmail"
@@ -53,4 +66,11 @@
         android:layout_height="wrap_content"
         android:hint="Password"
         android:inputType="textPassword" />
+
+    <Button
+        android:id="@+id/btnUploadImage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Upload Image" />
 </LinearLayout>

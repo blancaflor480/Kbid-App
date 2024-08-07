@@ -13,6 +13,10 @@
         <item>Admin</item>
         <item>SuperAdmin</item>
     </string-array>
+    <string-array name="gender_array">
+        <item>Male</item>
+        <item>Female</item>
+    </string-array>
 
 
     <!-- TODO: Remove or change this placeholder text -->

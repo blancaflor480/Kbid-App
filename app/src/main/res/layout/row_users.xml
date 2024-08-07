@@ -44,6 +44,13 @@
                 android:layout_height="wrap_content"
                 android:text="Person Email"
                 android:textColor="@color/black" />
+            <TextView
+                android:id="@+id/rolep"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="11sp"
+                android:text="Role"
+                android:textColor="@color/black" />
 
         </LinearLayout>
 

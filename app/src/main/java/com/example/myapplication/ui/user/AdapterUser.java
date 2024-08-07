@@ -41,11 +41,15 @@ public class AdapterUser extends RecyclerView.Adapter<AdapterUser.MyHolder> {
     @Override
     public void onBindViewHolder(@NonNull MyHolder holder, final int position) {
         final String hisuid = list.get(position).getUid();
-        String userImage = list.get(position).getImage();
+        String userImage = list.get(position).getImageUrl();
         String username = list.get(position).getName();
         String usermail = list.get(position).getEmail();
+        String role = list.get(position).getRole();
+
         holder.name.setText(username);
         holder.email.setText(usermail);
+        holder.role.setText(role);
+
         try {
             Glide.with(context).load(userImage).into(holder.profiletv);
         } catch (Exception e) {
@@ -61,13 +65,14 @@ public class AdapterUser extends RecyclerView.Adapter<AdapterUser.MyHolder> {
     class MyHolder extends RecyclerView.ViewHolder {
 
         CircleImageView profiletv;
-        TextView name, email;
+        TextView name, email, role;
 
         public MyHolder(@NonNull View itemView) {
             super(itemView);
             profiletv = itemView.findViewById(R.id.imagep);
             name = itemView.findViewById(R.id.namep);
             email = itemView.findViewById(R.id.emailp);
+            role = itemView.findViewById(R.id.rolep);
         }
     }
 }

@@ -150,12 +150,12 @@ public class SideNavigationAdmin extends AppCompatActivity implements Navigation
     }
 
 
+   // @Override
+  //  public boolean onCreateOptionsMenu(Menu menu) {
+   //     getMenuInflater().inflate(R.menu.side_navigation_admin, menu);
+   //     return true;
+  //  }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.side_navigation_admin, menu);
-        return true;
-    }
 
     @Override
     public boolean onSupportNavigateUp() {

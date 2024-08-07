@@ -5,7 +5,7 @@ public class ModelUser {
     private String middlename;
     private String lastname;
     private String email;
-    private String image;
+    private String imageUrl;
     private String uid;
     private String onlineStatus;
     private String typingTo;
@@ -19,12 +19,12 @@ public class ModelUser {
     }
 
     // Constructor with arguments
-    public ModelUser(String firstname, String middlename, String lastname, String email, String image, String uid, String onlineStatus, String typingTo, String birthday, String gender, String role) {
+    public ModelUser(String firstname, String middlename, String lastname, String email, String imageUrl, String uid, String onlineStatus, String typingTo, String birthday, String gender, String role) {
         this.firstname = firstname;
         this.middlename = middlename;
         this.lastname = lastname;
         this.email = email;
-        this.image = image;
+        this.imageUrl = imageUrl;
         this.uid = uid;
         this.onlineStatus = onlineStatus;
         this.typingTo = typingTo;
@@ -59,13 +59,14 @@ public class ModelUser {
         this.email = email;
     }
 
-    public String getImage() {
-        return image;
+    public String getImageUrl() {
+        return imageUrl;
     }
 
-    public void setImage(String image) {
-        this.image = image;
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
+
 
     public String getUid() {
         return uid;
