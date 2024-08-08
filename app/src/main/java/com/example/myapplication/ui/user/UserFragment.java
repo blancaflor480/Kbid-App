@@ -119,6 +119,7 @@ public class UserFragment extends Fragment {
         usersList = new ArrayList<>();
         firebaseAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
+        storageRef = FirebaseStorage.getInstance().getReference(); // Initialize storageRef here
         getAllUsers();
 
         // FloatingActionButton action
@@ -289,7 +290,6 @@ public class UserFragment extends Fragment {
                                                         @Override
                                                         public void onSuccess(Uri uri) {
                                                             String imageUrl = uri.toString();
-
                                                             // Create a new ModelUser instance with the provided data
                                                             ModelUser newUser = new ModelUser(
                                                                     firstName,
@@ -304,7 +304,6 @@ public class UserFragment extends Fragment {
                                                                     gender,
                                                                     role
                                                             );
-
                                                             saveUserToFirestore(newUser, role, uid);
                                                         }
                                                     });
@@ -331,7 +330,6 @@ public class UserFragment extends Fragment {
                                             gender,
                                             role
                                     );
-
                                     saveUserToFirestore(newUser, role, uid);
                                 }
                             }
@@ -342,8 +340,12 @@ public class UserFragment extends Fragment {
                 });
     }
 
+
     private void saveUserToFirestore(ModelUser newUser, String role, String uid) {
-        db.collection(role.toLowerCase()).document(uid)
+        // Determine the collection based on the role
+        String collectionName = role.equalsIgnoreCase("Admin") || role.equalsIgnoreCase("SuperAdmin") ? "admin" : "user";
+
+        db.collection(collectionName).document(uid)
                 .set(newUser)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -359,6 +361,7 @@ public class UserFragment extends Fragment {
                     }
                 });
     }
+
 
 
 
@@ -450,6 +453,18 @@ public class UserFragment extends Fragment {
             }
         });
     }
+
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Reset the "Not Found" message and display the full user list
+        notFoundTextView.setVisibility(View.GONE);
+        adapterUsers = new AdapterUser(getContext(), usersList);
+        recyclerView.setAdapter(adapterUsers);
+    }
+
 
     private void filterUsers(String query) {
         List<ModelUser> filteredList = new ArrayList<>();

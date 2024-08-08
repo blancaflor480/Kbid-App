@@ -52,14 +52,7 @@ public class SideNavigationAdmin extends AppCompatActivity implements Navigation
         Toolbar toolbar = binding.appBarSideNavigationAdmin.toolbar;
         setSupportActionBar(toolbar);
 
-       // binding.appBarSideNavigationAdmin.fab.setOnClickListener(new View.OnClickListener() {
-         ///   @Override
-          ///  public void onClick(View view) {
-        ///        Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-         ///               .setAction("Action", null)
-         ///               .setAnchorView(R.id.fab).show();
-           /// }
-  ///      });
+
 
         drawerLayout = binding.drawerLayout;
         NavigationView navigationView = binding.navView;
@@ -150,11 +143,11 @@ public class SideNavigationAdmin extends AppCompatActivity implements Navigation
     }
 
 
-   // @Override
-  //  public boolean onCreateOptionsMenu(Menu menu) {
-   //     getMenuInflater().inflate(R.menu.side_navigation_admin, menu);
-   //     return true;
-  //  }
+    // @Override
+    //  public boolean onCreateOptionsMenu(Menu menu) {
+    //     getMenuInflater().inflate(R.menu.side_navigation_admin, menu);
+    //     return true;
+    //  }
 
 
     @Override

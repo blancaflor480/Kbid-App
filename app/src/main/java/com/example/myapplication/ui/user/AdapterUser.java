@@ -2,9 +2,14 @@ package com.example.myapplication.ui.user;
 
 import android.content.Context;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -55,6 +60,13 @@ public class AdapterUser extends RecyclerView.Adapter<AdapterUser.MyHolder> {
         } catch (Exception e) {
             // Handle the exception
         }
+
+        holder.optionsMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showPopupMenu(holder.optionsMenu, position);
+            }
+        });
     }
 
     @Override
@@ -62,10 +74,39 @@ public class AdapterUser extends RecyclerView.Adapter<AdapterUser.MyHolder> {
         return list.size();
     }
 
+    private void showPopupMenu(View view, int position) {
+        PopupMenu popup = new PopupMenu(context, view);
+        MenuInflater inflater = popup.getMenuInflater();
+        inflater.inflate(R.menu.option_edit_delete, popup.getMenu());
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                int itemId = item.getItemId();
+                if (itemId == R.id.Viewprof) {
+                    // Handle view profile action
+                    Toast.makeText(context, "View profile of " + list.get(position).getName(), Toast.LENGTH_SHORT).show();
+                    return true;
+                } else if (itemId == R.id.Editprof) {
+                    // Handle edit profile action
+                    Toast.makeText(context, "Edit profile of " + list.get(position).getName(), Toast.LENGTH_SHORT).show();
+                    return true;
+                } else if (itemId == R.id.Deleteprof) {
+                    // Handle delete profile action
+                    Toast.makeText(context, "Delete profile of " + list.get(position).getName(), Toast.LENGTH_SHORT).show();
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        });
+        popup.show();
+    }
+
     class MyHolder extends RecyclerView.ViewHolder {
 
         CircleImageView profiletv;
         TextView name, email, role;
+        ImageView optionsMenu;
 
         public MyHolder(@NonNull View itemView) {
             super(itemView);
@@ -73,6 +114,7 @@ public class AdapterUser extends RecyclerView.Adapter<AdapterUser.MyHolder> {
             name = itemView.findViewById(R.id.namep);
             email = itemView.findViewById(R.id.emailp);
             role = itemView.findViewById(R.id.rolep);
+            optionsMenu = itemView.findViewById(R.id.optionsMenu);
         }
     }
 }
