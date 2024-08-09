@@ -43,6 +43,14 @@ public class ModelUser {
         this.firstname = firstname;
     }
 
+    public String getMiddlename() {
+        return middlename;
+    }
+
+    public void setMiddlename(String middlename) {
+        this.middlename = middlename;
+    }
+
     public String getLastname() {
         return lastname;
     }

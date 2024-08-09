@@ -7,10 +7,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.view.LayoutInflater;
 
-import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
@@ -20,6 +20,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -53,7 +54,6 @@ import com.google.firebase.storage.UploadTask;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
@@ -149,7 +149,6 @@ public class UserFragment extends Fragment {
 
         return view;
     }
-
 
 
     private void showAddUserDialog() {
@@ -408,12 +407,14 @@ public class UserFragment extends Fragment {
                         usersList.clear();
                         usersList.addAll(combinedList);
                         adapterUsers = new AdapterUser(getActivity(), usersList);
-                        recyclerView.setAdapter(adapterUsers);
+                        recyclerView.setAdapter(adapterUsers
+                        );
                     }
                 });
             }
         });
     }
+
 
 
     private void getUsers() {

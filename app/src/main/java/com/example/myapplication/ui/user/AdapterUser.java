@@ -1,6 +1,7 @@
 package com.example.myapplication.ui.user;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -16,7 +17,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.myapplication.R;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
 
@@ -82,17 +86,25 @@ public class AdapterUser extends RecyclerView.Adapter<AdapterUser.MyHolder> {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 int itemId = item.getItemId();
+                ModelUser user = list.get(position);
+
                 if (itemId == R.id.Viewprof) {
                     // Handle view profile action
-                    Toast.makeText(context, "View profile of " + list.get(position).getName(), Toast.LENGTH_SHORT).show();
+                    Intent viewIntent = new Intent(context, ViewUserProfileActivity.class);
+                    viewIntent.putExtra("USER_ID", user.getUid());
+                    viewIntent.putExtra("USER_ROLE", user.getRole());
+                    context.startActivity(viewIntent);
                     return true;
                 } else if (itemId == R.id.Editprof) {
                     // Handle edit profile action
-                    Toast.makeText(context, "Edit profile of " + list.get(position).getName(), Toast.LENGTH_SHORT).show();
+                    Intent editIntent = new Intent(context, UserFragment.class);
+                    editIntent.putExtra("USER_ID", user.getUid());
+                    editIntent.putExtra("USER_ROLE", user.getRole());
+                    context.startActivity(editIntent);
                     return true;
                 } else if (itemId == R.id.Deleteprof) {
                     // Handle delete profile action
-                    Toast.makeText(context, "Delete profile of " + list.get(position).getName(), Toast.LENGTH_SHORT).show();
+                    deleteUser(user.getUid(), position);
                     return true;
                 } else {
                     return false;
@@ -100,6 +112,28 @@ public class AdapterUser extends RecyclerView.Adapter<AdapterUser.MyHolder> {
             }
         });
         popup.show();
+    }
+
+    private void deleteUser(String userId, int position) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String collectionName = list.get(position).getRole().equalsIgnoreCase("Admin") ? "admin" : "user";
+
+        db.collection(collectionName).document(userId)
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(context, "User deleted successfully", Toast.LENGTH_SHORT).show();
+                        list.remove(position);
+                        notifyItemRemoved(position);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(context, "Error deleting user: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     class MyHolder extends RecyclerView.ViewHolder {
