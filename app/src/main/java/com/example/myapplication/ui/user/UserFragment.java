@@ -32,6 +32,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.myapplication.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -130,6 +131,8 @@ public class UserFragment extends Fragment {
                 showAddUserDialog();
             }
         });
+
+
 
         searchBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
