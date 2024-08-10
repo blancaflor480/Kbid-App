@@ -101,10 +101,7 @@ public class AdapterUser extends RecyclerView.Adapter<AdapterUser.MyHolder> {
 
                 if (itemId == R.id.Viewprof) {
                     // Handle view profile action
-                    Intent viewIntent = new Intent(context, ViewUserProfileActivity.class);
-                    viewIntent.putExtra("USER_ID", user.getUid());
-                    viewIntent.putExtra("USER_ROLE", user.getRole());
-                    context.startActivity(viewIntent);
+                    showUserProfileDialog(user);
                     return true;
                 } else if (itemId == R.id.Editprof) {
                     // Handle edit profile action
@@ -122,6 +119,46 @@ public class AdapterUser extends RecyclerView.Adapter<AdapterUser.MyHolder> {
         });
         popup.show();
     }
+
+    private void showUserProfileDialog(ModelUser user) {
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(context);
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View dialogView = inflater.inflate(R.layout.dialog_view_user, null);
+        builder.setView(dialogView);
+
+        // Initialize views
+        CircleImageView profileImageView = dialogView.findViewById(R.id.profileImageView);
+        TextView firstNameTextView = dialogView.findViewById(R.id.firstNameTextView);
+        TextView middleNameTextView = dialogView.findViewById(R.id.middleNameTextView);
+        TextView lastNameTextView = dialogView.findViewById(R.id.lastNameTextView);
+        TextView birthdayTextView = dialogView.findViewById(R.id.birthdayTextView);
+        TextView genderTextView = dialogView.findViewById(R.id.genderTextView);
+        TextView roleTextView = dialogView.findViewById(R.id.roleTextView);
+        TextView emailTextView = dialogView.findViewById(R.id.emailTextView);
+
+        // Populate user data
+        firstNameTextView.setText("First Name: " + user.getFirstname());
+        middleNameTextView.setText("Middle Name: " + user.getMiddlename());
+        lastNameTextView.setText("Last Name: " + user.getLastname());
+        birthdayTextView.setText("Birthday: " + user.getBirthday());
+        genderTextView.setText("Gender: " + user.getGender());
+        roleTextView.setText("Role: " + user.getRole());
+        emailTextView.setText("Email: " + user.getEmail());
+
+        // Load profile image
+        if (user.getImageUrl() != null && !user.getImageUrl().isEmpty()) {
+            Glide.with(context).load(user.getImageUrl()).into(profileImageView);
+        } else {
+            profileImageView.setImageResource(R.drawable.user); // Replace with your default image
+        }
+
+        // Show the dialog
+        builder.setPositiveButton("Close", (dialog, which) -> dialog.dismiss());
+        android.app.AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+
     private void showEditUserDialog(ModelUser user) {
         AlertDialog.Builder builder = new AlertDialog.Builder((Activity) context);
         LayoutInflater inflater = LayoutInflater.from(context);
@@ -270,16 +307,32 @@ public class AdapterUser extends RecyclerView.Adapter<AdapterUser.MyHolder> {
 
     private void deleteUser(String userId, int position) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+
         String collectionName = list.get(position).getRole().equalsIgnoreCase("Admin") ? "admin" : "user";
 
+        // First, delete the user from Firestore
         db.collection(collectionName).document(userId)
                 .delete()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Toast.makeText(context, "User deleted successfully", Toast.LENGTH_SHORT).show();
-                        list.remove(position);
-                        notifyItemRemoved(position);
+                        // Now, delete the user from Firebase Authentication
+                        auth.getCurrentUser().delete()
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Toast.makeText(context, "User deleted successfully", Toast.LENGTH_SHORT).show();
+                                        list.remove(position);
+                                        notifyItemRemoved(position);
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(context, "Error deleting user from Authentication: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    }
+                                });
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -289,6 +342,7 @@ public class AdapterUser extends RecyclerView.Adapter<AdapterUser.MyHolder> {
                     }
                 });
     }
+
 
     class MyHolder extends RecyclerView.ViewHolder {
 

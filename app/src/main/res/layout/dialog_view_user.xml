@@ -19,12 +19,12 @@
             android:layout_marginBottom="10dp"
             android:gravity="center" />
 
-        <ImageView
+        <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/profileImageView"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_gravity="center"
-            android:src="@drawable/ic_launcher_background" />
+            android:src="@drawable/user" />
 
         <TextView
             android:id="@+id/tvUserInfo"
