@@ -33,7 +33,13 @@ public class ModelUser {
         this.role = role;
     }
 
+    public ModelUser(String uid, String firstname, String middlename, String lastname, String birthday, String gender, String role, String email, String imageUrl) {
+    }
+
     // Getters and setters...
+
+
+
 
     public String getFirstname() {
         return firstname;

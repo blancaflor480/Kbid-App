@@ -92,10 +92,10 @@
                 android:text="Edit Profile" />
         </RelativeLayout>
 
-        <ImageView
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/profile"
             android:layout_width="120dp"
             android:layout_height="120dp"
-
             android:layout_gravity="end"
             android:layout_marginEnd="16dp"
             android:src="@drawable/user" />
@@ -125,61 +125,86 @@
                 android:layout_height="wrap_content"
                 android:layout_rowWeight="1"
                 android:layout_columnWeight="2"
-                android:layout_margin="8dp"
-                android:padding="3dp"
+                android:layout_margin="5dp"
+                android:padding="15dp"
                 android:background="@drawable/shape_grid">
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="120dp"
                     android:gravity="center"
-                    android:orientation="vertical">
+                    android:orientation="horizontal">
 
                     <ImageView
                         android:layout_width="70dp"
                         android:layout_height="70dp"
-                        android:src="@drawable/people" />
-
+                        android:src="@drawable/people"
+                        android:layout_marginBottom="10dp"/>
                     <TextView
+                        android:id="@+id/usercount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="20dp"
-                        android:text="User Management"
+                        android:text="0"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginBottom="10dp"
                         android:textColor="@android:color/black"
-                        android:textSize="13sp"
+                        android:textSize="25sp"
                         android:fontFamily="@font/dinpro_regular" />
+
+
+
                 </LinearLayout>
-            </FrameLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="50dp"
+                    android:text="User Manage"
+                    android:textColor="@android:color/black"
+                    android:textSize="13sp"
+                    android:layout_gravity="center"
+                    android:fontFamily="@font/dinpro_regular" />
+                          </FrameLayout>
 
             <FrameLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_rowWeight="1"
                 android:layout_columnWeight="2"
-                android:layout_margin="8dp"
-                android:padding="3dp"
+                android:layout_margin="5dp"
+                android:padding="15dp"
                 android:background="@drawable/shape_grid">
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="120dp"
                     android:gravity="center"
-                    android:orientation="vertical">
+                    android:orientation="horizontal">
 
                     <ImageView
                         android:layout_width="70dp"
                         android:layout_height="70dp"
-                        android:src="@drawable/camera_roll" />
+                        android:src="@drawable/camera_roll"
+                        android:layout_marginBottom="10dp"/>
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="20dp"
-                        android:text="Content Management"
+                        android:text="0"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginBottom="10dp"
                         android:textColor="@android:color/black"
-                        android:textSize="13sp"
+                        android:textSize="25sp"
                         android:fontFamily="@font/dinpro_regular" />
                 </LinearLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="50dp"
+                    android:text="Content Manage"
+                    android:textColor="@android:color/black"
+                    android:textSize="13sp"
+                    android:layout_gravity="center"
+                    android:fontFamily="@font/dinpro_regular" />
             </FrameLayout>
 
             <FrameLayout
@@ -187,31 +212,42 @@
                 android:layout_height="wrap_content"
                 android:layout_rowWeight="1"
                 android:layout_columnWeight="1"
-                android:layout_margin="8dp"
-                android:padding="3dp"
+                android:layout_margin="5dp"
+                android:padding="15dp"
 
                 android:background="@drawable/shape_grid">
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="120dp"
                     android:gravity="center"
-                    android:orientation="vertical">
+                    android:orientation="horizontal">
 
                     <ImageView
                         android:layout_width="70dp"
                         android:layout_height="70dp"
-                        android:src="@drawable/analytics" />
+                        android:src="@drawable/analytics"
+                        android:layout_marginBottom="10dp"/>
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="20dp"
-                        android:text="Analytics"
+                        android:text="0"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginBottom="10dp"
                         android:textColor="@android:color/black"
-                        android:textSize="13sp"
+                        android:textSize="25sp"
                         android:fontFamily="@font/dinpro_regular" />
                 </LinearLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="50dp"
+                    android:text="Record"
+                    android:textColor="@android:color/black"
+                    android:textSize="13sp"
+                    android:layout_gravity="center"
+                    android:fontFamily="@font/dinpro_regular" />
             </FrameLayout>
 
             <FrameLayout
@@ -219,97 +255,46 @@
                 android:layout_height="wrap_content"
                 android:layout_rowWeight="1"
                 android:layout_columnWeight="1"
-                android:layout_margin="8dp"
-                android:padding="3dp"
+                android:layout_margin="5dp"
+                android:padding="15dp"
 
                 android:background="@drawable/shape_grid">
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="120dp"
                     android:gravity="center"
-                    android:orientation="vertical">
+                    android:orientation="horizontal">
 
                     <ImageView
                         android:layout_width="70dp"
                         android:layout_height="70dp"
-                        android:src="@drawable/feedback" />
+                        android:src="@drawable/feedback"
+                        android:layout_marginBottom="10dp"/>
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="20dp"
-                        android:text="Feedback Support"
+                        android:text="0"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginBottom="10dp"
                         android:textColor="@android:color/black"
-                        android:textSize="13sp"
+                        android:textSize="25sp"
                         android:fontFamily="@font/dinpro_regular" />
                 </LinearLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="50dp"
+                    android:text="Feedback"
+                    android:textColor="@android:color/black"
+                    android:textSize="13sp"
+                    android:layout_gravity="center"
+                    android:fontFamily="@font/dinpro_regular" />
             </FrameLayout>
 
-            <FrameLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_rowWeight="1"
-                android:layout_columnWeight="1"
-                android:layout_margin="8dp"
 
-                android:padding="3dp"
 
-                android:background="@drawable/shape_grid">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <ImageView
-                        android:layout_width="70dp"
-                        android:layout_height="70dp"
-                        android:src="@drawable/settings" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="20dp"
-                        android:text="Settings"
-                        android:textColor="@android:color/black"
-                        android:textSize="13sp"
-                        android:fontFamily="@font/dinpro_regular" />
-                </LinearLayout>
-            </FrameLayout>
-
-            <FrameLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_rowWeight="1"
-                android:layout_columnWeight="1"
-                android:layout_margin="8dp"
-                android:padding="3dp"
-
-                android:background="@drawable/shape_grid">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <ImageView
-                        android:layout_width="70dp"
-                        android:layout_height="70dp"
-                        android:src="@drawable/bug_report" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="20dp"
-                        android:text="Bug Report"
-                        android:textColor="@android:color/black"
-                        android:textSize="13sp"
-                        android:fontFamily="@font/dinpro_regular" />
-                </LinearLayout>
-            </FrameLayout>
         </GridLayout>
     </LinearLayout>
 </RelativeLayout>

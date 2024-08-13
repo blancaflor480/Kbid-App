@@ -1,10 +1,13 @@
 package com.example.myapplication.ui.user;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -21,7 +24,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -30,6 +35,9 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -37,6 +45,7 @@ import java.util.List;
 import java.util.Locale;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+
 public class AdapterUser extends RecyclerView.Adapter<AdapterUser.MyHolder> {
 
     Context context;
@@ -44,12 +53,20 @@ public class AdapterUser extends RecyclerView.Adapter<AdapterUser.MyHolder> {
     FirebaseAuth firebaseAuth;
     String uid;
 
+    private static final int PICK_IMAGE_REQUEST = 1;
+    private Uri imageUri;
+    private ImageView ivProfileImage;
+    private int RESULT_OK;
+
     public AdapterUser(Context context, List<ModelUser> list) {
         this.context = context;
         this.list = list;
         firebaseAuth = FirebaseAuth.getInstance();
         uid = firebaseAuth.getUid();
     }
+
+
+
 
     @NonNull
     @Override
@@ -70,11 +87,19 @@ public class AdapterUser extends RecyclerView.Adapter<AdapterUser.MyHolder> {
         holder.email.setText(usermail);
         holder.role.setText(role);
 
-        try {
-            Glide.with(context).load(userImage).into(holder.profiletv);
-        } catch (Exception e) {
-            // Handle the exception
+        // Check if the user image URL is null or empty
+        if (userImage != null && !userImage.isEmpty()) {
+            try {
+                Glide.with(context).load(userImage).into(holder.profiletv);
+            } catch (Exception e) {
+                // Handle the exception (optional: log the error)
+                holder.profiletv.setImageResource(R.drawable.user); // Set default image in case of error
+            }
+        } else {
+            // Set default image if no image URL is provided
+            holder.profiletv.setImageResource(R.drawable.user);
         }
+
 
         holder.optionsMenu.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -107,7 +132,6 @@ public class AdapterUser extends RecyclerView.Adapter<AdapterUser.MyHolder> {
                     // Handle edit profile action
                     showEditUserDialog(user);
                     return true;
-
                 } else if (itemId == R.id.Deleteprof) {
                     // Handle delete profile action
                     deleteUser(user.getUid(), position);
@@ -121,7 +145,7 @@ public class AdapterUser extends RecyclerView.Adapter<AdapterUser.MyHolder> {
     }
 
     private void showUserProfileDialog(ModelUser user) {
-        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(context);
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
         LayoutInflater inflater = LayoutInflater.from(context);
         View dialogView = inflater.inflate(R.layout.dialog_view_user, null);
         builder.setView(dialogView);
@@ -154,16 +178,25 @@ public class AdapterUser extends RecyclerView.Adapter<AdapterUser.MyHolder> {
 
         // Show the dialog
         builder.setPositiveButton("Close", (dialog, which) -> dialog.dismiss());
-        android.app.AlertDialog dialog = builder.create();
+        AlertDialog dialog = builder.create();
         dialog.show();
     }
-
 
     private void showEditUserDialog(ModelUser user) {
         AlertDialog.Builder builder = new AlertDialog.Builder((Activity) context);
         LayoutInflater inflater = LayoutInflater.from(context);
         View dialogView = inflater.inflate(R.layout.dialog_add_user, null);
         builder.setView(dialogView);
+
+        // Fragment management: Attach ImageFragment to the activity
+        FragmentManager fragmentManager = ((AppCompatActivity) context).getSupportFragmentManager();
+        ImageFragment imageFragment = (ImageFragment) fragmentManager.findFragmentByTag("IMAGE_FRAGMENT");
+
+        if (imageFragment == null) {
+            imageFragment = new ImageFragment();
+            fragmentManager.beginTransaction().add(imageFragment, "IMAGE_FRAGMENT").commit();
+            fragmentManager.executePendingTransactions(); // Ensure the transaction is complete
+        }
 
         EditText etFirstName = dialogView.findViewById(R.id.etFirstName);
         EditText etMiddleName = dialogView.findViewById(R.id.etMiddleName);
@@ -172,7 +205,7 @@ public class AdapterUser extends RecyclerView.Adapter<AdapterUser.MyHolder> {
         Spinner spinnerGender = dialogView.findViewById(R.id.spinnerGender);
         Spinner spinnerRole = dialogView.findViewById(R.id.spinnerRole);
         EditText etEmail = dialogView.findViewById(R.id.etEmail);
-        ImageView ivProfileImage = dialogView.findViewById(R.id.ivProfileImage);
+        ivProfileImage = dialogView.findViewById(R.id.ivProfileImage);
         Button btnUploadImage = dialogView.findViewById(R.id.btnUploadImage);
 
         // Populate fields with current user data
@@ -201,6 +234,13 @@ public class AdapterUser extends RecyclerView.Adapter<AdapterUser.MyHolder> {
             int spinnerPosition = roleAdapter.getPosition(user.getRole());
             spinnerRole.setSelection(spinnerPosition);
         }
+        // Set the listener for image selection
+        imageFragment.setOnImageSelectedListener(new ImageFragment.OnImageSelectedListener() {
+            @Override
+            public void onImageSelected(Uri imageUri) {
+                updateImageUri(imageUri);
+            }
+        });
 
         // Set profile image if available
         if (user.getImageUrl() != null) {
@@ -215,13 +255,19 @@ public class AdapterUser extends RecyclerView.Adapter<AdapterUser.MyHolder> {
             }
         });
 
+
+        ImageFragment finalImageFragment = imageFragment;
         btnUploadImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Implement image upload functionality here
+                // Open the file chooser in the fragment
+                if (finalImageFragment.isAdded() && !finalImageFragment.isDetached()) {
+                    finalImageFragment.openFileChooser();
+                } else {
+                    Toast.makeText(context, "Image picker not available. Please try again.", Toast.LENGTH_SHORT).show();
+                }
             }
         });
-
         builder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -234,13 +280,25 @@ public class AdapterUser extends RecyclerView.Adapter<AdapterUser.MyHolder> {
                 String role = spinnerRole.getSelectedItem().toString();
                 String email = etEmail.getText().toString().trim();
 
-                if (firstName.isEmpty() || lastName.isEmpty() || birthday.isEmpty() || gender.isEmpty() || email.isEmpty()) {
-                    Toast.makeText(context, "Please fill in all required fields", Toast.LENGTH_LONG).show();
+                // Validate input
+                if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty()) {
+                    Toast.makeText(context, "Please fill out all required fields.", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                // Update user in Firestore
-                updateUserInFirestore(user.getUid(), firstName, middleName, lastName, birthday, gender, role, email);
+                String collection = user.getRole().equals("Admin") ? "admin" : "user";
+                updateUser(collection,
+                        user.getUid(),
+                        firstName,
+                        middleName,
+                        lastName,
+                        birthday,
+                        gender,
+                        role,
+                        email,
+                        imageUri);
+
+                dialog.dismiss();
             }
         });
 
@@ -251,97 +309,146 @@ public class AdapterUser extends RecyclerView.Adapter<AdapterUser.MyHolder> {
             }
         });
 
-        AlertDialog dialog = builder.create();
-        dialog.show();
+        builder.create().show();
     }
 
-    private void showDatePicker(final EditText etBirthday) {
-        final Calendar calendar = Calendar.getInstance();
-        DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                calendar.set(Calendar.YEAR, year);
-                calendar.set(Calendar.MONTH, month);
-                calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                updateLabel(etBirthday, calendar);
-            }
-        };
 
-        new DatePickerDialog(context, date, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)).show();
+    private void showDatePicker(final EditText editText) {
+        Calendar calendar = Calendar.getInstance();
+        DatePickerDialog datePickerDialog = new DatePickerDialog(context,
+                new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                        Calendar selectedDate = Calendar.getInstance();
+                        selectedDate.set(year, month, dayOfMonth);
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+                        editText.setText(dateFormat.format(selectedDate.getTime()));
+                    }
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH));
+        datePickerDialog.show();
     }
 
-    private void updateLabel(EditText etBirthday, Calendar calendar) {
-        String myFormat = "MM/dd/yyyy"; // Change the format as needed
-        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
-        etBirthday.setText(sdf.format(calendar.getTime()));
+    private void openFileChooser() {
+        Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        if (context instanceof Activity) {
+            ((Activity) context).startActivityForResult(intent, PICK_IMAGE_REQUEST);
+        } else {
+            Toast.makeText(context, "Context is not an Activity", Toast.LENGTH_SHORT).show();
+        }
     }
 
-    private void updateUserInFirestore(String uid, String firstName, String middleName, String lastName, String birthday, String gender, String role, String email) {
+
+    public void updateImageUri(Uri imageUrl) {
+        this.imageUri = imageUrl;
+        if (ivProfileImage != null) {
+            ivProfileImage.setImageURI(imageUri); // Update ImageView with the new image URI
+        }
+    }
+
+    private void updateUser(String collection, String uid, String firstName, String middleName, String lastName,
+                            String birthday, String gender, String role, String email, Uri imageUri) {
+
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference();
 
-        // Determine the collection based on the role
-        String collectionName = role.equalsIgnoreCase("Admin") || role.equalsIgnoreCase("SuperAdmin") ? "admin" : "user";
-
-        db.collection(collectionName).document(uid)
-                .update("firstname", firstName,
+        // Update Firestore fields
+        db.collection(collection).document(uid)
+                .update(
+                        "firstname", firstName,
                         "middlename", middleName,
                         "lastname", lastName,
                         "birthday", birthday,
                         "gender", gender,
                         "role", role,
-                        "email", email)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Toast.makeText(context, "User profile updated successfully", Toast.LENGTH_SHORT).show();
+                        "email", email,
+                        "imageUrl", imageUri
+                )
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(context, "User updated successfully", Toast.LENGTH_SHORT).show();
+
+                    // Handle profile image update if a new image is selected
+                    if (imageUri != null) {
+                        // Generate a unique filename using the UID to avoid caching issues
+                        String imageFileName = "Profile_image/" + uid + ".jpg";
+                        StorageReference imageRef = storageRef.child(imageFileName);
+
+                        imageRef.putFile(imageUri)
+                                .addOnSuccessListener(taskSnapshot -> imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                                    String downloadUrl = uri.toString();
+                                    Log.d("ImageUploadSuccess", "New Image URL: " + downloadUrl);
+
+                                    // Update Firestore with the new image URL
+                                    db.collection(collection).document(uid)
+                                            .update("imageUrl", downloadUrl)
+                                            .addOnSuccessListener(aVoid1 -> {
+                                                Log.d("FirestoreUpdate", "Firestore image URL updated successfully.");
+                                                // Update the user list and notify the adapter
+                                                for (ModelUser user : list) {
+                                                    if (user.getUid().equals(uid)) {
+                                                        user.setImageUrl(downloadUrl);
+                                                        notifyDataSetChanged();
+                                                        break;
+                                                    }
+                                                }
+                                                Toast.makeText(context, "User updated successfully", Toast.LENGTH_SHORT).show();
+                                            })
+                                            .addOnFailureListener(e -> {
+                                                Log.e("FirestoreError", "Failed to update Firestore image URL: " + e.getMessage());
+                                                Toast.makeText(context, "Failed to update profile image URL in Firestore.", Toast.LENGTH_SHORT).show();
+                                            });
+                                }))
+                                .addOnFailureListener(e -> {
+                                    Log.e("ImageUploadError", "Error uploading image: " + e.getMessage());
+                                    Toast.makeText(context, "Failed to upload profile image.", Toast.LENGTH_SHORT).show();
+                                });
+                    } else {
+                        Log.d("ImageUpload", "No new image selected, skipping image upload.");
                     }
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(context, "Failed to update user profile", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                .addOnFailureListener(e -> Toast.makeText(context, "Failed to update user", Toast.LENGTH_SHORT).show());
     }
+
+
+
 
     private void deleteUser(String userId, int position) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         FirebaseAuth auth = FirebaseAuth.getInstance();
 
-        String collectionName = list.get(position).getRole().equalsIgnoreCase("Admin") ? "admin" : "user";
 
-        // First, delete the user from Firestore
+        ModelUser user = list.get(position);
+        String collectionName = user.getRole().equalsIgnoreCase("Admin") || user.getRole().equalsIgnoreCase("SuperAdmin") ? "admin" : "user";
+
+
+
+        // Delete the user from Firestore
         db.collection(collectionName).document(userId)
                 .delete()
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        // Now, delete the user from Firebase Authentication
-                        auth.getCurrentUser().delete()
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Toast.makeText(context, "User deleted successfully", Toast.LENGTH_SHORT).show();
-                                        list.remove(position);
-                                        notifyItemRemoved(position);
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Toast.makeText(context, "Error deleting user from Authentication: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                    }
+                .addOnSuccessListener(aVoid -> {
+                    // Delete the user from Firebase Authentication
+                    auth.getCurrentUser().delete()
+                            .addOnSuccessListener(authVoid -> {
+                                Toast.makeText(context, "User deleted successfully from Firestore and Authentication", Toast.LENGTH_SHORT).show();
+
+                                // Safely remove the item from the list
+                                if (position >= 0 && position < list.size()) {
+                                    list.remove(position);
+                                    notifyItemRemoved(position);
+                                    notifyItemRangeChanged(position, list.size());
+                                }
+                            })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(context, "Error deleting user from Authentication: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            });
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(context, "Error deleting user: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
+                .addOnFailureListener(e -> {
+                    Toast.makeText(context, "Error deleting user from Firestore: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
+
 
 
     class MyHolder extends RecyclerView.ViewHolder {

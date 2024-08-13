@@ -20,9 +20,11 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.myapplication.databinding.SideNavigationAdminBinding;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
@@ -33,6 +35,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import androidx.appcompat.app.AlertDialog;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class SideNavigationAdmin extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -92,15 +96,99 @@ public class SideNavigationAdmin extends AppCompatActivity implements Navigation
                             String email = document.getString("email");
                             String firstName = document.getString("firstname");
                             String lastName = document.getString("lastname");
+                            String imageUrl = document.getString("imageUrl");
 
                             String fullName = (firstName != null ? firstName : "") + " " + (lastName != null ? lastName : "");
 
                             View headerView = navigationView.getHeaderView(0);
                             TextView userNameTextView = headerView.findViewById(R.id.userName);
                             TextView userEmailTextView = headerView.findViewById(R.id.userEmail);
+                            CircleImageView userImageView = headerView.findViewById(R.id.imageView);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
                             userNameTextView.setText(fullName.trim());
                             userEmailTextView.setText(email != null ? email : "No Email");
+
+                            // Load the profile image using Glide or show a default image
+                            if (imageUrl != null && !imageUrl.isEmpty()) {
+                                Glide.with(SideNavigationAdmin.this)
+                                        .load(imageUrl)
+                                        .placeholder(R.mipmap.ic_launcher_round) // Placeholder image
+                                        .error(R.mipmap.ic_launcher_round) // Default image in case of error
+                                        .into(userImageView);
+                            } else {
+                                // Show default image if no imageUrl is available
+                                userImageView.setImageResource(R.mipmap.ic_launcher_round);
+                            }
                         } else {
                             Toast.makeText(SideNavigationAdmin.this, "User data not found", Toast.LENGTH_SHORT).show();
                         }
@@ -114,6 +202,8 @@ public class SideNavigationAdmin extends AppCompatActivity implements Navigation
             redirectToLogin();
         }
     }
+
+
 
     private void redirectToLogin() {
         Intent intent = new Intent(SideNavigationAdmin.this, LoginUser.class);

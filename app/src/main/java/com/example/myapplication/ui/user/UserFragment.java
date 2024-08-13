@@ -281,8 +281,8 @@ public class UserFragment extends Fragment {
                                 String uid = firebaseUser.getUid();
 
                                 if (imageUri != null) {
-                                    StorageReference fileReference = storageRef.child(System.currentTimeMillis()
-                                            + "." + getFileExtension(imageUri));
+                                    StorageReference fileReference = storageRef.child("Profile_Image/" + uid + "." + getFileExtension(imageUri));
+
 
                                     fileReference.putFile(imageUri)
                                             .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
