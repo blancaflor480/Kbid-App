@@ -44,7 +44,7 @@ public class SkipageActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // Create an Intent to start ChildNameActivity
 
-                Intent intent = new Intent(SkipageActivity.this,HomeActivity.class);
+                Intent intent = new Intent(SkipageActivity.this,AvatarActivity.class);
                 startActivity(intent);
             }
         });

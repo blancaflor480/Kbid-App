@@ -29,6 +29,9 @@
         <activity android:name=".SignupUser" />
         <activity android:name=".LoginUser" />
         <activity android:name=".SkipageActivity" />
+        <activity android:name=".fragment.biblestories.BibleFragment" />
+
+        <activity android:name=".AvatarActivity" />
         <activity android:name=".ChildNameActivity" />
         <activity android:name=".ChildAgeActivity" />
         <activity

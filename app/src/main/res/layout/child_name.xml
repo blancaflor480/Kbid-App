@@ -71,7 +71,7 @@
     </LinearLayout>
 
 <Button
-android:id="@+id/buttonContinue"
+    android:id="@+id/buttonContinue"
     style="@style/BottomNavigationViewIconSize"
     android:layout_width="350dp"
     android:layout_height="70dp"

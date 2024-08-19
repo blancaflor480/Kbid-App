@@ -16,11 +16,13 @@
         android:name="com.example.myapplication.ui.user.UserFragment"
         android:label="@string/menu_user"
         tools:layout="@layout/fragment_user_admin" />
+
+
     <fragment
-        android:id="@+id/nav_admin"
-        android:name="com.example.myapplication.ui.user.AdminFragment"
-        android:label="@string/menu_user"
-        tools:layout="@layout/fragment_administrator_admin" />
+        android:id="@+id/nav_bible"
+        android:name="com.example.myapplication.fragment.biblestories.BibleFragment"
+        tools:layout="@layout/fragment_bible"
+        />
 
     <fragment
         android:id="@+id/nav_content"

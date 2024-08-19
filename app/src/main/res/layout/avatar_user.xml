@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SkipageActivity">
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/Skipage"
+        android:layout_width="match_parent"
+        android:background="@color/dirtywhite"
+        android:layout_height="match_parent" >
+    </androidx.viewpager2.widget.ViewPager2>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/Skipage"
+        android:layout_centerInParent="true"
+        android:background="@color/dirtywhite"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/textdes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_gravity="center"
+            android:fontFamily="@font/dinroundedpro_bold"
+            android:text="Choose an Avatar for your kids"
+            android:textColor="@color/purple"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <!-- Grid layout to arrange the avatars -->
+        <GridLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:columnCount="3"
+            android:rowCount="3"
+            android:orientation="horizontal"
+            android:layout_gravity="center">
+
+            <!-- Avatar 1 -->
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/bunny"
+                android:layout_width="90dp"
+                android:layout_height="90dp"
+                android:layout_margin="10dp"
+                android:layout_marginBottom="30dp"
+
+                android:src="@drawable/bunny" />
+
+            <!-- Avatar 2 -->
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/boar"
+                android:layout_width="90dp"
+                android:layout_height="90dp"
+                android:layout_margin="10dp"
+                android:src="@drawable/boar" />
+
+            <!-- Avatar 3 -->
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/crocs"
+                android:layout_width="90dp"
+                android:layout_height="90dp"
+                android:layout_margin="10dp"
+
+                android:src="@drawable/crocs" />
+
+            <!-- Add more avatars in a similar way -->
+            <!-- Avatar 4 -->
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/horse"
+                android:layout_width="90dp"
+                android:layout_height="90dp"
+                android:layout_margin="10dp"
+                android:layout_marginBottom="30dp"
+                android:src="@drawable/horse" />
+
+            <!-- Avatar 5 -->
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/noah"
+                android:layout_width="90dp"
+                android:layout_height="90dp"
+                android:layout_margin="10dp"
+                android:src="@drawable/noah" />
+
+            <!-- Avatar 6 -->
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/lion"
+                android:layout_width="90dp"
+                android:layout_height="90dp"
+                android:layout_margin="10dp"
+                android:src="@drawable/lion" />
+
+            <!-- Add remaining avatars -->
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/moose"
+                android:layout_width="90dp"
+                android:layout_height="90dp"
+                android:layout_margin="10dp"
+                android:layout_marginBottom="30dp"
+                android:src="@drawable/moose" />
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/koala"
+                android:layout_width="90dp"
+                android:layout_height="90dp"
+                android:layout_margin="10dp"
+                android:src="@drawable/koala" />
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/penguin"
+                android:layout_width="90dp"
+                android:layout_height="90dp"
+                android:layout_margin="10dp"
+
+                android:src="@drawable/penguin" />
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:layout_width="90dp"
+                android:layout_height="90dp"
+                android:layout_margin="10dp"
+                />
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/tiger"
+                android:layout_width="90dp"
+                android:layout_height="90dp"
+                android:layout_margin="10dp"
+                android:src="@drawable/tiger" />
+
+
+
+
+        </GridLayout>
+    </LinearLayout>
+</RelativeLayout>

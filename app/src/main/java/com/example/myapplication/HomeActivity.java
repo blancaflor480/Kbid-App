@@ -2,6 +2,7 @@ package com.example.myapplication;
 
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,6 +22,7 @@ public class HomeActivity extends AppCompatActivity {
     ViewPager2 homepage;
     ArrayList<Fragment> fragmentArrayList = new ArrayList<>();
     BottomNavigationView bottom_nav;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +56,7 @@ public class HomeActivity extends AppCompatActivity {
                 super.onPageSelected(position);
             }
         });
+
         bottom_nav.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
