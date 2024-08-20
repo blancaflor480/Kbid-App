@@ -1,5 +1,8 @@
 package com.example.myapplication.fragment.biblestories;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -10,22 +13,35 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication.R;
+import com.example.myapplication.database.AppDatabase;
+import com.example.myapplication.database.BibleDao;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 public class BibleFragment extends AppCompatActivity {
 
     ImageView arrowback;
     RecyclerView recyclerView;
     AdapterBible adapterBible;
+    List<ModelBible> bibleStories;
+    FirebaseFirestore db;
+    AppDatabase appDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.fragment_bible); // Ensure the correct layout is used
+        setContentView(R.layout.fragment_bible);
 
         Log.d("BibleActivity", "RecyclerView and Adapter setup complete.");
+
+        // Initialize Firebase Firestore
+        db = FirebaseFirestore.getInstance();
+        // Initialize Room Database
+        appDatabase = AppDatabase.getDatabase(this);
 
         // Initialize arrowback ImageView
         arrowback = findViewById(R.id.arrowback);
@@ -39,7 +55,7 @@ public class BibleFragment extends AppCompatActivity {
         });
 
         // Initialize RecyclerView with the correct ID
-        recyclerView = findViewById(R.id.recyclep); // Use the correct RecyclerView ID
+        recyclerView = findViewById(R.id.recyclep);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         // Load Bible stories
@@ -47,17 +63,57 @@ public class BibleFragment extends AppCompatActivity {
     }
 
     private void loadBibleStories() {
-        // Create a list of Bible stories
-        List<ModelBible> bibleStories = new ArrayList<>();
-        bibleStories.add(new ModelBible("Creation of the World", "In the beginning, God created the heavens and the earth."));
-        bibleStories.add(new ModelBible("Noah's Ark", "Noah built an ark to save his family and two of every kind of animal."));
-        bibleStories.add(new ModelBible("David and Goliath", "David defeated the giant Goliath with a sling and a stone."));
-        bibleStories.add(new ModelBible("Daniel in the Lion's Den", "Daniel was saved by God when thrown into a den of lions."));
-        bibleStories.add(new ModelBible("Jonah and the Whale", "Jonah was swallowed by a whale for three days and three nights."));
+        bibleStories = new ArrayList<>();
 
-        // Initialize AdapterBible with the list
-        adapterBible = new AdapterBible(bibleStories);
-        recyclerView.setAdapter(adapterBible);
+        // Load data from local storage first
+        loadFromLocalStorage();
+
+        // Check if device is online
+        if (isOnline()) {
+            // Fetch data from Firestore
+            fetchFromFirestore();
+        } else {
+            adapterBible = new AdapterBible(bibleStories);
+            recyclerView.setAdapter(adapterBible);
+        }
+    }
+
+    private boolean isOnline() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
+    }
+
+    private void fetchFromFirestore() {
+        db.collection("biblestories")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        for (DocumentSnapshot document : task.getResult()) {
+                            String verseName = document.getString("verseName");
+                            String firestoreId = document.getId();
+
+                            ModelBible story = new ModelBible(firestoreId, verseName);
+                            bibleStories.add(story);
+                            Executors.newSingleThreadExecutor().execute(() -> appDatabase.bibleDao().insert(story));
+
+                        }
+                        adapterBible.notifyDataSetChanged();
+                    } else {
+                        Log.w("BibleActivity", "Error getting documents.", task.getException());
+                    }
+                });
+    }
+
+    private void loadFromLocalStorage() {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            List<ModelBible> stories = appDatabase.bibleDao().getAllBibleStories();
+            runOnUiThread(() -> {
+                bibleStories.addAll(stories);
+                adapterBible = new AdapterBible(bibleStories);
+                recyclerView.setAdapter(adapterBible);
+            });
+        });
     }
 
     @Override

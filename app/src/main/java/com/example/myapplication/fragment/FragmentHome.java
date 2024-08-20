@@ -10,11 +10,13 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import com.example.myapplication.R;
+import com.example.myapplication.fragment.biblegames.GamesFragment;
 import com.example.myapplication.fragment.biblestories.BibleFragment;
 import com.example.myapplication.fragment.biblestories.BibleFragment;
 
 public class FragmentHome extends Fragment {
     TextView clickStories;
+    TextView clickGames;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
@@ -25,11 +27,21 @@ public class FragmentHome extends Fragment {
         // Initialize the TextView
         clickStories = view.findViewById(R.id.clickStories);
 
+
         // Set the click listener for clickStories
         clickStories.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 navigateToBibleActivity();
+            }
+        });
+
+        clickGames = view.findViewById(R.id.clickGames);
+        // Set the click listener for clickStories
+        clickGames.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                navigateToBiblegamesActivity();
             }
         });
 
@@ -40,5 +52,11 @@ public class FragmentHome extends Fragment {
         Intent intent = new Intent(getActivity(), BibleFragment.class);
         startActivity(intent);
         Log.d("FragmentHome", "Navigating to BibleActivity");
+    }
+
+    private void navigateToBiblegamesActivity() {
+        Intent intent = new Intent(getActivity(), GamesFragment.class);
+        startActivity(intent);
+        Log.d("FragmentHome", "Navigating to Biblegames");
     }
 }

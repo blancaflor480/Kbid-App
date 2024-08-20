@@ -4,4 +4,10 @@
         <item>User</item>
         <item>Admin</item>
     </string-array>
+    <string-array name="option_content">
+        <item>Stories</item>
+        <item>Video</item>
+        <item>Songs</item>
+        <item>Quiz</item>
+    </string-array>
 </resources>
