@@ -68,8 +68,23 @@
             android:orientation="vertical"
             app:cardCornerRadius="15dp"
             app:cardElevation="2dp"
-            app:cardBackgroundColor="@color/blue"
+            app:cardBackgroundColor="@color/lightred"
             app:contentPadding="25dp">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                >
+
+
+            <ImageView
+                android:id="@+id/imagefourpics"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_centerHorizontal="true"
+                android:scaleType="fitCenter"
+                />
 
 
 
@@ -80,8 +95,20 @@
                 android:text="Four Pics One Word"
                 android:fontFamily="@font/dinroundedpro_bold"
                 android:textSize="25sp"
-                android:layout_marginLeft="38dp"
                 android:textColor="@android:color/white" />
+
+                <TextView
+                    android:id="@+id/playpics"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Play"
+                    android:textSize="16sp"
+                    android:textColor="@android:color/white"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_alignParentBottom="true" />
+            </RelativeLayout>
         </androidx.cardview.widget.CardView>
     </LinearLayout>
 
@@ -90,7 +117,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_gravity="top"
-        android:layout_marginTop="410dp"
+        android:layout_marginTop="400dp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp">
 
@@ -100,9 +127,23 @@
             android:orientation="vertical"
             app:cardCornerRadius="15dp"
             app:cardElevation="2dp"
-            app:cardBackgroundColor="@color/blue"
+            app:cardBackgroundColor="@color/purple"
             app:contentPadding="25dp">
 
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:background="@color/purple">
+
+
+            <ImageView
+                android:id="@+id/imageStories"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_centerHorizontal="true"
+                android:scaleType="fitCenter"
+                />
 
 
             <TextView
@@ -112,8 +153,19 @@
                 android:text="Quiz"
                 android:fontFamily="@font/dinroundedpro_bold"
                 android:textSize="25sp"
-                android:layout_marginLeft="38dp"
                 android:textColor="@android:color/white" />
+            <TextView
+                android:id="@+id/playquiz"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Play"
+                android:textSize="16sp"
+                android:textColor="@android:color/white"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_alignParentBottom="true" />
+            </RelativeLayout>
         </androidx.cardview.widget.CardView>
     </LinearLayout>
 

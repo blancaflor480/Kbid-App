@@ -31,6 +31,9 @@
         <activity android:name=".SkipageActivity" />
         <activity android:name=".fragment.biblestories.BibleFragment" />
         <activity android:name=".fragment.biblegames.GamesFragment" />
+        <activity android:name=".fragment.biblegames.quizgame.QuizGame" />
+        <activity android:name=".fragment.biblegames.quizgame.ScoreActivity" />
+
 
         <activity android:name=".AvatarActivity" />
         <activity android:name=".ChildNameActivity" />
