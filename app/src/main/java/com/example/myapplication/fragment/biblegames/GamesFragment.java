@@ -10,12 +10,13 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.myapplication.R;
+import com.example.myapplication.fragment.biblegames.fourpiconeword.FourPicOneword;
 import com.example.myapplication.fragment.biblegames.quizgame.QuizGame;  // Import the QuizGame activity
 
 public class GamesFragment extends AppCompatActivity {
 
     ImageView arrowback;
-    TextView playQuiz;  // Declare the ImageView for playQuiz
+    TextView playQuiz, playPics;  // Declare the ImageView for playQuiz
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +30,7 @@ public class GamesFragment extends AppCompatActivity {
 
         // Initialize playQuiz ImageView
         playQuiz = findViewById(R.id.playquiz);  // Ensure you have an ImageView or Button with this ID in your XML
+        playPics = findViewById(R.id.playpics);  // Ensure you have an ImageView or Button with this ID in your XML
 
         // Set the click listener for arrowback
         arrowback.setOnClickListener(new View.OnClickListener() {
@@ -44,6 +46,16 @@ public class GamesFragment extends AppCompatActivity {
             public void onClick(View v) {
                 // Navigate to QuizGame activity
                 Intent intent = new Intent(GamesFragment.this, QuizGame.class);
+                startActivity(intent);
+            }
+        });
+
+        // Set the click listener for playQuiz
+        playPics.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Navigate to QuizGame activity
+                Intent intent = new Intent(GamesFragment.this, FourPicOneword.class);
                 startActivity(intent);
             }
         });

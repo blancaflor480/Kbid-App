@@ -45,13 +45,6 @@
                 android:text="08/17/2023"
                 android:textColor="@color/black"
                 android:textSize="12sp"/>
-            <TextView
-                android:id="@+id/typep"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="11sp"
-                android:text="Type"
-                android:textColor="@color/black" />
 
 
 

@@ -73,6 +73,7 @@ public class BibleFragment extends AppCompatActivity {
             // Fetch data from Firestore
             fetchFromFirestore();
         } else {
+            // No internet connection, show local data
             adapterBible = new AdapterBible(bibleStories);
             recyclerView.setAdapter(adapterBible);
         }
@@ -85,25 +86,35 @@ public class BibleFragment extends AppCompatActivity {
     }
 
     private void fetchFromFirestore() {
-        db.collection("biblestories")
+        db.collection("stories")
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && task.getResult() != null) {
+                        bibleStories.clear(); // Clear existing stories to avoid duplicates
                         for (DocumentSnapshot document : task.getResult()) {
-                            String verseName = document.getString("verseName");
+                            String title = document.getString("title");
                             String firestoreId = document.getId();
+                            String description = document.getString("description"); // Get description from Firestore
 
-                            ModelBible story = new ModelBible(firestoreId, verseName);
+                            ModelBible story = new ModelBible(firestoreId, title, description);
                             bibleStories.add(story);
-                            Executors.newSingleThreadExecutor().execute(() -> appDatabase.bibleDao().insert(story));
 
+                            // Save to local database
+                            Executors.newSingleThreadExecutor().execute(() -> {
+                                appDatabase.bibleDao().insert(story); // Insert the ModelBible object directly
+                            });
                         }
-                        adapterBible.notifyDataSetChanged();
+                        runOnUiThread(() -> {
+                            adapterBible.notifyDataSetChanged();
+                        });
                     } else {
                         Log.w("BibleActivity", "Error getting documents.", task.getException());
                     }
                 });
     }
+
+
+
 
     private void loadFromLocalStorage() {
         Executors.newSingleThreadExecutor().execute(() -> {

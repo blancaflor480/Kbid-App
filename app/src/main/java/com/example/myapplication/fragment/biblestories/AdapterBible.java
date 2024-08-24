@@ -34,10 +34,10 @@ public class AdapterBible extends RecyclerView.Adapter<AdapterBible.MyHolder> {
     @Override
     public void onBindViewHolder(@NonNull MyHolder holder, int position) {
         ModelBible bibleVerse = bibleVerseList.get(position);
-        holder.name.setText(bibleVerse.getVerseName());
+        holder.title.setText(bibleVerse.getTitle());
 
         // Log binding details
-        Log.d("AdapterBible", "Binding item at position " + position + ": " + bibleVerse.getVerseName());
+        Log.d("AdapterBible", "Binding item at position " + position + ": " + bibleVerse.getTitle());
 
         // Optionally set other data, e.g., image, if available
         // Example: holder.profiletv.setImageResource(R.drawable.some_image);
@@ -51,13 +51,13 @@ public class AdapterBible extends RecyclerView.Adapter<AdapterBible.MyHolder> {
     class MyHolder extends RecyclerView.ViewHolder {
 
         CircleImageView profiletv;
-        TextView name;
+        TextView title;
         ImageView play;
 
         public MyHolder(@NonNull View itemView) {
             super(itemView);
             profiletv = itemView.findViewById(R.id.thumbnailp);
-            name = itemView.findViewById(R.id.titlep);
+            title = itemView.findViewById(R.id.titlep);
             play = itemView.findViewById(R.id.play);
         }
     }

@@ -1,48 +1,51 @@
 package com.example.myapplication.fragment.biblestories;
 
+import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-@Entity(tableName = "bible_stories")
+@Entity(tableName = "stories")
 public class ModelBible {
-    @PrimaryKey(autoGenerate = true)
-    private int id;  // For Room
-
-    private String firestoreId;  // ID from Firestore
-    private String verseName;
+    @PrimaryKey
+    @NonNull // Ensure the primary key cannot be null
+    private String id;  // Firestore ID as the primary key
+    private String title;  // Title of the story
+    private String description;  // Description of the story
 
     // No-argument constructor required by Firebase Firestore
     public ModelBible() {
     }
 
-    // Constructor without the `id` (for Firestore usage)
-    public ModelBible(String firestoreId, String verseName) {
-        this.firestoreId = firestoreId;
-        this.verseName = verseName;
-    }
-
-    // Getters and Setters
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
+    // Constructor to initialize the ModelBible object
+    public ModelBible(@NonNull String id, String title, String description) {
         this.id = id;
+        this.title = title;
+        this.description = description;
     }
 
-    public String getFirestoreId() {
-        return firestoreId;
+    // Getter for the Firestore ID
+    @NonNull  // Indicate that this method will never return null
+    public String getId() {
+        return id;  // Return the Firestore ID
     }
 
-    public void setFirestoreId(String firestoreId) {
-        this.firestoreId = firestoreId;
+    public void setId(@NonNull String id) {
+        this.id = id;  // Set the Firestore ID
     }
 
-    public String getVerseName() {
-        return verseName;
+    public String getTitle() {
+        return title;  // Return the title
     }
 
-    public void setVerseName(String verseName) {
-        this.verseName = verseName;
+    public void setTitle(String title) {
+        this.title = title;  // Set the title
+    }
+
+    public String getDescription() {
+        return description;  // Return the description
+    }
+
+    public void setDescription(String description) {
+        this.description = description;  // Set the description
     }
 }

@@ -1,14 +1,14 @@
-package com.example.myapplication.ui.content;
+package com.example.myapplication.ui.content.stories;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class ContentViewModel extends ViewModel {
+public class StoriesViewModel extends ViewModel {
 
     private final MutableLiveData<String> mText;
 
-    public ContentViewModel() {
+    public StoriesViewModel() {
         mText = new MutableLiveData<>();
         mText.setValue("This is slideshow fragment");
     }

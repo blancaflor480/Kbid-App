@@ -1,4 +1,4 @@
-package com.example.myapplication.ui.content;
+package com.example.myapplication.ui.content.stories;
 
 import static android.app.Activity.RESULT_OK;
 

@@ -4,6 +4,13 @@
     <string name="menu_all_users">All users</string>
     <string name="menu_admin">Admin</string>
     <string name="menu_content">Content</string>
+    <string name="menu_stories">Stories</string>
+    <string name="menu_song">Song</string>
+    <string name="menu_video">Video</string>
+    <string name="menu_game">Games</string>
+
+
+
     <string name="menu_record">Record</string>
     <string name="menu_feedback">Feedback Support</string>
     <string name="menu_settings">Settings</string>
@@ -17,6 +24,9 @@
         <item>Male</item>
         <item>Female</item>
     </string-array>
+    <string name="delete">Delete</string>
+    <string name="shuffle">Shuffle</string>
+
 
 
     <!-- TODO: Remove or change this placeholder text -->

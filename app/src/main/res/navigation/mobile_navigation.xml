@@ -19,16 +19,11 @@
 
 
     <fragment
-        android:id="@+id/nav_bible"
-        android:name="com.example.myapplication.fragment.biblestories.BibleFragment"
-        tools:layout="@layout/fragment_bible"
-        />
+        android:id="@+id/nav_stories"
+        android:name="com.example.myapplication.ui.content.stories.StoriesFragment"
+        android:label="@string/menu_stories"
+        tools:layout="@layout/fragment_content_stories" />
 
-    <fragment
-        android:id="@+id/nav_content"
-        android:name="com.example.myapplication.ui.content.ContentFragment"
-        android:label="@string/menu_content"
-        tools:layout="@layout/fragment_user_admin" />
     <fragment
         android:id="@+id/nav_record"
         android:name="com.example.myapplication.ui.record.RecordFragment"

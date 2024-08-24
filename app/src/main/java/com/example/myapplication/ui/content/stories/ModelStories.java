@@ -1,36 +1,44 @@
-package com.example.myapplication.ui.content;
+package com.example.myapplication.ui.content.stories;
 
-public class ModelContent {
+import java.util.Date;
+
+public class ModelStories {
     private String title;
     private String type;
-    private String date;
     private String verse;
     private String description;
     private String email;
     private String imageUrl;
     private String id;
+    private Date timestamp; // Add a timestamp field
 
     // No-argument constructor
-    public ModelContent() {
+    public ModelStories() {
         // Required for Firebase deserialization
     }
 
     // Constructor with arguments
-    public ModelContent(String title, String type, String date, String verse, String email, String imageUrl, String id, String description) {
+    public ModelStories(String title, String type, String verse, String email, String imageUrl, String id, Date timestamp,String description) {
         this.title = title;
         this.type = type;
-        this.date = date;
         this.verse = verse;
         this.email = email;
         this.imageUrl = imageUrl;
         this.id = id;
+        this.timestamp = timestamp;
         this.description = description;
     }
 
-    public ModelContent(String title, String verse, String description, String imageUrl) {
+    public ModelStories(String title, String verse, String description, String imageUrl, Date timestamp) {
+        this.title = title;
+        this.verse = verse;
+        this.description = description;
+        this.imageUrl = imageUrl;
+        this.timestamp = timestamp;
     }
 
-    public ModelContent(String title, String description) {
+
+    public ModelStories(String title, String description) {
     }
 
 
@@ -58,21 +66,7 @@ public class ModelContent {
         this.type = type;
     }
 
-    public String getDate() {
-        return date;
-    }
 
-    public void setDate(String date) {
-        this.date = date;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
 
     public String getImageUrl() {
         return imageUrl;
@@ -98,6 +92,14 @@ public class ModelContent {
 
     public void setRole(String description) {
         this.description = description;
+    }
+
+    public Date getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Date timestamp) {
+        this.timestamp = timestamp;
     }
 
 }

@@ -14,7 +14,6 @@
         <item name="android:height">75dp</item> <!-- Adjust the height as needed -->
         <item name="android:radius">15dp</item> <!-- Adjust the corner radius for rounding -->
     </style>
-
     <style name="SideNavigationViewIconSize" parent="@style/Widget.Material3.BottomNavigationView.ActiveIndicator">
         <item name="itemIconSize">36dp</item> <!-- Adjust the size as needed -->
         <item name="android:color">@color/purple</item>
