@@ -11,16 +11,20 @@ public class ModelBible {
     private String id;  // Firestore ID as the primary key
     private String title;  // Title of the story
     private String description;  // Description of the story
+    private String verse; // New field for verse
+    private String imageUrl; // New field for image URL
 
     // No-argument constructor required by Firebase Firestore
     public ModelBible() {
     }
 
     // Constructor to initialize the ModelBible object
-    public ModelBible(@NonNull String id, String title, String description) {
+    public ModelBible(@NonNull String id, String title, String description, String verse, String imageUrl) {
         this.id = id;
         this.title = title;
         this.description = description;
+        this.verse = verse;
+        this.imageUrl = imageUrl;
     }
 
     // Getter for the Firestore ID
@@ -48,4 +52,9 @@ public class ModelBible {
     public void setDescription(String description) {
         this.description = description;  // Set the description
     }
+    public String getVerse() { return verse; }
+    public void setVerse(String verse) { this.verse = verse; }
+
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 }

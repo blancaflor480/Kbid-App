@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication.R;
 import com.example.myapplication.database.AppDatabase;
-import com.example.myapplication.database.BibleDao;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -36,7 +35,7 @@ public class BibleFragment extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_bible);
 
-        Log.d("BibleActivity", "RecyclerView and Adapter setup complete.");
+
 
         // Initialize Firebase Firestore
         db = FirebaseFirestore.getInstance();
@@ -74,7 +73,7 @@ public class BibleFragment extends AppCompatActivity {
             fetchFromFirestore();
         } else {
             // No internet connection, show local data
-            adapterBible = new AdapterBible(bibleStories);
+            adapterBible = new AdapterBible(this, bibleStories);  // Pass context and list
             recyclerView.setAdapter(adapterBible);
         }
     }
@@ -92,11 +91,14 @@ public class BibleFragment extends AppCompatActivity {
                     if (task.isSuccessful() && task.getResult() != null) {
                         bibleStories.clear(); // Clear existing stories to avoid duplicates
                         for (DocumentSnapshot document : task.getResult()) {
-                            String title = document.getString("title");
-                            String firestoreId = document.getId();
-                            String description = document.getString("description"); // Get description from Firestore
+                            String id = document.getId(); // Fetch Firestore document ID
+                            String title = document.getString("title"); // Fetch title
+                            String description = document.getString("description"); // Fetch description
+                            String verse = document.getString("verse"); // Fetch verse
+                            String imageUrl = document.getString("imageUrl"); // Fetch imageUrl
 
-                            ModelBible story = new ModelBible(firestoreId, title, description);
+                            // Create ModelBible object
+                            ModelBible story = new ModelBible(id, title, description, verse, imageUrl);
                             bibleStories.add(story);
 
                             // Save to local database
@@ -113,15 +115,12 @@ public class BibleFragment extends AppCompatActivity {
                 });
     }
 
-
-
-
     private void loadFromLocalStorage() {
         Executors.newSingleThreadExecutor().execute(() -> {
             List<ModelBible> stories = appDatabase.bibleDao().getAllBibleStories();
             runOnUiThread(() -> {
                 bibleStories.addAll(stories);
-                adapterBible = new AdapterBible(bibleStories);
+                adapterBible = new AdapterBible(this, bibleStories);  // Pass context and list
                 recyclerView.setAdapter(adapterBible);
             });
         });

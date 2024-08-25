@@ -1,6 +1,6 @@
 package com.example.myapplication.fragment.biblestories;
 
-import android.util.Log;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.myapplication.R;
 
 import java.util.List;
@@ -18,9 +19,12 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class AdapterBible extends RecyclerView.Adapter<AdapterBible.MyHolder> {
 
+    private Context context;
     private List<ModelBible> bibleVerseList;
 
-    public AdapterBible(List<ModelBible> bibleVerseList) {
+    // Constructor to initialize context and list
+    public AdapterBible(Context context, List<ModelBible> bibleVerseList) {
+        this.context = context;
         this.bibleVerseList = bibleVerseList;
     }
 
@@ -34,13 +38,24 @@ public class AdapterBible extends RecyclerView.Adapter<AdapterBible.MyHolder> {
     @Override
     public void onBindViewHolder(@NonNull MyHolder holder, int position) {
         ModelBible bibleVerse = bibleVerseList.get(position);
+
+        // Set the title text
         holder.title.setText(bibleVerse.getTitle());
 
-        // Log binding details
-        Log.d("AdapterBible", "Binding item at position " + position + ": " + bibleVerse.getTitle());
+        // Get the image URL
+        String imageUrl = bibleVerse.getImageUrl();
 
-        // Optionally set other data, e.g., image, if available
-        // Example: holder.profiletv.setImageResource(R.drawable.some_image);
+        // Load image using Glide
+        if (imageUrl != null && !imageUrl.isEmpty()) {
+            Glide.with(context)
+                    .load(imageUrl)
+                    .placeholder(R.drawable.image) // Default image while loading
+                    .error(R.drawable.image) // Default image in case of error
+                    .into(holder.profiletv);
+        } else {
+            // Set a default image if imageUrl is empty or null
+            holder.profiletv.setImageResource(R.drawable.image);
+        }
     }
 
     @Override
@@ -48,6 +63,7 @@ public class AdapterBible extends RecyclerView.Adapter<AdapterBible.MyHolder> {
         return bibleVerseList.size();
     }
 
+    // ViewHolder class to hold the view references
     class MyHolder extends RecyclerView.ViewHolder {
 
         CircleImageView profiletv;
