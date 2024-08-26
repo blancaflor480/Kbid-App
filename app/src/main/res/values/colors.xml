@@ -12,7 +12,8 @@
     <color name="yelloworange">#f6bf1a</color>
     <color name="red">#B81717</color>
     <color name="green">#4CAF50</color>
-
+    <color name="greenlightning">#38BD6C</color>
+    <color name="dark">#10162C</color>
 
 
 </resources>

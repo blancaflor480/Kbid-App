@@ -34,8 +34,8 @@
             android:fontFamily="@font/dinroundedpro_bold"
             android:text="Create an account to track your child’s progress"
             android:textAlignment="center"
-            android:textColor="@color/purple"
-            android:textSize="22sp"
+            android:textColor="@color/dark"
+            android:textSize="20sp"
             android:textStyle="bold" />
 
 
@@ -43,18 +43,18 @@
         <EditText
             android:id="@+id/inputEmail"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
+            android:layout_height="60dp"
             android:layout_marginTop="16dp"
             android:background="@drawable/rounded_input_name"
             android:ems="10"
             android:layout_centerHorizontal="true"
-            android:fontFamily="@font/dinroundedpro_bold"
+            android:fontFamily="@font/dinroundedpro_light"
             android:inputType="text"
             android:padding="15dp"
             android:hint="Email"
             android:textColorHint="@color/darkmin"
             android:textColor="@color/darkmin"
-            android:textSize="25sp" />
+            android:textSize="18sp" />
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/passwordLayout"
             android:layout_width="match_parent"
@@ -68,41 +68,40 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/inputPassword"
                 android:layout_width="match_parent"
-                android:layout_height="70dp"
+                android:layout_height="60dp"
                 android:background="@drawable/rounded_input_name"
-                android:fontFamily="@font/dinroundedpro_bold"
+                android:fontFamily="@font/dinroundedpro_regular"
                 android:padding="15dp"
                 android:hint="Password"
+                android:ems="10"
                 android:inputType="textPassword"
-                android:textSize="25sp" />
+                android:textSize="18sp" />
         </com.google.android.material.textfield.TextInputLayout>
         <Button
             android:id="@+id/buttonSignup"
-            style="@style/BottomNavigationViewIconSize"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
+            android:layout_height="60dp"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="15dp"
-            android:backgroundTint="#6F34EE"
-            android:fontFamily="@font/dangrek"
+            android:backgroundTint="@color/greenlightning"
+            android:fontFamily="@font/dinroundedpro_bold"
             android:text="Sign Up"
             android:textColor="@android:color/white"
-            android:textSize="20sp"/>
+            android:textSize="15sp"/>
 
     </LinearLayout>
 
     <Button
         android:id="@+id/buttonCreate"
-        style="@style/BottomNavigationViewIconSize"
-        android:layout_width="350dp"
-        android:layout_height="70dp"
+        android:layout_width="330dp"
+        android:layout_height="60dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="20dp"
-        android:backgroundTint="#6F34EE"
-        android:fontFamily="@font/dangrek"
+        android:backgroundTint="@color/greenlightning"
+        android:fontFamily="@font/dinroundedpro_bold"
         android:text="Already have an Account"
         android:textColor="@android:color/white"
-        android:textSize="20sp"/>
+        android:textSize="15sp"/>
 </RelativeLayout>

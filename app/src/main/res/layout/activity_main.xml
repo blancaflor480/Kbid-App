@@ -24,14 +24,13 @@
 
     <Button
         android:id="@+id/button"
-        style="@style/BottomNavigationViewIconSize"
-        android:layout_width="350dp"
-        android:layout_height="70dp"
+        android:layout_width="330dp"
+        android:layout_height="60dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="60dp"
 
-        android:backgroundTint="#6F34EE"
+        android:backgroundTint="#38BD6C"
         android:fontFamily="@font/dangrek"
         android:text="Get Started"
         android:textColor="@android:color/white"

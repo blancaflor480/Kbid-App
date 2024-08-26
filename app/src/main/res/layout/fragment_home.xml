@@ -17,32 +17,41 @@
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/homepage"
         android:layout_width="match_parent"
-        android:background="@color/dirtywhite"
+        android:background="#9BC2EF"
         android:layout_height="match_parent"
         />
-
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="vertical"
+            android:background="@drawable/home_rounded"
             android:padding="16dp">
-
-            <TextView
-                android:id="@+id/textView"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:id="@+id/header"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Welcome to Kid’s Bible"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="10dp"
-                android:layout_marginLeft="5dp"
-                android:fontFamily="@font/luckiest_guy"
-                android:textSize="25sp"
-                android:textColor="@android:color/black"
-                android:layout_alignParentTop="true" />
+                android:layout_alignParentTop="true"
+                android:orientation="vertical"
+                android:layout_marginTop="15dp"
+                android:layout_marginBottom="25dp"
+                >
+                <TextView
+                    android:id="@+id/texttitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Welcome to Kid’s Bible"
+                    android:fontFamily="@font/dinroundedpro_bold"
+                    android:textSize="25sp"
+                    android:layout_gravity="center"
+                    android:textColor="@color/dark"
+                    android:layout_alignParentTop="true" />
+            </LinearLayout>
+
+
 
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"

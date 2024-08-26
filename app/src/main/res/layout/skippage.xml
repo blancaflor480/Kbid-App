@@ -36,9 +36,9 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:layout_gravity="center"
-            android:fontFamily="@font/dinroundedpro_bold"
+            android:fontFamily="@font/dinroundedpro_regular"
             android:text="Are you sure you want to skip?"
-            android:textColor="@color/purple"
+            android:textColor="@color/dark"
             android:textSize="22sp"
             android:textStyle="bold" />
 
@@ -59,15 +59,14 @@
 
     <Button
         android:id="@+id/buttonCreate"
-        style="@style/BottomNavigationViewIconSize"
-        android:layout_width="350dp"
-        android:layout_height="70dp"
+        android:layout_width="330dp"
+        android:layout_height="60dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="60dp"
-        android:backgroundTint="#6F34EE"
-        android:fontFamily="@font/dangrek"
-        android:text="Okay, I’LL Create An Account"
+        android:backgroundTint="#38BD6C"
+        android:fontFamily="@font/dinroundedpro_bold"
+        android:text="Create An Account"
         android:textColor="@android:color/white"
         android:textSize="20sp"/>
     <TextView
@@ -76,10 +75,10 @@
         android:layout_height="35dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="20dp"
-        android:fontFamily="@font/dangrek"
+        android:layout_marginBottom="15dp"
+        android:fontFamily="@font/dinroundedpro_medium"
         android:text="SKIP"
         android:textAlignment="center"
-        android:textColor="@color/purple"
+        android:textColor="@color/dark"
         android:textSize="20sp" />
 </RelativeLayout>

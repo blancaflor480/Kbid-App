@@ -2,11 +2,12 @@
 
     <style name="BottomNavigationViewIconSize" parent="@style/Widget.Material3.BottomNavigationView.ActiveIndicator">
         <item name="itemIconSize">36dp</item> <!-- Adjust the size as needed -->
-        <item name="android:color">@color/purple</item>
+        <item name="android:color">@color/greenlightning</item>
         <item name="android:width">40dp</item> <!-- Adjust the width as needed -->
         <item name="android:height">40dp</item> <!-- Adjust the height as needed -->
-        <item name="android:shape">oval</item> <!-- Make the shape circular -->
+        <item name="android:shape">oval</item>
     </style>
+
 
     <style name="Bottomquizsize" parent="@style/Widget.Material3.BottomNavigationView.ActiveIndicator">
         <item name="android:color">@color/white</item>

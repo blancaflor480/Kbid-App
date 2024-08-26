@@ -70,7 +70,7 @@ public class ChildNameActivity extends AppCompatActivity {
                     buttonContinue.setTextColor(Color.BLACK);
                 } else {
                     buttonContinue.setEnabled(true);
-                    buttonContinue.setBackgroundColor(getResources().getColor(R.color.purple));
+                    buttonContinue.setBackgroundColor(getResources().getColor(R.color.greenlightning));
                     buttonContinue.setTextColor(Color.WHITE);
                 }
             }
@@ -96,7 +96,7 @@ public class ChildNameActivity extends AppCompatActivity {
         if (savedName != null) {
             inputName.setText(savedName);
             buttonContinue.setEnabled(true);
-            buttonContinue.setBackgroundColor(getResources().getColor(R.color.purple));
+            buttonContinue.setBackgroundColor(getResources().getColor(R.color.greenlightning));
             buttonContinue.setTextColor(Color.WHITE);
         }
     }

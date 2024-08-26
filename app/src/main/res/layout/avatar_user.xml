@@ -31,15 +31,15 @@
             android:layout_gravity="center"
             android:fontFamily="@font/dinroundedpro_bold"
             android:text="Choose an Avatar for your kids"
-            android:textColor="@color/purple"
-            android:textSize="18sp"
+            android:textColor="@color/dark"
+            android:textSize="22sp"
             android:textStyle="bold" />
 
         <!-- Grid layout to arrange the avatars -->
         <GridLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="35dp"
             android:columnCount="3"
             android:rowCount="3"
             android:orientation="horizontal"
@@ -49,6 +49,7 @@
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/bunny"
                 android:layout_width="90dp"
+
                 android:layout_height="90dp"
                 android:layout_margin="10dp"
                 android:layout_marginBottom="30dp"

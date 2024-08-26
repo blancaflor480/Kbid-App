@@ -6,6 +6,6 @@
 
         />
     <item
-        android:color="@color/purple"
+        android:color="@color/greenlightning"
         android:state_checked="false"/>
 </selector>

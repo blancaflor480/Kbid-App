@@ -28,27 +28,27 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:layout_gravity="center"
-            android:fontFamily="@font/dinroundedpro_bold"
+            android:fontFamily="@font/dinroundedpro_regular"
             android:text="Enter your Details"
-            android:textColor="@color/purple"
-            android:textSize="22sp"
+            android:textColor="@color/dark"
+            android:textSize="20sp"
             android:textStyle="bold" />
 
         <EditText
             android:id="@+id/inputEmail"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
+            android:layout_height="60dp"
             android:layout_marginTop="16dp"
             android:background="@drawable/rounded_input_name"
             android:ems="10"
             android:layout_centerHorizontal="true"
-            android:fontFamily="@font/dinroundedpro_bold"
+            android:fontFamily="@font/dinroundedpro_light"
             android:inputType="text"
             android:padding="15dp"
             android:hint="Email"
             android:textColorHint="@color/darkmin"
             android:textColor="@color/darkmin"
-            android:textSize="25sp" />
+            android:textSize="18sp" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/passwordLayout"
@@ -63,28 +63,29 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/inputPassword"
                 android:layout_width="match_parent"
-                android:layout_height="70dp"
+                android:layout_height="60dp"
                 android:background="@drawable/rounded_input_name"
-                android:fontFamily="@font/dinroundedpro_bold"
+                android:fontFamily="@font/dinroundedpro_light"
                 android:padding="15dp"
                 android:hint="Password"
+                android:textColorHint="@color/darkmin"
+                android:textColor="@color/darkmin"
                 android:inputType="textPassword"
-                android:textSize="25sp" />
+                android:textSize="18sp" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <Button
             android:id="@+id/buttonSignin"
-            style="@style/BottomNavigationViewIconSize"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
+            android:layout_height="60dp"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="15dp"
-            android:backgroundTint="#6F34EE"
-            android:fontFamily="@font/dangrek"
+            android:backgroundTint="@color/greenlightning"
+            android:fontFamily="@font/dinroundedpro_bold"
             android:text="Sign in"
             android:textColor="@android:color/white"
-            android:textSize="20sp" />
+            android:textSize="15sp" />
 
         <TextView
             android:id="@+id/button_skip"
@@ -93,27 +94,61 @@
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="10dp"
-            android:fontFamily="@font/dangrek"
+            android:fontFamily="@font/dinroundedpro_medium"
             android:text="Forgot Password?"
             android:textAlignment="center"
-            android:textColor="@color/purple"
-            android:textSize="20sp" />
+            android:textColor="@color/dark"
+            android:textSize="18sp" />
 
 
 
     </LinearLayout>
 
-    <Button
-        android:id="@+id/buttonCreate"
-        style="@style/BottomNavigationViewIconSize"
-        android:layout_width="350dp"
-        android:layout_height="70dp"
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="20dp"
-        android:backgroundTint="#6F34EE"
-        android:fontFamily="@font/dangrek"
-        android:text="Create Account"
-        android:textColor="@android:color/white"
-        android:textSize="20sp"/>
+        android:orientation="vertical"
+        android:layout_marginBottom="10dp">
+
+        <Button
+            android:id="@+id/buttonCreate"
+            android:layout_width="330dp"
+            android:layout_height="60dp"
+            android:backgroundTint="@color/greenlightning"
+
+            android:fontFamily="@font/dinroundedpro_bold"
+            android:text="Create Account"
+            android:textColor="@android:color/white"
+            android:textSize="15sp" />
+
+        <RelativeLayout
+            android:layout_width="330dp"
+            android:layout_height="60dp"
+            android:background="@drawable/rounded_withgooglebtn">
+
+            <ImageButton
+                android:id="@+id/googleIcon"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="16dp"
+                android:src="@drawable/common_google_signin_btn_icon_dark_normal" />
+
+            <TextView
+                android:id="@+id/googleText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="SIGN IN WITH GOOGLE"
+                android:textColor="@android:color/black"
+                android:textSize="15sp"
+                android:fontFamily="@font/dinroundedpro_bold" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
 </RelativeLayout>
