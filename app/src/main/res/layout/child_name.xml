@@ -75,16 +75,18 @@
     </LinearLayout>
     </LinearLayout>
 
-<Button
-    android:id="@+id/buttonContinue"
-    android:layout_width="330dp"
-    android:layout_height="60dp"
-    android:layout_alignParentBottom="true"
-    android:layout_centerHorizontal="true"
-    android:layout_marginBottom="20dp"
-    android:backgroundTint="#38BD6C"
-    android:fontFamily="@font/dinroundedpro_bold"
-    android:text="Continue"
-    android:textColor="@android:color/white"
-    android:textSize="20sp"/>
+
+    <Button
+        android:id="@+id/buttonContinue"
+        android:layout_width="330dp"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="20dp"
+        app:backgroundTint="#38BD6C"
+        android:background="@drawable/btn_getstarted"
+        android:fontFamily="@font/dinroundedpro_bold"
+        android:text="Continue"
+        android:textColor="@android:color/white"
+        android:textSize="20sp"/>
     </RelativeLayout>

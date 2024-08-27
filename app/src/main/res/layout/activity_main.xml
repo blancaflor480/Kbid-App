@@ -18,23 +18,23 @@
         android:id="@+id/imageView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:srcCompat="@drawable/pic"
+        app:srcCompat="@raw/getstarted"
         android:scaleType="centerCrop"
         />
-
-    <Button
+    <!--app:srcCompat="@drawable/-->
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/button"
         android:layout_width="330dp"
         android:layout_height="60dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="60dp"
-
-        android:backgroundTint="#38BD6C"
+        android:background="@drawable/btn_getstarted"
         android:fontFamily="@font/dangrek"
         android:text="Get Started"
         android:textColor="@android:color/white"
-        android:textSize="20sp" />
+        android:textSize="20sp"
+        app:backgroundTint="@color/greenlightning" />
 
     <TextView
         android:id="@+id/button_login"
@@ -48,4 +48,5 @@
         android:textAlignment="center"
         android:textColor="@android:color/white"
         android:textSize="20sp" />
+
 </RelativeLayout>

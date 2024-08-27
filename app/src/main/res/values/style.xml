@@ -9,6 +9,7 @@
     </style>
 
 
+
     <style name="Bottomquizsize" parent="@style/Widget.Material3.BottomNavigationView.ActiveIndicator">
         <item name="android:color">@color/white</item>
         <item name="android:width">350dp</item> <!-- Adjust the width as needed -->

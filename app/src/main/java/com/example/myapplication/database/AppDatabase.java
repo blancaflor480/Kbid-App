@@ -6,7 +6,7 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
-
+import androidx.room.TypeConverters;
 import android.content.Context;
 
 import com.example.myapplication.fragment.biblestories.ModelBible;

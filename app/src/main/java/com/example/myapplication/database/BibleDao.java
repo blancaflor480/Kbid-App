@@ -14,7 +14,9 @@ public interface BibleDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(ModelBible story); // This method handles inserting a ModelBible object
 
+    @Query("SELECT * FROM stories WHERE timestamp >= :currentDate ORDER BY timestamp ASC")
+    List<ModelBible> getUpcomingBibleStories(String currentDate); // Updated to filter upcoming stories
+
     @Query("SELECT * FROM stories")
     List<ModelBible> getAllBibleStories();
-
 }

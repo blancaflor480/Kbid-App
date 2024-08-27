@@ -15,6 +15,7 @@ public class BibleDatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_TITLE = "title";
     private static final String COLUMN_DESCRIPTION = "description";
     private static final String COLUMN_VERSE = "verse";  // New column
+    private static final String COLUMN_DATE = "timestamp";  // New column
     private static final String COLUMN_IMAGE_URL = "imageUrl";  // New column
 
     public BibleDatabaseHelper(Context context) {
@@ -29,6 +30,7 @@ public class BibleDatabaseHelper extends SQLiteOpenHelper {
                 + COLUMN_TITLE + " TEXT,"
                 + COLUMN_DESCRIPTION + " TEXT,"
                 + COLUMN_VERSE + " TEXT,"
+                + COLUMN_DATE + " DATE,"
                 + COLUMN_IMAGE_URL + " TEXT" + ")";
         db.execSQL(CREATE_STORIES_TABLE);
     }
