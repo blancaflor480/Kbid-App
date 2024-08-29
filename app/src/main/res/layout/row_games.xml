@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="15dp"
+    app:cardElevation="2dp"
+    app:cardUseCompatPadding="true"
+    app:contentPadding="25dp"
+    android:id="@+id/listingbible"
+    tools:context=".ui.user.UserFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/thumbnailp"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:src="@drawable/user" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/titlep"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Title Verse"
+                android:fontFamily="@font/dinroundedpro_bold"
+                android:layout_marginTop="18dp"
+                android:textColor="@color/black"
+                android:textSize="20sp" />
+
+
+
+
+        </LinearLayout>
+        <ImageView
+            android:id="@+id/play"
+            android:layout_width="35dp"
+            android:layout_height="60dp"
+            android:src="@drawable/baseline_play_circle_24"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true" />
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

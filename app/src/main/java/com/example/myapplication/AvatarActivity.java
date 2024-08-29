@@ -1,65 +1,115 @@
 package com.example.myapplication;
 
-import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.View;
+
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.myapplication.database.AppDatabase;
+import com.example.myapplication.database.userdb.User;
+import com.example.myapplication.database.userdb.UserDao;
+
+import java.io.ByteArrayOutputStream;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class AvatarActivity extends AppCompatActivity {
 
-    private SharedPreferences sharedPreferences;
-    private static final String PREFS_NAME = "AvatarPrefs";
-    private static final String AVATAR_KEY = "selectedAvatar";
+    private AppDatabase db;
+    private UserDao userDao;
+    private User currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.avatar_user);
 
-        sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        // Initialize the database and DAO
+        db = AppDatabase.getDatabase(this);
+        userDao = db.userDao();
 
-        setupAvatarClickListeners();
+        // Load the current user and setup avatar listeners after loading is complete
+        loadCurrentUser();
+    }
+
+    private void loadCurrentUser() {
+        AsyncTask.execute(() -> {
+            currentUser = userDao.getFirstUser(); // Assuming you only have one user and it's the first one in the database
+
+            // After loading the user, proceed to set up the click listeners
+            runOnUiThread(this::setupAvatarClickListeners);
+        });
     }
 
     private void setupAvatarClickListeners() {
-        // Assuming you have these avatars set up in your layout
-        CircleImageView bunny = findViewById(R.id.bunny);
-        CircleImageView boar = findViewById(R.id.boar);
-        CircleImageView crocs = findViewById(R.id.crocs);
-        CircleImageView horse = findViewById(R.id.horse);
-        CircleImageView noah = findViewById(R.id.noah);
-        CircleImageView lion = findViewById(R.id.lion);
-        CircleImageView moose = findViewById(R.id.moose);
-        CircleImageView koala = findViewById(R.id.koala);
-        CircleImageView penguin = findViewById(R.id.penguin);
-        CircleImageView tiger = findViewById(R.id.tiger);
+        // Initialize the CircleImageView components for avatars
+        CircleImageView[] avatars = {
+                findViewById(R.id.bunny),
+                findViewById(R.id.boar),
+                findViewById(R.id.crocs),
+                findViewById(R.id.horse),
+                findViewById(R.id.noah),
+                findViewById(R.id.lion),
+                findViewById(R.id.moose),
+                findViewById(R.id.koala),
+                findViewById(R.id.penguin),
+                findViewById(R.id.tiger)
+        };
+
+        // Resource IDs for the corresponding avatars
+        int[] avatarResourceIds = {
+                R.drawable.bunny,
+                R.drawable.boar,
+                R.drawable.crocs,
+                R.drawable.horse,
+                R.drawable.noah,
+                R.drawable.lion,
+                R.drawable.moose,
+                R.drawable.koala,
+                R.drawable.penguin,
+                R.drawable.tiger
+        };
 
         // Set click listeners for each avatar
-        bunny.setOnClickListener(view -> selectAvatar(R.drawable.bunny));
-        boar.setOnClickListener(view -> selectAvatar(R.drawable.boar));
-        crocs.setOnClickListener(view -> selectAvatar(R.drawable.crocs));
-        horse.setOnClickListener(view -> selectAvatar(R.drawable.horse));
-        noah.setOnClickListener(view -> selectAvatar(R.drawable.noah));
-        lion.setOnClickListener(view -> selectAvatar(R.drawable.lion));
-        moose.setOnClickListener(view -> selectAvatar(R.drawable.moose));
-        koala.setOnClickListener(view -> selectAvatar(R.drawable.koala));
-        penguin.setOnClickListener(view -> selectAvatar(R.drawable.penguin));
-        tiger.setOnClickListener(view -> selectAvatar(R.drawable.tiger));
+        for (int i = 0; i < avatars.length; i++) {
+            final String avatarName = getResources().getResourceEntryName(avatarResourceIds[i]); // Get the name from the resource ID
+            final int resourceId = avatarResourceIds[i];
+            avatars[i].setOnClickListener(view -> selectAvatar(avatarName, resourceId));
+        }
     }
 
-    private void selectAvatar(int avatarId) {
-        // Save the selected avatar ID to SharedPreferences
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putInt(AVATAR_KEY, avatarId);
-        editor.apply();
+    private void selectAvatar(String avatarName, int avatarResourceId) {
+        // Convert drawable to byte[]
+        Drawable drawable = getResources().getDrawable(avatarResourceId);
+        Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
+        byte[] avatarImage = bitmapToByteArray(bitmap);
 
-        // Redirect to HomeActivity
-        Intent intent = new Intent(AvatarActivity.this, HomeActivity.class);
-        startActivity(intent);
-        finish(); // Optionally finish the current activity to prevent the user from going back
+        // Update the user with the selected avatar
+        AsyncTask.execute(() -> {
+            if (currentUser != null) {
+                currentUser.setAvatarName(avatarName);
+                currentUser.setAvatarResourceId(avatarResourceId);
+                currentUser.setAvatarImage(avatarImage); // Save the image as byte[]
+
+                userDao.updateUser(currentUser);
+
+                // Redirect to HomeActivity after saving
+                runOnUiThread(() -> {
+                    Intent intent = new Intent(AvatarActivity.this, HomeActivity.class);
+                    startActivity(intent);
+                    finish();
+                });
+            }
+        });
+    }
+
+    private byte[] bitmapToByteArray(Bitmap bitmap) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        return stream.toByteArray();
     }
 }
-

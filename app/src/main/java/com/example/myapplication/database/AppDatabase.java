@@ -1,21 +1,20 @@
 package com.example.myapplication.database;
 
-import androidx.annotation.NonNull;
+import android.content.Context;
+
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
-import androidx.room.migration.Migration;
-import androidx.sqlite.db.SupportSQLiteDatabase;
-import androidx.room.TypeConverters;
-import android.content.Context;
 
+import com.example.myapplication.database.userdb.User;
+import com.example.myapplication.database.userdb.UserDao;
 import com.example.myapplication.fragment.biblestories.ModelBible;
 
 
-
-@Database(entities = {ModelBible.class}, version = 1)
+@Database(entities = {ModelBible.class, User.class}, version = 2)  // Updated version
 public abstract class AppDatabase extends RoomDatabase {
     public abstract BibleDao bibleDao();
+    public abstract UserDao userDao();  // Add the UserDao interface
 
     private static volatile AppDatabase INSTANCE;
 
@@ -25,6 +24,7 @@ public abstract class AppDatabase extends RoomDatabase {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                                     AppDatabase.class, "bible_database")
+                            .fallbackToDestructiveMigration()  // Add this to handle schema changes
                             .build();
                 }
             }

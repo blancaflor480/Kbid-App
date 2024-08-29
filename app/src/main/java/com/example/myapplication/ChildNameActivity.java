@@ -2,10 +2,8 @@ package com.example.myapplication;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -16,19 +14,18 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.example.myapplication.database.AppDatabase;
+import com.example.myapplication.database.userdb.User;
+import com.example.myapplication.database.userdb.UserDao;
 
 public class ChildNameActivity extends AppCompatActivity {
 
     private static final String TAG = "ChildNameActivity";
-    private static final String PREFS_NAME = "ChildNamePrefs";
-    private static final String CHILD_NAME_KEY = "childName";
 
-    private FirebaseDatabase myDb;
-    private DatabaseReference myRef;
     private EditText inputName;
     private Button buttonContinue;
+    private AppDatabase db;
+    private UserDao userDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,16 +35,9 @@ public class ChildNameActivity extends AppCompatActivity {
         inputName = findViewById(R.id.inputName);
         buttonContinue = findViewById(R.id.buttonContinue);
 
-        // Enable Firebase offline capabilities
-        try {
-            FirebaseDatabase.getInstance().setPersistenceEnabled(true);
-        } catch (Exception e) {
-            Log.e(TAG, "Firebase persistence error: ", e);
-        }
-
-        // Initialize Firebase database reference
-        myDb = FirebaseDatabase.getInstance();
-        myRef = myDb.getReference("childNames");
+        // Initialize the database and DAO
+        db = AppDatabase.getDatabase(this);
+        userDao = db.userDao();
 
         // Set initial state of the button
         buttonContinue.setEnabled(false);
@@ -86,59 +76,38 @@ public class ChildNameActivity extends AppCompatActivity {
             String childName = inputName.getText().toString().trim();
             if (!childName.isEmpty()) {
                 saveNameLocally(childName);
-                saveNameToFirebase(childName);
                 proceedToNextActivity();
             }
         });
 
         // Check if there is a locally saved name
-        String savedName = getSavedName();
-        if (savedName != null) {
-            inputName.setText(savedName);
-            buttonContinue.setEnabled(true);
-            buttonContinue.setBackgroundColor(getResources().getColor(R.color.greenlightning));
-            buttonContinue.setTextColor(Color.WHITE);
-        }
+        loadSavedName();
     }
 
     private void saveNameLocally(String name) {
-        SharedPreferences sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(CHILD_NAME_KEY, name);
-        editor.apply();
+        AsyncTask.execute(() -> {
+            // Default values for the avatar
+            String defaultAvatarName = "Default Avatar";
+            int defaultAvatarResourceId = R.drawable.lion; // Ensure you have this drawable in your project
+
+            byte[] defaultAvatarImage = null; // Or replace this with actual image data if available
+            User user = new User(name, name, defaultAvatarName, defaultAvatarResourceId, defaultAvatarImage);
+            userDao.insert(user);
+        });
     }
 
-    private String getSavedName() {
-        SharedPreferences sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        return sharedPreferences.getString(CHILD_NAME_KEY, null);
-    }
-
-    private void saveNameToFirebase(String name) {
-        if (isNetworkAvailable()) {
-            // Generate a unique key for each name
-            String key = myRef.push().getKey();
-            if (key != null) {
-                myRef.child(key).setValue(name).addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        Log.d(TAG, "Name saved successfully to Firebase");
-                    } else {
-                        Log.e(TAG, "Failed to save name to Firebase", task.getException());
-                    }
-                }).addOnFailureListener(e -> {
-                    Log.e(TAG, "Failed to save name to Firebase: ", e);
+    private void loadSavedName() {
+        AsyncTask.execute(() -> {
+            User user = userDao.getFirstUser();
+            if (user != null) {
+                runOnUiThread(() -> {
+                    inputName.setText(user.getChildName());
+                    buttonContinue.setEnabled(true);
+                    buttonContinue.setBackgroundColor(getResources().getColor(R.color.greenlightning));
+                    buttonContinue.setTextColor(Color.WHITE);
                 });
-            } else {
-                Log.e(TAG, "Failed to generate key");
             }
-        } else {
-            Log.w(TAG, "No network connection, saving name locally only");
-        }
-    }
-
-    private boolean isNetworkAvailable() {
-        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+        });
     }
 
     private void proceedToNextActivity() {

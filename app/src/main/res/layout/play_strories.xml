@@ -16,6 +16,7 @@
         android:background="@color/dirtywhite" />
 
     <LinearLayout
+        android:id="@+id/header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -30,66 +31,82 @@
             android:orientation="vertical"
             app:cardCornerRadius="15dp"
             app:cardElevation="2dp"
-            app:cardBackgroundColor="@color/blue"
-            app:contentPadding="25dp">
+            app:cardBackgroundColor="@color/dirtywhite"
+            app:contentPadding="10dp">
 
             <ImageView
                 android:id="@+id/arrowback"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="3dp"
+                android:padding="10dp"
                 android:src="@drawable/arrowback"
+                android:background="@drawable/shape_arrow"
                 />
 
-            <TextView
-                android:id="@+id/title"
+            <LinearLayout
+                android:id="@+id/addplaylist"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="TITLE"
-                android:fontFamily="@font/dinroundedpro_bold"
-                android:textSize="25sp"
-                android:layout_marginLeft="38dp"
-                android:textColor="@android:color/white" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_gravity="right"
+                android:background="@drawable/btn_getstarted"
+               >
+
+                <!-- Icon Button -->
+                <ImageButton
+                    android:id="@+id/iconPlaylistAdd"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/playlist_add"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                     />
+
+                <!-- Text Next to Icon -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Playlist"
+                    android:fontFamily="@font/dinroundedpro_medium"
+                    android:textSize="13sp"
+                    android:textColor="@color/white"
+                    android:layout_marginStart="1dp"
+
+                    android:padding="8dp"
+                    />
+
+            </LinearLayout>
+
         </androidx.cardview.widget.CardView>
     </LinearLayout>
 
+
     <LinearLayout
-        android:id="@+id/layout1"
+        android:id="@+id/layer1"
+        android:layout_below="@id/header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_gravity="top"
-        android:layout_marginTop="110dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp">
-
+        android:padding="12dp"
+        >
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="2dp"
-            app:cardBackgroundColor="@color/lightred"
-            app:contentPadding="25dp">
+            android:layout_height="280dp"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="30dp"
+            >
 
-            <RelativeLayout
+            <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="16dp"
+                android:background="@drawable/stories12"
+                android:scaleType="center"
+
                 >
 
-
-                <ImageView
-                    android:id="@+id/imagefourpics"
-                    android:layout_width="match_parent"
-                    android:layout_height="200dp"
-                    android:layout_centerHorizontal="true"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/image"
-                    />
-
-                            </RelativeLayout>
+            </ImageView>
         </androidx.cardview.widget.CardView>
+
+
     </LinearLayout>
 
     <LinearLayout
@@ -97,55 +114,133 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="10dp"
-        android:layout_below="@id/layout1"
+        android:layout_marginTop="1dp"
+        android:layout_below="@id/layer1"
         android:paddingLeft="10dp"
         android:paddingRight="10dp">
 
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="2dp"
-            app:cardBackgroundColor="#6D6D6D"
-            app:contentPadding="25dp">
 
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="16dp"
+                android:padding="10dp"
                 android:gravity="center"
                 >
-
-
-
-
-
 
                  <TextView
                      android:id="@+id/subtitle"
                      android:layout_width="wrap_content"
                      android:layout_height="wrap_content"
-                     android:text="Subtitle"
+                     android:text="Title Stories"
+                     android:textAlignment="center"
                      android:fontFamily="@font/dinroundedpro_bold"
-                     android:textSize="15sp"
+                     android:textSize="25sp"
+                     android:textColor="@android:color/black" />
 
-                     android:textColor="@android:color/white" />
+                <TextView
+                    android:id="@+id/verse"
+                    android:layout_below="@id/subtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="verse"
+                    android:fontFamily="@font/dinroundedpro_bold"
+                    android:textSize="12sp"
+                    android:textAlignment="center"
+                    android:textColor="@android:color/black" />
 
             </RelativeLayout>
-        </androidx.cardview.widget.CardView>
-    </LinearLayout>
 
+    </LinearLayout>
     <LinearLayout
+        android:id="@+id/layout3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="1dp"
         android:layout_below="@id/layout2"
         android:paddingLeft="10dp"
         android:paddingRight="10dp">
 
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:gravity="center"
+            android:background="@drawable/bg_narrator"
+
+            >
+
+            <TextView
+                android:id="@+id/textstory"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Start Story"
+                android:textAlignment="center"
+                android:fontFamily="@font/dinroundedpro_bold"
+                android:textSize="15sp"
+                android:textColor="@android:color/black" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="10dp"
+        android:layout_below="@id/layout3"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp">
+
+        <!-- Duration Display and Toggle SeekBar -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp"
+            android:gravity="center_vertical">
+
+            <!-- Current Time Display -->
+            <TextView
+                android:id="@+id/textCurrentTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="00:00"
+                android:textSize="14sp"
+                android:textColor="@color/black"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"/>
+
+            <!-- SeekBar to Monitor and Control Progress -->
+            <SeekBar
+                android:id="@+id/seekBar"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:progressTint="@color/blue"
+                android:thumbTint="@color/blue"
+                android:max="100"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"/>
+
+            <!-- Total Duration Display -->
+            <TextView
+                android:id="@+id/textTotalDuration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="03:00"
+                android:textSize="14sp"
+                android:textColor="@color/black"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"/>
+        </LinearLayout>
+
+        <!-- Existing CardView Layout for Player Controls -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -172,7 +267,7 @@
                         android:layout_height="65dp"
                         android:scaleType="fitCenter"
                         android:backgroundTint="@color/gray"
-                        android:src="@drawable/fast_rewind"/>
+                        android:src="@drawable/fast_rewind" />
 
                     <ImageButton
                         android:id="@+id/buttonplay"
@@ -180,7 +275,7 @@
                         android:layout_height="65dp"
                         android:scaleType="fitCenter"
                         android:backgroundTint="@color/gray"
-                        android:src="@drawable/play_circle"/>
+                        android:src="@drawable/play_circle" />
 
                     <ImageButton
                         android:id="@+id/buttonfoward"
@@ -188,7 +283,7 @@
                         android:layout_height="65dp"
                         android:scaleType="fitCenter"
                         android:backgroundTint="@color/gray"
-                        android:src="@drawable/fast_forward"/>
+                        android:src="@drawable/fast_forward" />
                 </LinearLayout>
 
                 <!-- Repeat Button aligned to the right -->
@@ -201,10 +296,11 @@
                     android:scaleType="fitCenter"
                     android:backgroundTint="@color/gray"
                     android:src="@drawable/repeat"
-                    android:layout_marginEnd="10dp"/>
+                    android:layout_marginEnd="10dp" />
             </RelativeLayout>
         </androidx.cardview.widget.CardView>
     </LinearLayout>
+
 
 
 

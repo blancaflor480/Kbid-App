@@ -41,6 +41,7 @@ public class AdapterBible extends RecyclerView.Adapter<AdapterBible.MyHolder> {
 
         // Set the title text
         holder.title.setText(bibleVerse.getTitle());
+        holder.verse.setText(bibleVerse.getVerse());
 
         // Get the image URL
         String imageUrl = bibleVerse.getImageUrl();
@@ -66,15 +67,16 @@ public class AdapterBible extends RecyclerView.Adapter<AdapterBible.MyHolder> {
     // ViewHolder class to hold the view references
     class MyHolder extends RecyclerView.ViewHolder {
 
-        CircleImageView profiletv;
-        TextView title;
-        ImageView play;
+        TextView title, verse;
+        ImageView profiletv;
 
         public MyHolder(@NonNull View itemView) {
             super(itemView);
             profiletv = itemView.findViewById(R.id.thumbnailp);
             title = itemView.findViewById(R.id.titlep);
-            play = itemView.findViewById(R.id.play);
+            verse = itemView.findViewById(R.id.versep);
+
+
         }
     }
 }
