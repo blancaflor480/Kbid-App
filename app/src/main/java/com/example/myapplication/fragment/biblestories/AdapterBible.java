@@ -1,6 +1,7 @@
 package com.example.myapplication.fragment.biblestories;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,10 +13,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.myapplication.R;
+import com.example.myapplication.fragment.biblestories.playlist.BiblePlay;
 
 import java.util.List;
-
-import de.hdodenhof.circleimageview.CircleImageView;
 
 public class AdapterBible extends RecyclerView.Adapter<AdapterBible.MyHolder> {
 
@@ -57,6 +57,23 @@ public class AdapterBible extends RecyclerView.Adapter<AdapterBible.MyHolder> {
             // Set a default image if imageUrl is empty or null
             holder.profiletv.setImageResource(R.drawable.image);
         }
+
+        // Set an OnClickListener on the CardView or the itemView itself
+        holder.itemView.setOnClickListener(v -> {
+            // Create an Intent to navigate to BiblePlayActivity
+            Intent intent = new Intent(context, BiblePlay.class);
+
+            // Pass the Bible story data to the activity
+            intent.putExtra("id", bibleVerse.getId());
+            intent.putExtra("title", bibleVerse.getTitle());
+            intent.putExtra("verse", bibleVerse.getVerse());
+            intent.putExtra("description", bibleVerse.getDescription());
+            intent.putExtra("imageUrl", bibleVerse.getImageUrl());
+            intent.putExtra("timestamp", bibleVerse.getTimestamp());
+
+            // Start the activity
+            context.startActivity(intent);
+        });
     }
 
     @Override
@@ -75,8 +92,6 @@ public class AdapterBible extends RecyclerView.Adapter<AdapterBible.MyHolder> {
             profiletv = itemView.findViewById(R.id.thumbnailp);
             title = itemView.findViewById(R.id.titlep);
             verse = itemView.findViewById(R.id.versep);
-
-
         }
     }
 }

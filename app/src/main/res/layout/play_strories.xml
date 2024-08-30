@@ -13,7 +13,7 @@
         android:id="@+id/homepage"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/dirtywhite" />
+        android:background="@color/white" />
 
     <LinearLayout
         android:id="@+id/header"
@@ -31,7 +31,7 @@
             android:orientation="vertical"
             app:cardCornerRadius="15dp"
             app:cardElevation="2dp"
-            app:cardBackgroundColor="@color/dirtywhite"
+            app:cardBackgroundColor="@color/white"
             app:contentPadding="10dp">
 
             <ImageView
@@ -86,16 +86,16 @@
         android:layout_below="@id/header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="12dp"
+        android:padding="10dp"
         >
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="280dp"
-            android:layout_marginBottom="16dp"
             app:cardCornerRadius="30dp"
             >
 
             <ImageView
+                android:id="@+id/thumbnail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/stories12"
@@ -113,50 +113,51 @@
         android:id="@+id/layout2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="1dp"
+        android:orientation="vertical"
         android:layout_below="@id/layer1"
         android:paddingLeft="10dp"
         android:paddingRight="10dp">
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:gravity="center">
 
-            <RelativeLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:gravity="center"
-                >
+                android:layout_centerHorizontal="true"
+                android:text="Title Stories"
+                android:textAlignment="center"
+                android:fontFamily="@font/dinroundedpro_bold"
+                android:textSize="25sp"
+                android:textColor="@android:color/black" />
 
-                 <TextView
-                     android:id="@+id/subtitle"
-                     android:layout_width="wrap_content"
-                     android:layout_height="wrap_content"
-                     android:text="Title Stories"
-                     android:textAlignment="center"
-                     android:fontFamily="@font/dinroundedpro_bold"
-                     android:textSize="25sp"
-                     android:textColor="@android:color/black" />
+            <TextView
+                android:id="@+id/verse"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/title"
+                android:layout_centerHorizontal="true"
+                android:text="verse"
+                android:textAlignment="center"
+                android:fontFamily="@font/dinroundedpro_regular"
+                android:textSize="12sp"
+                android:textColor="@android:color/black"
+                android:layout_marginTop="8dp"/> <!-- Adds some spacing between title and verse -->
 
-                <TextView
-                    android:id="@+id/verse"
-                    android:layout_below="@id/subtitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="verse"
-                    android:fontFamily="@font/dinroundedpro_bold"
-                    android:textSize="12sp"
-                    android:textAlignment="center"
-                    android:textColor="@android:color/black" />
-
-            </RelativeLayout>
+        </RelativeLayout>
 
     </LinearLayout>
+
     <LinearLayout
         android:id="@+id/layout3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="1dp"
+        android:layout_marginTop="2dp"
         android:layout_below="@id/layout2"
         android:paddingLeft="10dp"
         android:paddingRight="10dp">
@@ -167,6 +168,7 @@
             android:layout_height="wrap_content"
             android:padding="10dp"
             android:gravity="center"
+            android:layout_marginBottom="5dp"
             android:background="@drawable/bg_narrator"
 
             >
@@ -178,7 +180,7 @@
                 android:text="Start Story"
                 android:textAlignment="center"
                 android:fontFamily="@font/dinroundedpro_bold"
-                android:textSize="15sp"
+                android:textSize="18sp"
                 android:textColor="@android:color/black" />
 
         </RelativeLayout>
@@ -191,9 +193,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:layout_marginBottom="5dp"
         android:layout_alignParentBottom="true"
-        android:layout_marginTop="10dp"
-        android:layout_below="@id/layout3"
         android:paddingLeft="10dp"
         android:paddingRight="10dp">
 

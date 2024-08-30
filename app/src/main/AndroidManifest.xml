@@ -17,8 +17,6 @@
 
 
 
-         <activity android:name=".ui.user.UserFragment" />
-
         <activity
             android:name=".SideNavigationAdmin"
             android:exported="false"
@@ -30,6 +28,7 @@
         <activity android:name=".LoginUser" />
         <activity android:name=".SkipageActivity" />
         <activity android:name=".fragment.biblestories.BibleFragment" />
+        <activity android:name=".fragment.biblestories.playlist.BiblePlay" />
         <activity android:name=".fragment.biblegames.GamesFragment" />
         <activity android:name=".fragment.biblegames.quizgame.QuizGame" />
         <activity android:name=".fragment.biblegames.quizgame.ScoreActivity" />

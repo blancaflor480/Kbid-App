@@ -256,15 +256,26 @@ public class StoriesFragment extends Fragment {
     // Method to upload story to Firestore
     private void uploadStoryToFirestore(String imageUrl, String title, String verse, String description) {
         Date currentDate = new Date(); // Get the current date and time
-        ModelStories story = new ModelStories(title, verse, description, imageUrl, currentDate);
+        ModelStories story = new ModelStories(title, verse, description, imageUrl, null, currentDate); // Pass null for ID initially
 
         db.collection("stories").add(story)
                 .addOnSuccessListener(documentReference -> {
-                    Snackbar.make(getView(), "Story added.", Snackbar.LENGTH_SHORT).show();
-                    getAllStories();
+                    // Set the document ID in the story model
+                    story.setId(documentReference.getId()); // Get the document ID
+
+                    // Update the Firestore document with the model containing the ID
+                    db.collection("stories").document(documentReference.getId()).set(story)
+                            .addOnSuccessListener(aVoid -> {
+                                Snackbar.make(getView(), "Story added.", Snackbar.LENGTH_SHORT).show();
+                                getAllStories();
+                            })
+                            .addOnFailureListener(e -> {
+                                Snackbar.make(getView(), "Failed to add story.", Snackbar.LENGTH_SHORT).show();
+                            });
                 })
                 .addOnFailureListener(e -> {
                     Snackbar.make(getView(), "Failed to add story.", Snackbar.LENGTH_SHORT).show();
                 });
     }
+
 }

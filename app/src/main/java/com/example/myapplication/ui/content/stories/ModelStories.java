@@ -9,8 +9,8 @@ public class ModelStories {
     private String description;
     private String email;
     private String imageUrl;
-    private String id;
-    private Date timestamp; // Add a timestamp field
+    private String id; // This should match the Firestore document ID
+    private Date timestamp;
 
     // No-argument constructor
     public ModelStories() {
@@ -18,7 +18,7 @@ public class ModelStories {
     }
 
     // Constructor with arguments
-    public ModelStories(String title, String type, String verse, String email, String imageUrl, String id, Date timestamp,String description) {
+    public ModelStories(String title, String type, String verse, String email, String imageUrl, String id, Date timestamp, String description) {
         this.title = title;
         this.type = type;
         this.verse = verse;
@@ -29,19 +29,17 @@ public class ModelStories {
         this.description = description;
     }
 
-    public ModelStories(String title, String verse, String description, String imageUrl, Date timestamp) {
+    // Constructor for when the ID is needed
+    public ModelStories(String title, String verse, String description, String imageUrl, String id, Date timestamp) {
         this.title = title;
         this.verse = verse;
         this.description = description;
         this.imageUrl = imageUrl;
+        this.id = id; // Set the ID here
         this.timestamp = timestamp;
     }
 
-
-    public ModelStories(String title, String description) {
-    }
-
-
+    // Getters and setters
     public String getTitle() {
         return title;
     }
@@ -55,7 +53,7 @@ public class ModelStories {
     }
 
     public void setVerse(String verse) {
-        this.title = verse;
+        this.verse = verse;
     }
 
     public String getType() {
@@ -66,8 +64,6 @@ public class ModelStories {
         this.type = type;
     }
 
-
-
     public String getImageUrl() {
         return imageUrl;
     }
@@ -76,15 +72,13 @@ public class ModelStories {
         this.imageUrl = imageUrl;
     }
 
-
     public String getId() {
         return id;
     }
 
     public void setId(String id) {
-        this.id = id;
+        this.id = id; // Make sure to set the ID
     }
-
 
     public String getDescription() {
         return description;
@@ -101,5 +95,4 @@ public class ModelStories {
     public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
     }
-
 }

@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.example.myapplication.database.Converters;
 import com.google.firebase.Timestamp;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -57,6 +58,9 @@ public class BibleFragment extends AppCompatActivity {
 
         // Set the click listener for arrowback
         arrowback.setOnClickListener(v -> onBackPressed());
+
+        //navigating
+
 
         // Initialize RecyclerView with the correct ID
         recyclerView = findViewById(R.id.recyclep);
