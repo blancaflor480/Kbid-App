@@ -39,6 +39,17 @@
             android:layout_gravity="center"
             android:textColor="@color/white"
             android:layout_alignParentTop="true" />
+        <ImageView
+            android:layout_width="200dp"
+            android:layout_height="265dp"
+            android:src="@raw/clipartjesus"
+            android:layout_gravity="center"
+            android:scaleType="centerCrop"
+            android:layout_marginTop="10dp"
+
+            >
+
+        </ImageView>
     </LinearLayout>
 
 
@@ -51,7 +62,7 @@
             android:layout_height="match_parent"
             android:orientation="vertical"
             android:background="@drawable/home_rounded"
-            android:layout_marginTop="55dp"
+            android:layout_marginTop="200dp"
             android:padding="16dp">
 
 
@@ -178,7 +189,7 @@
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="240dp"
-                    android:layout_marginBottom="110dp"
+                    android:layout_marginBottom="270dp"
                     app:cardCornerRadius="30dp"
                     app:cardElevation="10dp">
 

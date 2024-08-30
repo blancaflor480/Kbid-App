@@ -21,7 +21,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_gravity="top"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="5dp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp">
 
@@ -132,7 +132,7 @@
                 android:text="Title Stories"
                 android:textAlignment="center"
                 android:fontFamily="@font/dinroundedpro_bold"
-                android:textSize="25sp"
+                android:textSize="23sp"
                 android:textColor="@android:color/black" />
 
             <TextView
@@ -165,7 +165,7 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:padding="10dp"
             android:gravity="center"
             android:layout_marginBottom="5dp"
@@ -203,7 +203,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="8dp"
+            android:layout_marginBottom="5dp"
             android:gravity="center_vertical">
 
             <!-- Current Time Display -->
@@ -245,10 +245,9 @@
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="2dp"
+            app:cardCornerRadius="5dp"
             app:cardBackgroundColor="@color/gray"
-            app:contentPadding="5dp">
+            app:contentPadding="2dp">
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -263,25 +262,33 @@
                     android:layout_centerInParent="true">
 
                     <ImageButton
-                        android:id="@+id/buttonrewind"
-                        android:layout_width="65dp"
-                        android:layout_height="65dp"
+                        android:id="@+id/buttonprevious"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
                         android:scaleType="fitCenter"
                         android:backgroundTint="@color/gray"
                         android:src="@drawable/fast_rewind" />
 
                     <ImageButton
                         android:id="@+id/buttonplay"
-                        android:layout_width="65dp"
-                        android:layout_height="65dp"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
                         android:scaleType="fitCenter"
                         android:backgroundTint="@color/gray"
                         android:src="@drawable/play_circle" />
+                    <ImageButton
+                        android:id="@+id/buttonpause"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:scaleType="fitCenter"
+                        android:visibility="gone"
+                        android:backgroundTint="@color/gray"
+                        android:src="@drawable/pause_circle" />
 
                     <ImageButton
-                        android:id="@+id/buttonfoward"
-                        android:layout_width="65dp"
-                        android:layout_height="65dp"
+                        android:id="@+id/buttonnext"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
                         android:scaleType="fitCenter"
                         android:backgroundTint="@color/gray"
                         android:src="@drawable/fast_forward" />
@@ -290,13 +297,23 @@
                 <!-- Repeat Button aligned to the right -->
                 <ImageButton
                     android:id="@+id/buttonrepeat"
-                    android:layout_width="65dp"
-                    android:layout_height="65dp"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
                     android:layout_alignParentStart="true"
                     android:layout_centerVertical="true"
                     android:scaleType="fitCenter"
                     android:backgroundTint="@color/gray"
                     android:src="@drawable/repeat"
+                    android:layout_marginEnd="10dp" />
+                <ImageButton
+                    android:id="@+id/buttonrestart"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:scaleType="fitCenter"
+                    android:backgroundTint="@color/gray"
+                    android:src="@drawable/restart"
                     android:layout_marginEnd="10dp" />
             </RelativeLayout>
         </androidx.cardview.widget.CardView>

@@ -68,9 +68,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:cardCornerRadius="15dp"
+            app:cardCornerRadius="30dp"
             app:cardElevation="2dp"
-            app:cardBackgroundColor="@color/blue"
+            app:cardBackgroundColor="@color/greenlightning"
             app:contentPadding="5dp">
 
             <RadioGroup
