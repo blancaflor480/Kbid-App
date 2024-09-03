@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -77,19 +76,53 @@
                 android:inputType="textPassword"
                 android:textSize="18sp" />
         </com.google.android.material.textfield.TextInputLayout>
-        <Button
-            android:id="@+id/buttonSignup"
+
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="60dp"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="15dp"
-            app:backgroundTint="#38BD6C"
+            android:layout_marginTop="15dp">
+
+            <Button
+            android:id="@+id/buttonSignup"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:background="@drawable/btn_getstarted"
             android:fontFamily="@font/dinroundedpro_bold"
-            android:text="Sign Up"
+            android:text="Sign in"
+            app:backgroundTint="#38BD6C"
             android:textColor="@android:color/white"
-            android:textSize="15sp"/>
+            android:textSize="15sp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+            <!-- Loader inside button -->
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/loader"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                app:lottie_autoPlay="true"
+                app:lottie_loop="true"
+                android:visibility="gone"
+                app:lottie_rawRes="@raw/registeredsucess"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/nointernet"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:visibility="gone"
+            android:layout_gravity="center"
+            app:lottie_autoPlay="true"
+
+            app:lottie_loop="true"
+            app:lottie_rawRes="@raw/nowifi"/>
 
     </LinearLayout>
 

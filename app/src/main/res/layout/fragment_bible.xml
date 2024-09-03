@@ -9,14 +9,13 @@
         tools:context=".fragment.biblestories.BibleFragment">
 
 
-        <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/homepage"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/dirtywhite" />
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/homepage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white" />
 
-
-        <LinearLayout
+    <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -31,14 +30,14 @@
                 android:orientation="vertical"
                 app:cardCornerRadius="15dp"
                 app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/dirtywhite"
+                app:cardBackgroundColor="@color/white"
                 app:contentPadding="10dp">
 
                 <ImageView
                     android:id="@+id/arrowback"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="15dp"
+                    android:padding="10dp"
                     android:src="@drawable/arrowback"
                     android:background="@drawable/shape_arrow"
                     />
@@ -49,7 +48,7 @@
                     android:layout_height="wrap_content"
                     android:text="Bible Stories"
                     android:fontFamily="@font/dangrek"
-                    android:textSize="30sp"
+                    android:textSize="25sp"
                     android:layout_gravity="center"
                     android:textColor="@color/black" />
             </androidx.cardview.widget.CardView>
@@ -117,7 +116,7 @@
             android:id="@+id/recyclep"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/dirtywhite"
+            android:background="@color/white"
             android:layout_marginTop="170dp" />
 
         <TextView

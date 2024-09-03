@@ -2,9 +2,11 @@ package com.example.myapplication.fragment.biblegames.fourpiconeword;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RippleDrawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -15,47 +17,48 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import android.graphics.drawable.ColorDrawable;
+import androidx.lifecycle.LiveData;
 
+import com.bumptech.glide.Glide;
 import com.example.myapplication.R;
+import com.example.myapplication.database.AppDatabase;
+import com.example.myapplication.database.gamesdb.DataFetcher;
+import com.example.myapplication.database.gamesdb.Games;
+import com.example.myapplication.database.gamesdb.GamesDao;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class FourPicOneword extends AppCompatActivity {
-    ImageView arrowback;
-
-    // Answer boxes container
+    private static final String TAG = "FourPicOneword";
+    private ImageView arrowback;
     private LinearLayout answerBoxesLayout;
     private TextView[] answerBoxes;
     private int currentAnswerIndex = 0;
-    private boolean isAnswerIncorrect = false; // Track if the answer was incorrect
-
-    // Keyboard buttons
+    private boolean isAnswerIncorrect = false;
     private Button[] keyboardButtons;
-
-    // Correct answer
-    private String correctAnswer = "JESUS"; // Example correct answer
+    private String correctAnswer;
+    private GamesDao gamesDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.fragment_fourpiconeword); // Ensure the correct layout is used
+        setContentView(R.layout.fragment_fourpiconeword);
 
-        Log.d("BibleActivity", "FourPicOneWord Activity started.");
+        // Initialize database
+        AppDatabase db = AppDatabase.getDatabase(this);
+        gamesDao = db.gamesDao();
+        DataFetcher dataFetcher = new DataFetcher(gamesDao);
+
+        Log.d(TAG, "FourPicOneWord Activity started.");
 
         // Initialize arrowback ImageView
         arrowback = findViewById(R.id.arrowback);
-
-        // Set the click listener for arrowback
         arrowback.setOnClickListener(v -> onBackPressed());
 
         // Initialize answer boxes container
         answerBoxesLayout = findViewById(R.id.answerBoxes);
-
-        // Dynamically create answer boxes based on the correct answer length
-        setupAnswerBoxes();
 
         // Initialize keyboard buttons
         keyboardButtons = new Button[]{
@@ -69,8 +72,11 @@ public class FourPicOneword extends AppCompatActivity {
                 findViewById(R.id.keyboardButton8),
         };
 
-        // Generate random letters and set up the keyboard
-        setupKeyboard();
+        // Fetch games from Firestore and update SQLite
+        dataFetcher.fetchGamesFromFirestore();
+
+        // Observe the database changes after a delay to ensure data is inserted
+        new Handler().postDelayed(this::fetchGameData, 2000); // Delay to allow Firestore fetch to complete
 
         // Set up listener for delete button
         ImageButton deleteButton = findViewById(R.id.deleteButton);
@@ -81,23 +87,85 @@ public class FourPicOneword extends AppCompatActivity {
         shuffleButton.setOnClickListener(v -> shuffleKeyboard());
     }
 
-    // Inside the onCreate method, replace the setup for answerBoxes
+    private void fetchGameData() {
+        LiveData<List<Games>> liveData = gamesDao.getAllGames();
+        liveData.observe(this, gamesList -> {
+            if (gamesList != null && !gamesList.isEmpty()) {
+                Games game = gamesList.get(0);
+                correctAnswer = game.getAnswer();
+
+                if (correctAnswer == null) {
+                    Log.e(TAG, "Correct answer is null");
+                    correctAnswer = ""; // Initialize to empty string to avoid NullPointerException
+                }
+
+                String imageUrl1 = game.getImageUrl1();
+                String imageUrl2 = game.getImageUrl2();
+                String imageUrl3 = game.getImageUrl3();
+                String imageUrl4 = game.getImageUrl4();
+                String level = game.getLevel();
+
+                // Load images into ImageView using Glide
+                loadImages(imageUrl1, imageUrl2, imageUrl3, imageUrl4);
+
+                // Update the level TextView
+                TextView levelTextView = findViewById(R.id.level);
+                levelTextView.setText("Level " + level);
+
+                setupAnswerBoxes();  // Setup answer boxes dynamically based on correctAnswer length
+                setupKeyboard(); // Call this after `correctAnswer` is initialized
+            } else {
+                Log.e(TAG, "No games available in the database. Fetching from Firestore.");
+            }
+        });
+    }
+
+    private void loadImages(String imageUrl1, String imageUrl2, String imageUrl3, String imageUrl4) {
+        Glide.with(this)
+                .load(imageUrl1)
+                .placeholder(R.drawable.image) // Optional placeholder image
+                .error(R.drawable.error_outline) // Optional error image
+                .into((ImageView) findViewById(R.id.image1));
+
+        Glide.with(this)
+                .load(imageUrl2)
+                .placeholder(R.drawable.image)
+                .error(R.drawable.error_outline)
+                .into((ImageView) findViewById(R.id.image2));
+
+        Glide.with(this)
+                .load(imageUrl3)
+                .placeholder(R.drawable.image)
+                .error(R.drawable.error_outline)
+                .into((ImageView) findViewById(R.id.image3));
+
+        Glide.with(this)
+                .load(imageUrl4)
+                .placeholder(R.drawable.image)
+                .error(R.drawable.error_outline)
+                .into((ImageView) findViewById(R.id.image4));
+    }
+
     private void setupAnswerBoxes() {
+        if (correctAnswer == null) {
+            Log.e(TAG, "Cannot setup answer boxes as correctAnswer is null");
+            return;
+        }
         int answerLength = correctAnswer.length();
         answerBoxes = new TextView[answerLength];
 
         for (int i = 0; i < answerLength; i++) {
             TextView answerBox = new TextView(this);
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
-                    150, 150); // Set width and height in pixels
+                    150, 150);
 
             answerBox.setLayoutParams(layoutParams);
             answerBox.setTextSize(24);
-            answerBox.setGravity(Gravity.CENTER); // Center the text
+            answerBox.setGravity(Gravity.CENTER);
             answerBox.setBackgroundResource(R.drawable.rounded_box);
             answerBox.setTextColor(getResources().getColor(android.R.color.white));
-            answerBox.setTag(null); // Store the reference to the corresponding button
-            answerBox.setText(""); // Ensure text is empty initially
+            answerBox.setTag(null);
+            answerBox.setText("");
             ((LinearLayout.LayoutParams) answerBox.getLayoutParams()).setMargins(5, 0, 5, 0);
 
             answerBoxes[i] = answerBox;
@@ -105,23 +173,19 @@ public class FourPicOneword extends AppCompatActivity {
         }
     }
 
-    // Inside onKeyboardButtonClick
     private void onKeyboardButtonClick(View view) {
         Button clickedButton = (Button) view;
         String letter = clickedButton.getText().toString();
 
-        // Add the letter to the current answer box
         if (currentAnswerIndex < answerBoxes.length) {
             answerBoxes[currentAnswerIndex].setText(letter);
 
-            // Attempt to extract the background color
             Drawable background = clickedButton.getBackground();
-            int originalBackgroundColor = Color.WHITE; // Default color if extraction fails
+            int originalBackgroundColor = Color.WHITE;
 
             if (background instanceof ColorDrawable) {
                 originalBackgroundColor = ((ColorDrawable) background).getColor();
             } else if (background instanceof RippleDrawable) {
-                // Extract color from RippleDrawable's background layer
                 RippleDrawable rippleDrawable = (RippleDrawable) background;
                 Drawable rippleBackground = rippleDrawable.findDrawableByLayerId(android.R.id.background);
                 if (rippleBackground instanceof ColorDrawable) {
@@ -129,119 +193,95 @@ public class FourPicOneword extends AppCompatActivity {
                 }
             }
 
-            clickedButton.setTag(originalBackgroundColor); // Store the original color in tag
-            answerBoxes[currentAnswerIndex].setTag(clickedButton); // Store the reference of the button
+            clickedButton.setTag(originalBackgroundColor);
+            answerBoxes[currentAnswerIndex].setTag(clickedButton);
             currentAnswerIndex++;
 
-            // Disable the clicked button and change its background to darker gray
             clickedButton.setEnabled(false);
             clickedButton.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
         }
 
-        // Check if all answer boxes are filled
         if (currentAnswerIndex == answerBoxes.length) {
-            validateAnswer(); // Automatically validate the answer
+            validateAnswer();
         }
     }
 
-    // Inside onDeleteButtonClick method
     private void onDeleteButtonClick() {
         if (currentAnswerIndex > 0) {
             currentAnswerIndex--;
 
-            // Get the associated button from the tag
             Button associatedButton = (Button) answerBoxes[currentAnswerIndex].getTag();
             if (associatedButton != null) {
-                // Re-enable the corresponding keyboard button
                 associatedButton.setEnabled(true);
 
-                // Restore the original background color from the tag
                 int originalBackgroundColor = (int) associatedButton.getTag();
                 associatedButton.setBackgroundColor(originalBackgroundColor);
             }
 
-            // Clear the last filled answer box and its tag
             answerBoxes[currentAnswerIndex].setText("");
             answerBoxes[currentAnswerIndex].setTag(null);
 
-            // Reset all answer box colors if it was an incorrect attempt
             if (isAnswerIncorrect) {
                 resetAnswerBoxColors();
             }
         }
     }
 
-    // Reset the background color of all answer boxes to default
     private void resetAnswerBoxColors() {
         for (TextView answerBox : answerBoxes) {
-            answerBox.setBackgroundResource(R.drawable.rounded_box); // Default background
+            answerBox.setBackgroundResource(R.drawable.rounded_box);
         }
-        isAnswerIncorrect = false; // Reset the incorrect answer flag
+        isAnswerIncorrect = false;
     }
 
-    // Shuffle the keyboard letters
     private void shuffleKeyboard() {
-        setupKeyboard(); // Regenerate and shuffle letters
+        setupKeyboard();
     }
 
-    // Generate random letters including the correct answer letters and set up the keyboard
     private void setupKeyboard() {
+        if (correctAnswer == null || correctAnswer.isEmpty()) {
+            Log.e(TAG, "Cannot setup keyboard as correctAnswer is null or empty");
+            return;
+        }
+
         List<String> letters = new ArrayList<>();
 
-        // Add letters of the correct answer
         for (char letter : correctAnswer.toCharArray()) {
             letters.add(String.valueOf(letter));
         }
 
-        // Add random letters to fill up the keyboard
         while (letters.size() < keyboardButtons.length) {
-            char randomLetter = (char) ('A' + (int) (Math.random() * 26));  // Random letter from A-Z
+            char randomLetter = (char) ('A' + (int) (Math.random() * 26));
             letters.add(String.valueOf(randomLetter));
         }
 
-        // Shuffle the letters
         Collections.shuffle(letters);
 
-        // Assign letters to keyboard buttons
         for (int i = 0; i < keyboardButtons.length; i++) {
             keyboardButtons[i].setText(letters.get(i));
             keyboardButtons[i].setEnabled(true);
-            keyboardButtons[i].setOnClickListener(this::onKeyboardButtonClick); // Set the click listener for each button
+            keyboardButtons[i].setOnClickListener(this::onKeyboardButtonClick);
         }
     }
 
-    // Validate the final answer
     private void validateAnswer() {
-        StringBuilder userAnswer = new StringBuilder();
+        StringBuilder enteredAnswer = new StringBuilder();
         for (TextView answerBox : answerBoxes) {
-            userAnswer.append(answerBox.getText().toString());
+            enteredAnswer.append(answerBox.getText());
         }
 
-        if (userAnswer.toString().equals(correctAnswer)) {
-            // Correct answer - fill the answer boxes and navigate to next activity
-            Log.d("BibleActivity", "Correct Answer!");
-            for (int i = 0; i < answerBoxes.length; i++) {
-                answerBoxes[i].setText(String.valueOf(correctAnswer.charAt(i))); // Show the correct answer
-            }
-            // Optionally navigate to the next screen here
-            Intent intent = new Intent(FourPicOneword.this, NextActivity.class);
-            intent.putExtra("CORRECT_ANSWER", correctAnswer);
+        if (enteredAnswer.toString().equalsIgnoreCase(correctAnswer)) {
+            // Answer is correct
+            Intent intent = new Intent(this, NextActivity.class); // Replace with actual next activity
+            intent.putExtra("CORRECT_ANSWER", correctAnswer); // Ensure data is passed correctly
             startActivity(intent);
+            finish();
         } else {
-            // Incorrect answer - handle accordingly (e.g., show an error message)
-            Log.d("BibleActivity", "Incorrect Answer!");
+            // Answer is incorrect
+            isAnswerIncorrect = true;
             for (TextView answerBox : answerBoxes) {
-                answerBox.setBackgroundColor(getResources().getColor(android.R.color.holo_red_light)); // Change background to red
+                answerBox.setBackgroundColor(getResources().getColor(android.R.color.holo_red_light)); // Add a custom drawable resource
             }
-            isAnswerIncorrect = true; // Set the incorrect answer flag
-            // Optionally show a message to the user
-            // Toast.makeText(this, "Try again!", Toast.LENGTH_SHORT).show();
         }
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        Log.d("BibleActivity", "Navigating back to FragmentHome");
     }
 }

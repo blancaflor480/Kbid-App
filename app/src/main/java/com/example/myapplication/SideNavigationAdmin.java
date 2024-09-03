@@ -74,7 +74,7 @@ public class SideNavigationAdmin extends AppCompatActivity implements Navigation
         fetchUserData(navigationView);
 
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_user, R.id.nav_stories, R.id.nav_record, R.id.nav_feedback, R.id.nav_setting)
+                R.id.nav_home, R.id.nav_user, R.id.nav_stories, R.id.nav_games, R.id.nav_record, R.id.nav_feedback, R.id.nav_setting)
                 .setOpenableLayout(drawerLayout)
                 .build();
 

@@ -4,12 +4,17 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -23,6 +28,7 @@ public class SignupUser extends AppCompatActivity {
     private Button buttonSignup, buttonCreate;
     private FirebaseAuth auth;
     private FirebaseFirestore firestore;
+    private LottieAnimationView loader, noInternet;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,9 +43,17 @@ public class SignupUser extends AppCompatActivity {
         inputPassword = findViewById(R.id.inputPassword);
         buttonSignup = findViewById(R.id.buttonSignup);
         buttonCreate = findViewById(R.id.buttonCreate);
+        loader = findViewById(R.id.loader);
+        noInternet = findViewById(R.id.nointernet);
 
         buttonSignup.setOnClickListener(v -> registerUser());
         buttonCreate.setOnClickListener(v -> startActivity(new Intent(SignupUser.this, LoginUser.class)));
+    }
+
+    private boolean isConnected() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
     }
 
     private void registerUser() {
@@ -61,6 +75,14 @@ public class SignupUser extends AppCompatActivity {
             return;
         }
 
+        if (!isConnected()) {
+            showNoInternet();
+            return;
+        }
+
+        // Show loader and disable button
+        showLoader();
+
         // Create user
         auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
@@ -70,8 +92,9 @@ public class SignupUser extends AppCompatActivity {
                         FirebaseUser user = auth.getCurrentUser();
                         addUserToFirestore(user, password);
                     } else {
-                        // If sign in fails, display a message to the user.
+                        // If sign in fails, hide loader and reset button
                         Log.w("SignupUser", "createUserWithEmail:failure", task.getException());
+                        hideLoader();
                         Toast.makeText(SignupUser.this, "Authentication failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -80,6 +103,7 @@ public class SignupUser extends AppCompatActivity {
     private void addUserToFirestore(FirebaseUser user, String password) {
         if (user == null) {
             Toast.makeText(this, "User is null. Cannot add to Firestore.", Toast.LENGTH_SHORT).show();
+            hideLoader();
             return;
         }
 
@@ -94,18 +118,44 @@ public class SignupUser extends AppCompatActivity {
                 .set(userData)
                 .addOnSuccessListener(aVoid -> {
                     Log.d("SignupUser", "User added to Firestore successfully.");
-                    navigateToHome();
+                    showSuccessMessage();
                 })
                 .addOnFailureListener(e -> {
                     Log.w("SignupUser", "Error adding user to Firestore", e);
+                    hideLoader();
                     Toast.makeText(SignupUser.this, "Failed to add user to Firestore: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
 
     private void navigateToHome() {
-        // Navigate to the home screen or another activity
         Intent intent = new Intent(SignupUser.this, HomeActivity.class);
         startActivity(intent);
         finish(); // Close this activity
+    }
+
+    private void showLoader() {
+        buttonSignup.setVisibility(View.GONE);
+        loader.setVisibility(View.VISIBLE);
+        noInternet.setVisibility(View.GONE); // Ensure no internet animation is hidden
+    }
+
+    private void hideLoader() {
+        loader.setVisibility(View.GONE);
+        buttonSignup.setVisibility(View.VISIBLE);
+    }
+
+    private void showSuccessMessage() {
+        loader.setAnimation(R.raw.registeredsucess); // Set the success animation
+        loader.setVisibility(View.VISIBLE);
+        Toast.makeText(SignupUser.this, "Registered Successfully", Toast.LENGTH_SHORT).show();
+        hideLoader();
+        navigateToHome();
+    }
+
+    private void showNoInternet() {
+        noInternet.setVisibility(View.VISIBLE);
+        loader.setVisibility(View.GONE); // Hide loader if there's no internet
+        buttonSignup.setVisibility(View.VISIBLE); // Ensure button is visible if there's no internet
+        Toast.makeText(SignupUser.this, "No internet connection. Please check your connection and try again.", Toast.LENGTH_SHORT).show();
     }
 }

@@ -13,6 +13,9 @@
         android:layout_height="match_parent" >
     </androidx.viewpager2.widget.ViewPager2>
 
+
+
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -21,6 +24,10 @@
         android:background="@color/dirtywhite"
         android:orientation="vertical"
         android:padding="16dp">
+
+
+
+
 
         <TextView
             android:id="@+id/textdes"
@@ -74,19 +81,41 @@
                 android:textSize="18sp" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <Button
-            android:id="@+id/buttonSignin"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="60dp"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="15dp"
-            app:backgroundTint="#38BD6C"
-            android:background="@drawable/btn_getstarted"
-            android:fontFamily="@font/dinroundedpro_bold"
-            android:text="Sign in"
-            android:textColor="@android:color/white"
-            android:textSize="15sp" />
+            android:layout_marginTop="15dp">
+
+            <!-- Sign-in Button -->
+            <Button
+                android:id="@+id/buttonSignin"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/btn_getstarted"
+                android:fontFamily="@font/dinroundedpro_bold"
+                android:text="Sign in"
+                app:backgroundTint="#38BD6C"
+                android:textColor="@android:color/white"
+                android:textSize="15sp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <!-- Loader inside button -->
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/loader"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true"
+            app:lottie_rawRes="@raw/loader"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <TextView
             android:id="@+id/button_skip"
@@ -101,6 +130,18 @@
             android:textColor="@color/dark"
             android:textSize="18sp" />
 
+
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/nointernet"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:visibility="gone"
+            android:layout_gravity="center"
+            app:lottie_autoPlay="true"
+
+            app:lottie_loop="true"
+            app:lottie_rawRes="@raw/nowifi"/>
 
 
     </LinearLayout>

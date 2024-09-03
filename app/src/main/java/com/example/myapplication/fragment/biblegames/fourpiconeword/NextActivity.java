@@ -28,22 +28,21 @@ public class NextActivity extends AppCompatActivity {
         // Retrieve the correct answer from the Intent
         String correctAnswer = getIntent().getStringExtra("CORRECT_ANSWER");
 
+        if (correctAnswer == null) {
+            Log.e("NextActivity", "Correct answer is null");
+            correctAnswer = ""; // Initialize to avoid NullPointerException
+        }
+
         // Display the correct answer in the answer boxes
         displayCorrectAnswer(correctAnswer);
+
         // Initialize arrowback ImageView
         arrowback = findViewById(R.id.arrowback);
 
-
         // Set the click listener for arrowback
-        arrowback.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();  // This will handle back navigation
-            }
-        });
-
-
+        arrowback.setOnClickListener(v -> onBackPressed()); // Handle back navigation
     }
+
     private void displayCorrectAnswer(String correctAnswer) {
         int answerLength = correctAnswer.length();
         TextView[] answerBoxes = new TextView[answerLength];

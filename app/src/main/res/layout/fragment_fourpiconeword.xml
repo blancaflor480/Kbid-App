@@ -51,10 +51,10 @@
         </androidx.cardview.widget.CardView>
 
         <TextView
-            android:id="@+id/questionupto"
+            android:id="@+id/level"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Level 1"
+            android:text="Level "
             android:fontFamily="@font/dinroundedpro_bold"
             android:textSize="20sp"
             android:layout_gravity="center"
@@ -82,24 +82,7 @@
             app:cardBackgroundColor="@android:color/transparent">
 
             <ImageView
-                android:id="@+id/picture1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:src="@drawable/jesus"
-                android:scaleType="centerCrop" />
-        </androidx.cardview.widget.CardView>
-
-        <androidx.cardview.widget.CardView
-            android:layout_width="0dp"
-            android:layout_height="130dp"
-            android:layout_columnWeight="1"
-            android:layout_rowWeight="1"
-            android:layout_margin="5dp"
-            app:cardCornerRadius="10dp"
-            app:cardBackgroundColor="@android:color/transparent">
-
-            <ImageView
-                android:id="@+id/picture2"
+                android:id="@+id/image1"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:src="@drawable/jesus"
@@ -116,7 +99,7 @@
             app:cardBackgroundColor="@android:color/transparent">
 
             <ImageView
-                android:id="@+id/picture3"
+                android:id="@+id/image2"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:src="@drawable/jesus"
@@ -133,7 +116,24 @@
             app:cardBackgroundColor="@android:color/transparent">
 
             <ImageView
-                android:id="@+id/picture4"
+                android:id="@+id/image3"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/jesus"
+                android:scaleType="centerCrop" />
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="0dp"
+            android:layout_height="130dp"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:layout_margin="5dp"
+            app:cardCornerRadius="10dp"
+            app:cardBackgroundColor="@android:color/transparent">
+
+            <ImageView
+                android:id="@+id/image4"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:src="@drawable/jesus"

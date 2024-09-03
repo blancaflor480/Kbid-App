@@ -33,7 +33,10 @@ import com.bumptech.glide.Glide;
 import com.example.myapplication.R;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -417,38 +420,59 @@ public class AdapterUser extends RecyclerView.Adapter<AdapterUser.MyHolder> {
     private void deleteUser(String userId, int position) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         FirebaseAuth auth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = auth.getCurrentUser();
 
+        if (currentUser == null) {
+            Toast.makeText(context, "No user is currently logged in.", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        ModelUser user = list.get(position);
-        String collectionName = user.getRole().equalsIgnoreCase("Admin") || user.getRole().equalsIgnoreCase("SuperAdmin") ? "admin" : "user";
+        if (currentUser.getUid().equals(userId)) {
+            Toast.makeText(context, "You cannot delete your own account while logged in.", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
+        // Determine the collection name based on user role
+        String collectionName = list.get(position).getRole().equalsIgnoreCase("Admin") || list.get(position).getRole().equalsIgnoreCase("SuperAdmin") ? "admin" : "user";
 
-
-        // Delete the user from Firestore
-        db.collection(collectionName).document(userId)
-                .delete()
+        // Reauthenticate the user
+        AuthCredential credential = EmailAuthProvider.getCredential(currentUser.getEmail(), "password"); // Replace "user-password" with the user's password
+        currentUser.reauthenticate(credential)
                 .addOnSuccessListener(aVoid -> {
-                    // Delete the user from Firebase Authentication
-                    auth.getCurrentUser().delete()
-                            .addOnSuccessListener(authVoid -> {
-                                Toast.makeText(context, "User deleted successfully from Firestore and Authentication", Toast.LENGTH_SHORT).show();
+                    // Delete the user from Firestore
+                    db.collection(collectionName).document(userId)
+                            .delete()
+                            .addOnSuccessListener(aVoid1 -> {
+                                // Delete the user from Firebase Authentication
+                                currentUser.delete()
+                                        .addOnSuccessListener(aVoid2 -> {
+                                            Toast.makeText(context, "User deleted successfully from Firestore and Authentication", Toast.LENGTH_SHORT).show();
 
-                                // Safely remove the item from the list
-                                if (position >= 0 && position < list.size()) {
-                                    list.remove(position);
-                                    notifyItemRemoved(position);
-                                    notifyItemRangeChanged(position, list.size());
-                                }
+                                            // Safely remove the item from the list
+                                            if (position >= 0 && position < list.size()) {
+                                                list.remove(position);
+                                                notifyItemRemoved(position);
+                                                notifyItemRangeChanged(position, list.size());
+                                            }
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            // Detailed error message for Authentication deletion failure
+                                            Log.e("DeleteUser", "Error deleting user from Authentication: ", e);
+                                            Toast.makeText(context, "Error deleting user from Authentication: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                        });
                             })
                             .addOnFailureListener(e -> {
-                                Toast.makeText(context, "Error deleting user from Authentication: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                // Detailed error message for Firestore deletion failure
+                                Log.e("DeleteUser", "Error deleting user from Firestore: ", e);
+                                Toast.makeText(context, "Error deleting user from Firestore: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                             });
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(context, "Error deleting user from Firestore: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    // Detailed error message for reauthentication failure
+                    Log.e("DeleteUser", "Error reauthenticating user: ", e);
+                    Toast.makeText(context, "Error reauthenticating user: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
-
 
 
     class MyHolder extends RecyclerView.ViewHolder {

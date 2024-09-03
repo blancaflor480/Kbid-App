@@ -25,6 +25,13 @@
         tools:layout="@layout/fragment_content_stories" />
 
     <fragment
+        android:id="@+id/nav_games"
+        android:name="com.example.myapplication.ui.content.games.GamesFragment"
+        android:label="@string/menu_game"
+        tools:layout="@layout/fragment_games_fourpics" />
+
+
+    <fragment
         android:id="@+id/nav_record"
         android:name="com.example.myapplication.ui.record.RecordFragment"
         android:label="@string/menu_record"

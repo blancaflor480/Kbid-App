@@ -5,18 +5,28 @@ import android.content.Context;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.room.TypeConverters;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Executor;
 
+
+import com.example.myapplication.database.Converters;
+
+import com.example.myapplication.database.gamesdb.Games;
 import com.example.myapplication.database.userdb.User;
 import com.example.myapplication.database.userdb.UserDao;
 import com.example.myapplication.fragment.biblestories.ModelBible;
+import com.example.myapplication.database.gamesdb.GamesDao;
 
-
-@Database(entities = {ModelBible.class, User.class}, version = 2)  // Updated version
+@Database(entities = {ModelBible.class, User.class, Games.class}, version = 3)  // Updated version
+@TypeConverters({Converters.class})
 public abstract class AppDatabase extends RoomDatabase {
     public abstract BibleDao bibleDao();
-    public abstract UserDao userDao();  // Add the UserDao interface
+    public abstract UserDao userDao();
+    public abstract GamesDao gamesDao();  // Add the GameDao interface
 
     private static volatile AppDatabase INSTANCE;
+    private static final Executor databaseWriteExecutor = Executors.newFixedThreadPool(4);
 
     public static AppDatabase getDatabase(final Context context) {
         if (INSTANCE == null) {
@@ -24,7 +34,7 @@ public abstract class AppDatabase extends RoomDatabase {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                                     AppDatabase.class, "bible_database")
-                            .fallbackToDestructiveMigration()  // Add this to handle schema changes
+                            .fallbackToDestructiveMigration()
                             .build();
                 }
             }

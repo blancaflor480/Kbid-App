@@ -17,7 +17,7 @@
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/homepage"
         android:layout_width="match_parent"
-        android:background="#9BC2EF"
+        android:background="@raw/bg_homv2"
         android:layout_height="match_parent"
         />
     <LinearLayout
@@ -29,16 +29,17 @@
         android:layout_marginTop="15dp"
         android:layout_marginBottom="25dp"
         >
+
         <TextView
             android:id="@+id/texttitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Welcome to Kid’s Bible"
-            android:fontFamily="@font/dinroundedpro_bold"
-            android:textSize="25sp"
+            android:layout_alignParentTop="true"
             android:layout_gravity="center"
+            android:fontFamily="@font/titanone_regular"
+            android:text="Welcome to Kid’s Bible"
             android:textColor="@color/white"
-            android:layout_alignParentTop="true" />
+            android:textSize="25sp" />
         <ImageView
             android:layout_width="200dp"
             android:layout_height="265dp"
@@ -58,11 +59,11 @@
         android:layout_height="match_parent">
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:orientation="vertical"
             android:background="@drawable/home_rounded"
-            android:layout_marginTop="200dp"
+            android:layout_marginTop="235dp"
             android:padding="16dp">
 
 
@@ -75,7 +76,7 @@
                 android:layout_height="240dp"
                 android:layout_marginBottom="16dp"
                 app:cardCornerRadius="30dp"
-                app:cardElevation="10dp">
+                >
 
                 <ImageView
                     android:layout_width="match_parent"
@@ -90,33 +91,23 @@
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="70dp"
-                    app:cardCornerRadius="30dp"
-                    app:cardElevation="8dp"
+                    app:cardCornerRadius="20dp"
                     android:layout_marginTop="180dp"
                     android:backgroundTint="@color/white">
                     <TextView
                         android:id="@+id/clickStories"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Bible Stories"
-                        android:fontFamily="@font/dinroundedpro_bold"
-                        android:textSize="18sp"
+                        android:text="BIBLE STORIES"
+                        android:fontFamily="@font/dangrek"
+                        android:textSize="20sp"
                         android:textColor="@color/dark"
                         android:layout_alignParentStart="true"
                         android:layout_gravity="center"
                         android:layout_marginBottom="5dp"
                         android:padding="5dp"/>
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Click"
-                        android:textSize="16sp"
-                        android:textColor="@android:color/white"
-                        android:layout_alignParentEnd="true"
-                        android:layout_marginEnd="10dp"
-                        android:layout_marginBottom="10dp"
-                        android:layout_alignParentBottom="true" />
+
                 </androidx.cardview.widget.CardView>
             </androidx.cardview.widget.CardView>
 
@@ -131,8 +122,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="240dp"
                     android:layout_marginBottom="13dp"
-                    app:cardCornerRadius="30dp"
-                    app:cardElevation="10dp">
+                    app:cardCornerRadius="20dp"
+                    >
 
                     <ImageView
                         android:layout_width="match_parent"
@@ -147,7 +138,7 @@
                     <androidx.cardview.widget.CardView
                         android:layout_width="match_parent"
                         android:layout_height="70dp"
-                        app:cardCornerRadius="30dp"
+                        app:cardCornerRadius="20dp"
                         app:cardElevation="8dp"
                         android:layout_marginTop="180dp"
                         android:backgroundTint="@color/white">
@@ -155,9 +146,9 @@
                             android:id="@+id/clickGames"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Games"
-                            android:fontFamily="@font/dinroundedpro_bold"
-                            android:textSize="18sp"
+                            android:text="GAMES"
+                            android:fontFamily="@font/dangrek"
+                            android:textSize="20sp"
                             android:textColor="@color/dark"
                             android:layout_marginBottom="5dp"
                             android:layout_alignParentStart="true"
@@ -189,9 +180,9 @@
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="240dp"
-                    android:layout_marginBottom="270dp"
-                    app:cardCornerRadius="30dp"
-                    app:cardElevation="10dp">
+                    android:layout_marginBottom="280dp"
+                    app:cardCornerRadius="20dp"
+                    >
 
                     <ImageView
                         android:layout_width="match_parent"
@@ -206,7 +197,7 @@
                     <androidx.cardview.widget.CardView
                         android:layout_width="match_parent"
                         android:layout_height="70dp"
-                        app:cardCornerRadius="30dp"
+                        app:cardCornerRadius="20dp"
                         app:cardElevation="8dp"
                         android:layout_marginTop="180dp"
                         android:backgroundTint="@color/white">
@@ -214,9 +205,9 @@
                             android:id="@+id/songvideo"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Song and Video"
-                            android:fontFamily="@font/dinroundedpro_bold"
-                            android:textSize="18sp"
+                            android:text="MUSIC AND VIDEO"
+                            android:fontFamily="@font/dangrek"
+                            android:textSize="20sp"
                             android:textColor="@color/dark"
                             android:layout_marginBottom="5dp"
                             android:layout_alignParentStart="true"
