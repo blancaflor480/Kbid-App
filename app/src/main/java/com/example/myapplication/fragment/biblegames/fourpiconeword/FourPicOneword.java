@@ -22,13 +22,18 @@ import androidx.lifecycle.LiveData;
 import com.bumptech.glide.Glide;
 import com.example.myapplication.R;
 import com.example.myapplication.database.AppDatabase;
+import com.example.myapplication.database.fourpicsdb.FourPicsOneWord;
+import com.example.myapplication.database.fourpicsdb.FourPicsOneWordDao;
 import com.example.myapplication.database.gamesdb.DataFetcher;
 import com.example.myapplication.database.gamesdb.Games;
 import com.example.myapplication.database.gamesdb.GamesDao;
+import com.example.myapplication.database.userdb.User;
+import com.example.myapplication.database.userdb.UserDao;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 public class FourPicOneword extends AppCompatActivity {
     private static final String TAG = "FourPicOneword";
@@ -40,6 +45,7 @@ public class FourPicOneword extends AppCompatActivity {
     private Button[] keyboardButtons;
     private String correctAnswer;
     private GamesDao gamesDao;
+    private int userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +56,10 @@ public class FourPicOneword extends AppCompatActivity {
         AppDatabase db = AppDatabase.getDatabase(this);
         gamesDao = db.gamesDao();
         DataFetcher dataFetcher = new DataFetcher(gamesDao);
+
+        // Retrieve the userId from Intent
+        userId = getIntent().getIntExtra("USER_ID", -1);
+
 
         Log.d(TAG, "FourPicOneWord Activity started.");
 
@@ -77,7 +87,6 @@ public class FourPicOneword extends AppCompatActivity {
 
         // Observe the database changes after a delay to ensure data is inserted
         new Handler().postDelayed(this::fetchGameData, 2000); // Delay to allow Firestore fetch to complete
-
         // Set up listener for delete button
         ImageButton deleteButton = findViewById(R.id.deleteButton);
         deleteButton.setOnClickListener(v -> onDeleteButtonClick());
@@ -88,37 +97,62 @@ public class FourPicOneword extends AppCompatActivity {
     }
 
     private void fetchGameData() {
-        LiveData<List<Games>> liveData = gamesDao.getAllGames();
-        liveData.observe(this, gamesList -> {
-            if (gamesList != null && !gamesList.isEmpty()) {
-                Games game = gamesList.get(0);
-                correctAnswer = game.getAnswer();
+        int userId = getIntent().getIntExtra("USER_ID", -1);
 
-                if (correctAnswer == null) {
-                    Log.e(TAG, "Correct answer is null");
-                    correctAnswer = ""; // Initialize to empty string to avoid NullPointerException
-                }
+        if (userId == -1) {
+            Log.e(TAG, "User ID is invalid.");
+            return;
+        }
 
-                String imageUrl1 = game.getImageUrl1();
-                String imageUrl2 = game.getImageUrl2();
-                String imageUrl3 = game.getImageUrl3();
-                String imageUrl4 = game.getImageUrl4();
-                String level = game.getLevel();
+        AppDatabase db = AppDatabase.getDatabase(this);
+        LiveData<FourPicsOneWord> currentLevelData = db.fourPicsOneWordDao().getCurrentLevel(userId);
 
-                // Load images into ImageView using Glide
-                loadImages(imageUrl1, imageUrl2, imageUrl3, imageUrl4);
+        currentLevelData.observe(this, fourPicsOneWord -> {
+            if (fourPicsOneWord != null) {
+                int currentLevel = fourPicsOneWord.getCurrentLevel();
 
-                // Update the level TextView
-                TextView levelTextView = findViewById(R.id.level);
-                levelTextView.setText("Level " + level);
+                LiveData<List<Games>> liveData = db.gamesDao().getGamesByLevel(currentLevel);
+                liveData.observe(this, gamesList -> {
+                    if (gamesList != null && !gamesList.isEmpty()) {
+                        Games game = gamesList.get(0);
+                        correctAnswer = game.getAnswer();
 
-                setupAnswerBoxes();  // Setup answer boxes dynamically based on correctAnswer length
-                setupKeyboard(); // Call this after `correctAnswer` is initialized
+                        // Log fetched answer
+                        Log.d(TAG, "Fetched correctAnswer: " + correctAnswer);
+
+                        if (correctAnswer == null) {
+                            Log.e(TAG, "Correct answer is null");
+                            correctAnswer = "";
+                        }
+
+                        String imageUrl1 = game.getImageUrl1();
+                        String imageUrl2 = game.getImageUrl2();
+                        String imageUrl3 = game.getImageUrl3();
+                        String imageUrl4 = game.getImageUrl4();
+                        String level = game.getLevel();
+
+                        loadImages(imageUrl1, imageUrl2, imageUrl3, imageUrl4);
+
+                        TextView levelTextView = findViewById(R.id.level);
+                        levelTextView.setText("Level " + level);
+
+                        setupAnswerBoxes();
+                        setupKeyboard();
+                    } else {
+                        Log.e(TAG, "No games available for the current level in the database.");
+                    }
+                });
             } else {
-                Log.e(TAG, "No games available in the database. Fetching from Firestore.");
+                Log.e(TAG, "User's current level data is not available.");
             }
         });
     }
+
+
+
+
+
+
 
     private void loadImages(String imageUrl1, String imageUrl2, String imageUrl3, String imageUrl4) {
         Glide.with(this)
@@ -272,16 +306,35 @@ public class FourPicOneword extends AppCompatActivity {
 
         if (enteredAnswer.toString().equalsIgnoreCase(correctAnswer)) {
             // Answer is correct
-            Intent intent = new Intent(this, NextActivity.class); // Replace with actual next activity
-            intent.putExtra("CORRECT_ANSWER", correctAnswer); // Ensure data is passed correctly
-            startActivity(intent);
-            finish();
+            int points = 5; // Points for a correct answer
+            int currentLevel = 1; // Add new level + 1
+
+            AppDatabase db = AppDatabase.getDatabase(this);
+            FourPicsOneWordDao dao = db.fourPicsOneWordDao();
+
+            // Update points for the user on a background thread
+            Executors.newSingleThreadExecutor().execute(() -> {
+                dao.addPoints(userId, points);
+                dao.addLevel(userId, currentLevel);
+
+                // After updating points, start the next activity
+                runOnUiThread(() -> {
+                    Intent intent = new Intent(this, NextActivity.class);
+                    intent.putExtra("CORRECT_ANSWER", correctAnswer);
+                    startActivity(intent);
+                    finish();
+                });
+            });
         } else {
             // Answer is incorrect
             isAnswerIncorrect = true;
             for (TextView answerBox : answerBoxes) {
-                answerBox.setBackgroundColor(getResources().getColor(android.R.color.holo_red_light)); // Add a custom drawable resource
+                answerBox.setBackgroundColor(getResources().getColor(android.R.color.holo_red_light));
             }
         }
     }
+
+
 }
+
+

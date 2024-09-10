@@ -1,9 +1,11 @@
 package com.example.myapplication.fragment.biblegames.fourpiconeword;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -11,10 +13,13 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.myapplication.R;
+import com.example.myapplication.fragment.biblegames.GamesFragment;
 
 public class NextActivity extends AppCompatActivity {
 
     ImageView arrowback;
+    Button nextButton;
+    int userId = 1;
     private LinearLayout answerBoxesLayout;
 
     @Override
@@ -36,11 +41,22 @@ public class NextActivity extends AppCompatActivity {
         // Display the correct answer in the answer boxes
         displayCorrectAnswer(correctAnswer);
 
+
         // Initialize arrowback ImageView
         arrowback = findViewById(R.id.arrowback);
+        nextButton = findViewById(R.id.nextButton);
 
         // Set the click listener for arrowback
-        arrowback.setOnClickListener(v -> onBackPressed()); // Handle back navigation
+        arrowback.setOnClickListener(v -> onBackPressed());
+        // Set the click listener for the nextButton
+        // Handle back navigation
+        nextButton.setOnClickListener(v -> {
+            // Navigate back to FourPicOneword activity
+            Intent intent = new Intent(NextActivity.this, FourPicOneword.class);
+            intent.putExtra("USER_ID", userId);
+            startActivity(intent);
+            finish(); // Optionally finish the current activity
+        });
     }
 
     private void displayCorrectAnswer(String correctAnswer) {
@@ -65,9 +81,13 @@ public class NextActivity extends AppCompatActivity {
         }
     }
 
+
+
     @Override
     public void onBackPressed() {
         super.onBackPressed();
         Log.d("BibleActivity", "Navigating back to FragmentHome");
     }
+
+
 }

@@ -1,13 +1,10 @@
 package com.example.myapplication.database.gamesdb;
 
 import android.util.Log;
-
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.Timestamp;
-import com.example.myapplication.database.AppDatabase;
-
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -43,10 +40,16 @@ public class DataFetcher {
                     String timestampString = timestamp != null ? timestamp.toDate().toString() : null; // Converts to String
 
                     // Create a Games object
-                    Games game = new Games(firestoreId, title, answer, level, imageUrl1, imageUrl2, imageUrl3, imageUrl4,  timestampString);
+                    Games game = new Games(firestoreId, title, answer, level, imageUrl1, imageUrl2, imageUrl3, imageUrl4, timestampString);
 
                     // Use Executor to perform the database operation in the background
-                    executor.execute(() -> gamesDao.insert(game));
+                    executor.execute(() -> {
+                        // Check if the game with the same Firestore ID already exists
+                        if (gamesDao.countByFirestoreId(firestoreId) == 0) {
+                            // If not existing, insert the new game
+                            gamesDao.insert(game);
+                        }
+                    });
                 }
             } else {
                 Log.e("DataFetcher", "Error fetching games from Firestore", task.getException());

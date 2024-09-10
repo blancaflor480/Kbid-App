@@ -10,7 +10,7 @@
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/Skipage"
         android:layout_width="match_parent"
-        android:background="@color/dirtywhite"
+        android:background="@color/white"
         android:layout_height="match_parent" >
     </androidx.viewpager2.widget.ViewPager2>
 
@@ -19,7 +19,7 @@
         android:layout_height="wrap_content"
         android:layout_alignTop="@id/Skipage"
         android:layout_centerInParent="true"
-        android:background="@color/dirtywhite"
+        android:background="@color/white"
         android:orientation="vertical"
         android:padding="16dp">
 

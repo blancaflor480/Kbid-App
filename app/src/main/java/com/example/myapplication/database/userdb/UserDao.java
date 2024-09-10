@@ -9,11 +9,17 @@ import androidx.room.Update;
 public interface UserDao {
 
     @Insert
-    void insert(User user);
+    long insert(User user);
 
     @Query("SELECT * FROM user WHERE id = 1 LIMIT 1")
     User getFirstUser();
 
     @Update
     void updateUser(User user);
+
+   // @Query("SELECT level FROM user WHERE id = 1 LIMIT 1")
+    //int getUserLevel();
+
+    //@Query("SELECT COUNT(*) FROM user WHERE id = 1")
+    //int countUserWithIdOne();
 }

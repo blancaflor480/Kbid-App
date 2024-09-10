@@ -1,22 +1,27 @@
 package com.example.myapplication;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.myapplication.database.AppDatabase;
+import com.example.myapplication.database.fourpicsdb.FourPicsOneWord;
+import com.example.myapplication.database.fourpicsdb.FourPicsOneWordDao;
+import com.example.myapplication.database.quizdb.QuizGames;
+import com.example.myapplication.database.quizdb.QuizGamesDao;
 import com.example.myapplication.database.userdb.User;
 import com.example.myapplication.database.userdb.UserDao;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class ChildNameActivity extends AppCompatActivity {
 
@@ -26,6 +31,8 @@ public class ChildNameActivity extends AppCompatActivity {
     private Button buttonContinue;
     private AppDatabase db;
     private UserDao userDao;
+    private QuizGamesDao quizGamesDao;
+    private FourPicsOneWordDao fourPicsOneWordDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,10 +45,16 @@ public class ChildNameActivity extends AppCompatActivity {
         // Initialize the database and DAO
         db = AppDatabase.getDatabase(this);
         userDao = db.userDao();
+        quizGamesDao = db.quizGamesDao();
+        fourPicsOneWordDao = db.fourPicsOneWordDao();
+
+        // Initialize the database and DAO
+
 
         // Set initial state of the button
         buttonContinue.setEnabled(false);
         buttonContinue.setBackgroundColor(Color.GRAY);
+
         buttonContinue.setTextColor(Color.BLACK);
 
         // Add TextWatcher to EditText
@@ -60,7 +73,7 @@ public class ChildNameActivity extends AppCompatActivity {
                     buttonContinue.setTextColor(Color.BLACK);
                 } else {
                     buttonContinue.setEnabled(true);
-                    buttonContinue.setBackgroundColor(getResources().getColor(R.color.greenlightning));
+                    buttonContinue.setBackgroundColor(getResources().getColor(R.color.green));
                     buttonContinue.setTextColor(Color.WHITE);
                 }
             }
@@ -89,12 +102,32 @@ public class ChildNameActivity extends AppCompatActivity {
             // Default values for the avatar
             String defaultAvatarName = "Default Avatar";
             int defaultAvatarResourceId = R.drawable.lion; // Ensure you have this drawable in your project
-
             byte[] defaultAvatarImage = null; // Or replace this with actual image data if available
+
+            // Create and insert the user
             User user = new User(name, name, defaultAvatarName, defaultAvatarResourceId, defaultAvatarImage);
-            userDao.insert(user);
+            long userId = userDao.insert(user); // Assuming this returns the user ID
+
+            // Insert into fourpicsoneword table
+            FourPicsOneWord fourPicsOneWord = new FourPicsOneWord();
+            fourPicsOneWord.setUserId((int) userId);
+            // Create the FourPicsOneWord object with the correct constructor
+            fourPicsOneWord = new FourPicsOneWord((int) userId, 1, 0, new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date()));
+
+
+            // Insert into quizgames table
+            QuizGames quizGames = new QuizGames();
+            quizGames.setUserId((int) userId);
+            quizGames.setScore(0);  // Setting default score or as needed
+            quizGames.setDate(new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date())); // Set the current date
+
+
+            // Assuming you have DAOs for the new tables, you would call them here
+            db.fourPicsOneWordDao().insert(fourPicsOneWord);
+            db.quizGamesDao().insert(quizGames);
         });
     }
+
 
     private void loadSavedName() {
         AsyncTask.execute(() -> {

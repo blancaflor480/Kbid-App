@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:button3d="http://schemas.android.com/apk/res-auto"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -10,22 +12,54 @@
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/homepage"
         android:layout_width="match_parent"
-        android:background="@color/dirtywhite"
+        android:background="@color/white"
         android:layout_height="match_parent"/>
 
     <!-- Loader -->
 
     <!-- Other Views
      -->
+
     <ImageView
         android:id="@+id/imageView"
+        android:layout_marginTop="180dp"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:srcCompat="@raw/getstarted"
+        android:layout_height="1000dp"
+        app:srcCompat="@raw/jes1"
         android:scaleType="centerCrop"/>
+    <TextView
+        android:id="@+id/layerup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Kid's Bible Discovery"
+        android:textAllCaps="true"
+        android:textColor="@color/dark"
+        android:textSize="28sp"
+        android:layout_marginTop="50dp"
+        android:fontFamily="@font/dangrek"
+        android:gravity="center">
+    </TextView>
+    <TextView
+        android:layout_below="@+id/layerup"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:text="A Fun Way to Learn About God's Love!"
+        android:textColor="#666666"
+        android:textAlignment="center"
+        android:textSize="18sp"
+       android:layout_centerInParent="true"
+        android:fontFamily="@font/dinroundedpro_bold"
+      >
+    </TextView>
+
+
 
 
     <!-- Blurred background view -->
+
+
+
+
 
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/loader"
@@ -37,19 +71,20 @@
         app:lottie_loop="true"
         app:lottie_rawRes="@raw/loader"/>
 
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/button"
         android:layout_width="330dp"
         android:layout_height="60dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="60dp"
+        android:layout_marginBottom="70dp"
         android:background="@drawable/btn_getstarted"
         android:fontFamily="@font/dangrek"
         android:text="Get Started"
-        android:textColor="@android:color/white"
+        android:textColor="@color/white"
         android:textSize="20sp"
-        app:backgroundTint="@color/greenlightning"/>
+        app:backgroundTint="@color/green"/>
 
     <TextView
         android:id="@+id/button_login"
@@ -61,6 +96,6 @@
         android:fontFamily="@font/dangrek"
         android:text="HAVE AN ACCOUNT LOGIN"
         android:textAlignment="center"
-        android:textColor="@android:color/white"
-        android:textSize="20sp"/>
+        android:textColor="@color/white"
+        android:textSize="18sp"/>
 </RelativeLayout>

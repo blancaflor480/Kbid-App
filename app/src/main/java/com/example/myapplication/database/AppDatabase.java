@@ -12,18 +12,25 @@ import java.util.concurrent.Executor;
 
 import com.example.myapplication.database.Converters;
 
+import com.example.myapplication.database.fourpicsdb.FourPicsOneWord;
+import com.example.myapplication.database.fourpicsdb.FourPicsOneWordDao;
 import com.example.myapplication.database.gamesdb.Games;
+import com.example.myapplication.database.quizdb.QuizGames;
+import com.example.myapplication.database.quizdb.QuizGamesDao;
 import com.example.myapplication.database.userdb.User;
 import com.example.myapplication.database.userdb.UserDao;
 import com.example.myapplication.fragment.biblestories.ModelBible;
 import com.example.myapplication.database.gamesdb.GamesDao;
 
-@Database(entities = {ModelBible.class, User.class, Games.class}, version = 3)  // Updated version
+@Database(entities = {ModelBible.class, User.class, Games.class, FourPicsOneWord.class, QuizGames.class}, version = 5)  // Updated version
 @TypeConverters({Converters.class})
 public abstract class AppDatabase extends RoomDatabase {
     public abstract BibleDao bibleDao();
     public abstract UserDao userDao();
     public abstract GamesDao gamesDao();  // Add the GameDao interface
+    public abstract FourPicsOneWordDao fourPicsOneWordDao();
+    public abstract QuizGamesDao quizGamesDao();
+
 
     private static volatile AppDatabase INSTANCE;
     private static final Executor databaseWriteExecutor = Executors.newFixedThreadPool(4);

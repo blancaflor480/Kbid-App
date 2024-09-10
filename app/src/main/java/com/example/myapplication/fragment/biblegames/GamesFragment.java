@@ -16,7 +16,8 @@ import com.example.myapplication.fragment.biblegames.quizgame.QuizGame;  // Impo
 public class GamesFragment extends AppCompatActivity {
 
     ImageView arrowback;
-    TextView playQuiz, playPics;  // Declare the ImageView for playQuiz
+    TextView playQuiz, playPics;
+    int userId = 1;// Declare the ImageView for playQuiz
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +57,7 @@ public class GamesFragment extends AppCompatActivity {
             public void onClick(View v) {
                 // Navigate to QuizGame activity
                 Intent intent = new Intent(GamesFragment.this, FourPicOneword.class);
+                intent.putExtra("USER_ID", userId);
                 startActivity(intent);
             }
         });

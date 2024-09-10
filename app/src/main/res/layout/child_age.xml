@@ -11,7 +11,7 @@
         android:id="@+id/childage"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/dirtywhite"
+        android:background="@color/white"
         android:saveEnabled="false" />
 
     <LinearLayout
@@ -20,15 +20,17 @@
         android:layout_alignTop="@id/childage"
         android:layout_centerInParent="true"
 
-        android:background="@color/dirtywhite"
+        android:background="@color/white"
         android:orientation="vertical"
         android:padding="16dp">
 
         <ImageView
             android:id="@+id/imageclip"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:scaleType="fitCenter" />
+            android:layout_width="200dp"
+            android:layout_height="220dp"
+            android:src="@raw/age"
+            android:layout_gravity="center"
+            android:scaleType="centerCrop" />
 
         <TextView
             android:id="@+id/textdes"
@@ -48,6 +50,7 @@
             android:layout_gravity="center"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:textAlignment="center"
             android:fontFamily="@font/dinroundedpro_regular"
             android:text="We’ll personalized the experience for this age"
             android:textColor="@color/darkmin"
@@ -86,7 +89,7 @@
         android:layout_marginBottom="20dp"
         android:fontFamily="@font/dinroundedpro_bold"
         android:text="Continue"
-        app:backgroundTint="#38BD6C"
+        app:backgroundTint="@color/green"
         android:background="@drawable/btn_getstarted"
 
         android:textColor="@android:color/white"

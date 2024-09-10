@@ -10,7 +10,7 @@
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/childname"
         android:layout_width="match_parent"
-        android:background="@color/dirtywhite"
+        android:background="@color/white"
         android:layout_height="match_parent" >
     </androidx.viewpager2.widget.ViewPager2>
 
@@ -20,15 +20,17 @@
         android:layout_alignTop="@id/childname"
         android:layout_centerInParent="true"
 
-        android:background="@color/dirtywhite"
+        android:background="@color/white"
         android:orientation="vertical"
         android:padding="16dp">
 
         <ImageView
             android:id="@+id/imageclip"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:scaleType="fitCenter" />
+            android:layout_width="200dp"
+            android:layout_height="220dp"
+            android:src="@raw/childname"
+            android:layout_gravity="center"
+            android:scaleType="centerCrop" />
 
         <TextView
             android:id="@+id/textdes"
@@ -83,7 +85,7 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="20dp"
-        app:backgroundTint="#38BD6C"
+        app:backgroundTint="@color/green"
         android:background="@drawable/btn_getstarted"
         android:fontFamily="@font/dinroundedpro_bold"
         android:text="Continue"
