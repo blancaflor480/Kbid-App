@@ -21,7 +21,6 @@
         android:backgroundTint="@color/white"
         android:layout_marginHorizontal="0dp"
         app:cardCornerRadius="10dp"
-        android:elevation="38dp"
         android:translationZ="20dp"
         >
         <com.google.android.material.bottomnavigation.BottomNavigationView

@@ -13,6 +13,9 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.airbnb.lottie.LottieAnimationView;
+import com.example.myapplication.database.AppDatabase;
+import com.example.myapplication.database.userdb.User;
+import com.example.myapplication.database.userdb.UserDao;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -23,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseFirestore firestore;
     private LottieAnimationView loader;
+    private UserDao userDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +40,9 @@ public class MainActivity extends AppCompatActivity {
         // Initialize the loader
         loader = findViewById(R.id.loader);
 
+        // Initialize UserDao
+        userDao = AppDatabase.getDatabase(this).userDao();
+
         // Find the buttons by their IDs
         Button getStartedButton = findViewById(R.id.button);
         TextView button_login = findViewById(R.id.button_login);
@@ -46,12 +53,9 @@ public class MainActivity extends AppCompatActivity {
             Log.d("MainActivity", "Show loader");
             showLoader();
 
-            // Delay to show the loader for at least a moment
+            // Check if there is a user record in SQLite
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                // Navigate to ChildNameActivity
-                Intent intent = new Intent(MainActivity.this, ChildNameActivity.class);
-                startActivity(intent);
-                hideLoader();  // Hide loader after navigation
+                checkUserRecord();
             }, 500);  // Short delay (500 milliseconds)
         });
 
@@ -75,6 +79,30 @@ public class MainActivity extends AppCompatActivity {
                 }, 500);  // Short delay (500 milliseconds)
             }
         });
+    }
+
+    private void checkUserRecord() {
+        // Fetch the first user record from the database
+        new Thread(() -> {
+            User user = userDao.getFirstUser();
+            runOnUiThread(() -> {
+                hideLoader();  // Hide loader before navigation
+                if (user != null) {
+                    // User record found, navigate to HomeActivity
+                    navigateToHome();
+                } else {
+                    // No user record found, navigate to ChildNameActivity
+                    navigateToChildNameActivity();
+                }
+            });
+        }).start();
+    }
+
+    private void navigateToChildNameActivity() {
+        Log.d("MainActivity", "Navigate to ChildNameActivity");
+        Intent intent = new Intent(MainActivity.this, ChildNameActivity.class);
+        startActivity(intent);
+        finish(); // Close this activity
     }
 
     private void checkUserRole(String userId) {

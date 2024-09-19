@@ -21,6 +21,7 @@ import com.example.myapplication.database.userdb.User;
 import com.example.myapplication.database.userdb.UserDao;
 import com.example.myapplication.fragment.biblestories.ModelBible;
 import com.example.myapplication.database.gamesdb.GamesDao;
+import com.example.myapplication.MainActivity;
 
 @Database(entities = {ModelBible.class, User.class, Games.class, FourPicsOneWord.class, QuizGames.class}, version = 5)  // Updated version
 @TypeConverters({Converters.class})
