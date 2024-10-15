@@ -18,6 +18,9 @@ import androidx.navigation.Navigation;
 
 import com.example.myapplication.LoginUser;
 import com.example.myapplication.R;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class LogoutFragment extends Fragment {
@@ -58,27 +61,34 @@ public class LogoutFragment extends Fragment {
     }
 
     private void performLogout() {
-        // Perform logout operations
+        // Sign out from Firebase Authentication
         FirebaseAuth.getInstance().signOut();
 
-        // Show success message
-        View view = getView();
-        if (view != null) {
-            TextView successMessage = view.findViewById(R.id.logout_message);
-            successMessage.setVisibility(View.VISIBLE);
-        }
+        // Also sign out from GoogleSignInClient
+        GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(requireActivity(),
+                new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build());
 
-        // Optionally, use Toast to show the message
-        Toast.makeText(getActivity(), "Logout Successful", Toast.LENGTH_SHORT).show();
+        googleSignInClient.signOut().addOnCompleteListener(task -> {
+            // Show success message
+            View view = getView();
+            if (view != null) {
+                TextView successMessage = view.findViewById(R.id.logout_message);
+                successMessage.setVisibility(View.VISIBLE);
+            }
 
-        // Redirect to LoginUser activity after a short delay
-        if (getActivity() != null) {
-            view.postDelayed(() -> {
-                Intent intent = new Intent(getActivity().getApplicationContext(), LoginUser.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-                getActivity().finish(); // Optional: Finish the current activity
-            }, 1000); // Delay for 1 second to allow the user to see the success message
-        }
+            // Optionally, use Toast to show the message
+            Toast.makeText(getActivity(), "Logout Successful", Toast.LENGTH_SHORT).show();
+
+            // Redirect to LoginUser activity after a short delay
+            if (getActivity() != null) {
+                view.postDelayed(() -> {
+                    Intent intent = new Intent(getActivity().getApplicationContext(), LoginUser.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                    getActivity().finish(); // Optional: Finish the current activity
+                }, 1000); // Delay for 1 second to allow the user to see the success message
+            }
+        });
     }
+
 }

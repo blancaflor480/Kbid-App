@@ -7,6 +7,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -14,8 +16,16 @@ import android.net.NetworkInfo;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.airbnb.lottie.LottieAnimationView;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -23,9 +33,12 @@ public class LoginUser extends AppCompatActivity {
 
     private EditText inputEmail, inputPassword;
     private Button buttonSignin, buttonCreate;
+    private RelativeLayout googlesignIn;
     private FirebaseAuth auth;
     private FirebaseFirestore firestore;
     private LottieAnimationView loader, noInternet;
+    private static final int RC_SIGN_IN = 9001;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,9 +52,12 @@ public class LoginUser extends AppCompatActivity {
         inputEmail = findViewById(R.id.inputEmail);
         inputPassword = findViewById(R.id.inputPassword);
         buttonSignin = findViewById(R.id.buttonSignin);
+        googlesignIn = findViewById(R.id.googlesignIn);
         buttonCreate = findViewById(R.id.buttonCreate);
         loader = findViewById(R.id.loader);
         noInternet = findViewById(R.id.nointernet);
+
+        googlesignIn.setOnClickListener(v -> signInWithGoogle());
 
         buttonSignin.setOnClickListener(v -> loginUser());
         buttonCreate.setOnClickListener(v -> startActivity(new Intent(LoginUser.this, SignupUser.class)));
@@ -93,7 +109,6 @@ public class LoginUser extends AppCompatActivity {
     }
 
     private void checkUserInFirestore(String userId) {
-        // Check if the user exists in the 'user' collection
         firestore.collection("user").document(userId).get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -101,7 +116,6 @@ public class LoginUser extends AppCompatActivity {
                         if (document.exists()) {
                             navigateToHome();
                         } else {
-                            // Check if the user exists in the 'admin' collection
                             firestore.collection("admin").document(userId).get()
                                     .addOnCompleteListener(adminTask -> {
                                         if (adminTask.isSuccessful()) {
@@ -114,7 +128,7 @@ public class LoginUser extends AppCompatActivity {
                                                     showNoAccessMessage();
                                                 }
                                             } else {
-                                                showNoAccessMessage();
+                                                handleInvalidAccount(); // Call to sign out and select a new account
                                             }
                                         } else {
                                             Log.e("LoginUser", "Error checking admin collection", adminTask.getException());
@@ -127,6 +141,89 @@ public class LoginUser extends AppCompatActivity {
                         hideLoader();  // Hide loader on error
                     }
                 });
+    }
+
+
+    //Google SignIn
+    private void signInWithGoogle() {
+        // Configure Google Sign-In
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id)) // You'll get this from google-services.json
+                .requestEmail()
+                .build();
+
+        GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(this, gso);
+        Intent signInIntent = googleSignInClient.getSignInIntent();
+        startActivityForResult(signInIntent, RC_SIGN_IN);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == RC_SIGN_IN) {
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            handleSignInResult(task);
+        }
+    }
+
+    private void handleInvalidAccount() {
+        // Sign out from Firebase Auth
+        auth.signOut();
+
+        // Get the GoogleSignInClient
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+        GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(this, gso);
+
+        // Sign out from Google Sign-In
+        googleSignInClient.signOut().addOnCompleteListener(this, task -> {
+            // Once signed out, display a message and prompt the user to select another account
+            Toast.makeText(LoginUser.this, "The selected account does not exist. Please choose another account.", Toast.LENGTH_SHORT).show();
+
+            // Reopen the Google sign-in prompt
+            signInWithGoogle();  // Trigger Google sign-in again
+        });
+    }
+
+
+    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
+        // Also sign out from GoogleSignInClient
+        try {
+            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+
+            if (account != null) {
+                String idToken = account.getIdToken();
+                authenticateWithFirebase(idToken);
+            }
+        } catch (ApiException e) {
+            Log.w("GoogleSignIn", "signInResult:failed code=" + e.getStatusCode());
+            Toast.makeText(this, "Failed to sign in. Please try again.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void authenticateWithFirebase(String idToken) {
+        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
+        auth.signInWithCredential(credential)
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        FirebaseUser user = auth.getCurrentUser();
+                        if (user != null) {
+                            checkUserInFirestore(user.getUid());
+                        }
+                    } else {
+                        Toast.makeText(LoginUser.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+
+
+    private void showNoAccountExists() {
+        hideLoader();
+        Toast.makeText(LoginUser.this, "Your account does not exist.", Toast.LENGTH_SHORT).show();
     }
 
     private void navigateToHome() {

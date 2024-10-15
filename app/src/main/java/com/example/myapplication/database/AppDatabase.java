@@ -12,6 +12,7 @@ import java.util.concurrent.Executor;
 
 import com.example.myapplication.database.Converters;
 
+import com.example.myapplication.database.favorite.FavoriteDao;
 import com.example.myapplication.database.fourpicsdb.FourPicsOneWord;
 import com.example.myapplication.database.fourpicsdb.FourPicsOneWordDao;
 import com.example.myapplication.database.gamesdb.Games;
@@ -22,8 +23,9 @@ import com.example.myapplication.database.userdb.UserDao;
 import com.example.myapplication.fragment.biblestories.ModelBible;
 import com.example.myapplication.database.gamesdb.GamesDao;
 import com.example.myapplication.MainActivity;
+import com.example.myapplication.fragment.biblestories.favoritelist.Modelfavoritelist;
 
-@Database(entities = {ModelBible.class, User.class, Games.class, FourPicsOneWord.class, QuizGames.class}, version = 5)  // Updated version
+@Database(entities = {ModelBible.class, User.class, Games.class, FourPicsOneWord.class, QuizGames.class, Modelfavoritelist.class}, version = 6)  // Updated version
 @TypeConverters({Converters.class})
 public abstract class AppDatabase extends RoomDatabase {
     public abstract BibleDao bibleDao();
@@ -31,6 +33,7 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract GamesDao gamesDao();  // Add the GameDao interface
     public abstract FourPicsOneWordDao fourPicsOneWordDao();
     public abstract QuizGamesDao quizGamesDao();
+    public abstract FavoriteDao FavoriteDao();
 
 
     private static volatile AppDatabase INSTANCE;

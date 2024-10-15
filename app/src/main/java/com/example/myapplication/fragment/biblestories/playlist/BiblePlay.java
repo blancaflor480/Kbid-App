@@ -6,16 +6,23 @@ import android.speech.tts.UtteranceProgressListener;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.example.myapplication.R;
 import com.example.myapplication.database.BibleDatabaseHelper;
+import com.example.myapplication.database.favorite.FavoriteDao;
 import com.example.myapplication.fragment.biblestories.ModelBible;
+import com.example.myapplication.fragment.biblestories.favoritelist.Modelfavoritelist;
+import com.example.myapplication.database.AppDatabase;
 
+import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 public class BiblePlay extends AppCompatActivity {
 
@@ -28,6 +35,8 @@ public class BiblePlay extends AppCompatActivity {
     private boolean isRepeatEnabled = false; // Track repeat state
     private ImageButton playButton, pauseButton, repeatButton, restartButton, nextButton, previousButton;
     private int lastSpokenSentenceIndex = -1;
+    private LinearLayout addplaylist;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +55,10 @@ public class BiblePlay extends AppCompatActivity {
         pauseButton = findViewById(R.id.buttonpause); // Get reference to the pause button
         nextButton = findViewById(R.id.buttonnext); // Reference to the next button
         previousButton = findViewById(R.id.buttonprevious); // Reference to the previous button
+        addplaylist = findViewById(R.id.addplaylist);
+
+
+
 
         // Initialize TextToSpeech
         textToSpeech = new TextToSpeech(this, status -> {

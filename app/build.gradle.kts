@@ -50,6 +50,7 @@ dependencies {
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
     implementation(libs.firebase.storage)
+    implementation(libs.swiperefreshlayout)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -67,6 +68,8 @@ dependencies {
 
     implementation("com.airbnb.android:lottie:6.5.1")
 
+    //Google Sign In
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
 
     // Room dependencies
     val room_version = "2.6.1"

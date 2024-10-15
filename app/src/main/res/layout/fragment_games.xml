@@ -13,7 +13,7 @@
         android:id="@+id/homepage"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/dirtywhite" />
+        android:background="@color/white" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -28,9 +28,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:cardCornerRadius="15dp"
-            app:cardElevation="2dp"
-            app:cardBackgroundColor="@color/dirtywhite"
+            app:cardBackgroundColor="@color/white"
             app:contentPadding="10dp">
 
             <ImageView
@@ -46,8 +44,8 @@
                 android:id="@+id/textStories"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Games"
-                android:fontFamily="@font/dangrek"
+                android:text="GAMES"
+                android:fontFamily="@font/dinroundedpro_bold"
                 android:textSize="25sp"
                 android:layout_gravity="center"
                 android:textColor="@color/black" />
@@ -56,118 +54,103 @@
 
 
     <LinearLayout
+        android:id="@+id/layer1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_gravity="top"
-        android:layout_marginTop="110dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp">
+        android:layout_marginTop="90dp"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp">
 
         <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="270dp"
+            android:layout_width="wrap_content"
+            android:layout_height="350dp"
             android:orientation="vertical"
-            app:cardCornerRadius="15dp"
-            app:cardElevation="2dp"
+            app:cardCornerRadius="30dp"
             app:cardBackgroundColor="@color/lightred"
-            app:contentPadding="25dp">
+            >
 
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="16dp"
-                >
 
 
             <ImageView
                 android:id="@+id/imagefourpics"
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@raw/fourpics"
                 android:layout_centerHorizontal="true"
-                android:scaleType="fitCenter"
+                android:scaleType="centerCrop"
                 />
 
 
-
             <TextView
-                android:id="@+id/titlefourpic"
+                android:id="@+id/playpics"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Four Pics One Word"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="20dp"
                 android:fontFamily="@font/dinroundedpro_bold"
-                android:textSize="25sp"
-                android:textColor="@android:color/white" />
-
-                <TextView
-                    android:id="@+id/playpics"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Play"
-                    android:textSize="16sp"
-                    android:textColor="@android:color/white"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginEnd="10dp"
-                    android:layout_marginBottom="10dp"
-                    android:layout_alignParentBottom="true" />
-            </RelativeLayout>
+                android:text="Four Bible Clues"
+                android:textAllCaps="true"
+                android:textColor="@color/white"
+                android:textSize="25sp" />
+            <View
+                android:layout_width="130dp"
+                android:layout_height="4dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="50dp"
+                android:background="@drawable/textunderlinewhite"
+                android:padding="5dp" />
         </androidx.cardview.widget.CardView>
     </LinearLayout>
 
-    <LinearLayout
+  <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_gravity="top"
-        android:layout_marginTop="400dp"
-        android:paddingLeft="10dp"
+      android:layout_marginTop="450dp"
+      android:paddingLeft="10dp"
         android:paddingRight="10dp">
 
         <androidx.cardview.widget.CardView
+
             android:layout_width="match_parent"
-            android:layout_height="270dp"
+            android:layout_height="350dp"
             android:orientation="vertical"
-            app:cardCornerRadius="15dp"
-            app:cardElevation="2dp"
-            app:cardBackgroundColor="@color/purple"
-            app:contentPadding="25dp">
+            app:cardCornerRadius="30dp"
+            app:cardBackgroundColor="@color/purple">
 
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="16dp"
-                android:background="@color/purple">
-
-
-            <ImageView
-                android:id="@+id/imageStories"
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_centerHorizontal="true"
-                android:scaleType="fitCenter"
-                />
+                <ImageView
+                    android:id="@+id/imageQuiz"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@raw/quiz"
+                    android:layout_centerHorizontal="true"
+                    android:scaleType="centerCrop"
+                    />
 
 
-            <TextView
-                android:id="@+id/titlequiz"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Quiz"
-                android:fontFamily="@font/dinroundedpro_bold"
+
+                <TextView
+                    android:id="@+id/playquiz"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="QUIZ"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="20dp"
+                    android:fontFamily="@font/dinroundedpro_bold"
                 android:textSize="25sp"
-                android:textColor="@android:color/white" />
-            <TextView
-                android:id="@+id/playquiz"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Play"
-                android:textSize="16sp"
-                android:textColor="@android:color/white"
-                android:layout_alignParentEnd="true"
-                android:layout_marginEnd="10dp"
-                android:layout_marginBottom="10dp"
-                android:layout_alignParentBottom="true" />
-            </RelativeLayout>
+                android:textColor="@color/black" />
+            <View
+                android:layout_width="57dp"
+                android:layout_height="4dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="50dp"
+                android:background="@drawable/textunderline"
+                android:padding="5dp" />
+
+
         </androidx.cardview.widget.CardView>
     </LinearLayout>
 

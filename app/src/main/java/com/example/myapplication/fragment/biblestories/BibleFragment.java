@@ -2,6 +2,7 @@ package com.example.myapplication.fragment.biblestories;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.myapplication.database.Converters;
+import com.example.myapplication.fragment.biblestories.favoritelist.favoritelist;
 import com.google.firebase.Timestamp;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
@@ -24,6 +26,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -34,7 +37,8 @@ import java.util.concurrent.Executors;
 
 public class BibleFragment extends AppCompatActivity {
 
-    ImageView arrowback;
+    SwipeRefreshLayout swipeRefreshLayout;
+    ImageView arrowback,playlist;
     RecyclerView recyclerView;
     AdapterBible adapterBible;
     List<ModelBible> bibleStories;
@@ -53,14 +57,19 @@ public class BibleFragment extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         appDatabase = AppDatabase.getDatabase(this);
 
+        // Initialize SwipeRefreshLayout
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);  // Make sure the ID matches your layout
+
         // Initialize arrowback ImageView
         arrowback = findViewById(R.id.arrowback);
 
         // Set the click listener for arrowback
         arrowback.setOnClickListener(v -> onBackPressed());
 
-        //navigating
-
+        playlist = findViewById(R.id.playlist);
+        playlist.setOnClickListener(v -> {
+            startActivity(new Intent(BibleFragment.this, favoritelist.class));
+        });
 
         // Initialize RecyclerView with the correct ID
         recyclerView = findViewById(R.id.recyclep);
@@ -83,6 +92,9 @@ public class BibleFragment extends AppCompatActivity {
         // Load Bible stories initially
         loadBibleStories();
 
+        // Setup the SwipeRefreshLayout listener for refreshing Bible stories
+        swipeRefreshLayout.setOnRefreshListener(this::refreshBibleStories);
+
         // Set up listener for RadioGroup
         storiesSwitch.setOnCheckedChangeListener((group, checkedId) -> {
             if (checkedId == R.id.rb_all_stories) {
@@ -100,6 +112,23 @@ public class BibleFragment extends AppCompatActivity {
             }
         });
     }
+
+
+    // Function to refresh Bible stories
+    private void refreshBibleStories() {
+        swipeRefreshLayout.setRefreshing(true);
+
+        // Reload data based on network availability
+        if (isOnline()) {
+            fetchFromFirestore();
+        } else {
+            loadFromLocalStorage();
+        }
+
+        // Stop the refresh animation once data is loaded
+        swipeRefreshLayout.setRefreshing(false);
+    }
+
 
     private void loadBibleStories() {
         bibleStories = new ArrayList<>();
@@ -125,6 +154,7 @@ public class BibleFragment extends AppCompatActivity {
     }
 
     private void fetchFromFirestore() {
+        swipeRefreshLayout.setRefreshing(true);
         db.collection("stories")
                 .get()
                 .addOnCompleteListener(task -> {
@@ -158,13 +188,21 @@ public class BibleFragment extends AppCompatActivity {
                         adapterBible = new AdapterBible(BibleFragment.this, bibleStories);  // Pass context and list
                         recyclerView.setAdapter(adapterBible);
                     }
+                    swipeRefreshLayout.setRefreshing(false);
                 });
     }
 
     private void loadFromLocalStorage() {
+        swipeRefreshLayout.setRefreshing(true);
+
         Executors.newSingleThreadExecutor().execute(() -> {
             List<ModelBible> localStories = appDatabase.bibleDao().getAllBibleStories();  // Retrieve all stories from the local database
             bibleStories.addAll(localStories);  // Add local stories to the main list
+
+            runOnUiThread(() -> {
+                adapterBible = new AdapterBible(BibleFragment.this, bibleStories);
+                recyclerView.setAdapter(adapterBible);
+            });
         });
     }
 
