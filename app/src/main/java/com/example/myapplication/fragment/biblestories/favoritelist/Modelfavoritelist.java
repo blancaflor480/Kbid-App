@@ -1,47 +1,71 @@
 package com.example.myapplication.fragment.biblestories.favoritelist;
 
 import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
-
 import com.example.myapplication.database.Converters;
-import com.google.firebase.Timestamp;
+import com.example.myapplication.fragment.biblestories.BibleFragment;
+import com.example.myapplication.fragment.biblestories.ModelBible;
+import com.example.myapplication.fragment.biblestories.playlist.BiblePlay;
 
-@Entity(tableName = "favorite")
-@TypeConverters({Converters.class}) // Ensure the Timestamp is handled correctly with Room
+@Entity(tableName = "favorite",
+        foreignKeys = @ForeignKey(entity = ModelBible.class,  // Use the correct Story entity
+                parentColumns = "id", // Make sure this matches the primary key of Story
+                childColumns = "storyId",
+                onDelete = ForeignKey.CASCADE))
+@TypeConverters({Converters.class})  // Ensure the Timestamp is handled correctly with Room
 public class Modelfavoritelist {
-    @PrimaryKey
+
+    @PrimaryKey(autoGenerate = true)
     @NonNull
-    private String id;  // Firestore ID as the primary key
+    private int id;  // Change to String to match the Firestore ID
+
+    private String storyId; // This should reference the 'id' in the Story entity
+    private String userId;
+
 
     private String title;  // Title of the story
     private String description;  // Description of the story
-    private String verse; // New field for verse
-    private String timestamp;  // Change this to String for formatted date
-    private String imageUrl; // New field for image URL
+    private String verse; // Bible verse
+    private String timestamp;  // Formatted date as String
+    private String imageUrl;  // Image URL for the story
 
-    public Modelfavoritelist(){
+    // Default constructor
+    public Modelfavoritelist() {}
 
-    }
-
-    // Constructor to initialize the ModelBible object
-    public Modelfavoritelist(@NonNull String id, String title, String description, String verse, String timestamp, String imageUrl) {
-        this.id = id;
+    // Constructor to initialize the object
+    public Modelfavoritelist(@NonNull int id, String title, String description, String verse, String timestamp, String imageUrl) {
+        this.id = id; // Match the type with String
         this.title = title;
         this.description = description;
         this.verse = verse;
-        this.timestamp = timestamp; // Updated to String
+        this.timestamp = timestamp;
         this.imageUrl = imageUrl;
     }
 
+    // Getters and setters for all fields
     @NonNull
-    public String getId() {
-        return id;
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    // Getter and setter for storyId
+    public String getStoryId() {
+        return storyId;
+    }
+    public void setStoryId(String storyId) {
+        this.storyId = storyId;
     }
 
-    public void setId(@NonNull String id) {
-        this.id = id;
+    // Getter and setter for userId
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public String getTitle() {
@@ -69,10 +93,10 @@ public class Modelfavoritelist {
     }
 
     public String getTimestamp() {
-        return timestamp; // Change return type to String
+        return timestamp;
     }
 
-    public void setTimestamp(String timestamp) { // Change parameter type to String
+    public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
     }
 
@@ -83,6 +107,4 @@ public class Modelfavoritelist {
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
-
-
 }

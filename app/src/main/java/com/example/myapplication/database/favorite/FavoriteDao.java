@@ -11,9 +11,8 @@ import java.util.List;
 @Dao
 public interface FavoriteDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insert(Modelfavoritelist story); // This method handles inserting a ModelBible object
+    void insert(Modelfavoritelist favorite); // This method handles inserting a ModelBible object
 
     @Query("SELECT * FROM favorite")
     List<Modelfavoritelist> getAllBibleStories();
-
 }

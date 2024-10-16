@@ -1,8 +1,10 @@
 package com.example.myapplication.fragment.biblestories.playlist;
 
+import android.database.sqlite.SQLiteConstraintException;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -10,19 +12,22 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.example.myapplication.R;
+import com.example.myapplication.database.BibleDao;
 import com.example.myapplication.database.BibleDatabaseHelper;
 import com.example.myapplication.database.favorite.FavoriteDao;
 import com.example.myapplication.fragment.biblestories.ModelBible;
 import com.example.myapplication.fragment.biblestories.favoritelist.Modelfavoritelist;
 import com.example.myapplication.database.AppDatabase;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
-import java.util.List;
 import java.util.Locale;
-import java.util.UUID;
 
 public class BiblePlay extends AppCompatActivity {
 
@@ -58,6 +63,9 @@ public class BiblePlay extends AppCompatActivity {
         addplaylist = findViewById(R.id.addplaylist);
 
 
+// Add this inside onCreate() after initializing addplaylist
+        addplaylist.setOnClickListener(v -> addStoryToFavorites());
+
 
 
         // Initialize TextToSpeech
@@ -76,6 +84,9 @@ public class BiblePlay extends AppCompatActivity {
                             pauseButton.setEnabled(true); // Enable pause button during narration
                         });
                     }
+
+
+
 
                     @Override
                     public void onDone(String utteranceId) {
@@ -112,6 +123,7 @@ public class BiblePlay extends AppCompatActivity {
         });
 
         // Get data from intent
+        String id = getIntent().getStringExtra("id");
         String title = getIntent().getStringExtra("title");
         String verse = getIntent().getStringExtra("verse");
         String description = getIntent().getStringExtra("description");
@@ -142,6 +154,70 @@ public class BiblePlay extends AppCompatActivity {
         pauseButton.setVisibility(View.GONE);
         repeatButton.setBackgroundTintList(getResources().getColorStateList(R.color.greenlightning)); // Set initial color
     }
+
+
+
+    private void addStoryToFavorites() {
+        String storyId = getCurrentStoryId(); // Get the current story ID as a string
+        Log.d("BiblePlay", "Current Story ID: " + storyId); // Debugging log
+
+        String storyTitle = titleView.getText().toString(); // Get story title from UI
+
+        AppDatabase db = AppDatabase.getDatabase(this);
+        FavoriteDao favoriteDao = db.FavoriteDao();
+        BibleDao bibleDao = db.bibleDao(); // DAO for the stories
+
+        // Use an executor to perform the database operation in the background
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            // Query to check if the story exists
+            ModelBible story = bibleDao.getStoryById(storyId); // Use the storyId as a string
+            Log.d("BiblePlay", "Story Retrieved: " + (story != null)); // Debugging log
+
+            if (story != null) {
+                Modelfavoritelist favorite = new Modelfavoritelist();
+                favorite.setStoryId(storyId); // Set the existing storyId
+                favorite.setUserId(getCurrentUserId()); // Set the current user ID
+                favorite.setTitle(storyTitle); // Set the story title
+
+                try {
+                    favoriteDao.insert(favorite);
+                    runOnUiThread(() ->
+                            Toast.makeText(BiblePlay.this, "Added to Playlist: " + storyTitle, Toast.LENGTH_SHORT).show()
+                    );
+                } catch (SQLiteConstraintException e) {
+                    Log.e("BiblePlay", "Foreign key constraint failed: " + e.getMessage());
+                    runOnUiThread(() ->
+                            Toast.makeText(BiblePlay.this, "Failed to add to favorites.", Toast.LENGTH_SHORT).show()
+                    );
+                }
+            } else {
+                runOnUiThread(() ->
+                        Toast.makeText(BiblePlay.this, "Story does not exist.", Toast.LENGTH_SHORT).show()
+                );
+            }
+        });
+    }
+
+    // Example method to get the current story ID, you might already have this implemented
+    private String getCurrentStoryId() {
+        // Implement logic to return the current story ID
+        // For example, you might want to keep track of it in an instance variable or pass it around
+        //return getIntent().getStringExtra("id");
+        return getIntent().getStringExtra("id");
+    }
+
+
+    private String getCurrentUserId() {
+        // Retrieve the current user ID from Firebase or shared preferences, etc.
+        // Assuming you are using Firebase Auth
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = auth.getCurrentUser();
+        return currentUser != null ? currentUser.getUid() : null;
+    }
+
+////
+
 
     private void setThumbnail(String imageUrl) {
         if (imageUrl != null && !imageUrl.isEmpty()) {
@@ -240,10 +316,10 @@ public class BiblePlay extends AppCompatActivity {
 
     private void loadNextStory() {
         // Assuming you have a way to get the current story ID, you should define it
-        int currentStoryId = getCurrentStoryId(); // Implement this method to retrieve the current story ID
+        String currentStoryId = getCurrentStoryId(); // Implement this method to retrieve the current story ID
 
         BibleDatabaseHelper dbHelper = new BibleDatabaseHelper(this);
-        ModelBible nextStory = dbHelper.getNextStory(currentStoryId);
+        ModelBible nextStory = dbHelper.getNextStory(Integer.parseInt(currentStoryId));
 
         if (nextStory != null) {
             // Update UI with the new story details
@@ -259,12 +335,6 @@ public class BiblePlay extends AppCompatActivity {
         }
     }
 
-    // Example method to get the current story ID, you might already have this implemented
-    private int getCurrentStoryId() {
-        // Implement logic to return the current story ID
-        // For example, you might want to keep track of it in an instance variable or pass it around
-        return 0; // Replace with actual logic
-    }
 
 
 

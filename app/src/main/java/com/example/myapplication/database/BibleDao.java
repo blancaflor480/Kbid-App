@@ -19,4 +19,8 @@ public interface BibleDao {
 
     @Query("SELECT * FROM stories")
     List<ModelBible> getAllBibleStories();
+
+    @Query("SELECT * FROM stories WHERE id = :storyId LIMIT 1")
+    ModelBible getStoryById(String storyId);
+
 }

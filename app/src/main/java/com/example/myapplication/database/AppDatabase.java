@@ -2,10 +2,13 @@ package com.example.myapplication.database;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
+import androidx.sqlite.db.SupportSQLiteDatabase;
+
 import java.util.concurrent.Executors;
 import java.util.concurrent.Executor;
 
@@ -45,6 +48,14 @@ public abstract class AppDatabase extends RoomDatabase {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                                     AppDatabase.class, "bible_database")
+                            .addCallback(new Callback() {
+                                @Override
+                                public void onOpen(@NonNull SupportSQLiteDatabase db) {
+                                    super.onOpen(db);
+                                    // Enable foreign key constraints
+                                    db.execSQL("PRAGMA foreign_keys = ON;");
+                                }
+                            })
                             .fallbackToDestructiveMigration()
                             .build();
                 }
