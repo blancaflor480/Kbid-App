@@ -140,7 +140,7 @@ public class BiblePlay extends AppCompatActivity {
         // Initially, show play button and hide pause button
         playButton.setVisibility(View.VISIBLE);
         pauseButton.setVisibility(View.GONE);
-        repeatButton.setBackgroundTintList(getResources().getColorStateList(R.color.dirtywhite)); // Set initial color
+        repeatButton.setBackgroundTintList(getResources().getColorStateList(R.color.greenlightning)); // Set initial color
     }
 
     private void setThumbnail(String imageUrl) {
@@ -186,10 +186,10 @@ public class BiblePlay extends AppCompatActivity {
 
         if (isRepeatEnabled) {
             // Change the background color to green when repeat is enabled
-            repeatButton.setBackgroundTintList(getResources().getColorStateList(R.color.greenlightning));
+            repeatButton.setBackgroundTintList(getResources().getColorStateList(R.color.gray));
         } else {
             // Change the background color back to gray when repeat is disabled
-            repeatButton.setBackgroundTintList(getResources().getColorStateList(R.color.gray));
+            repeatButton.setBackgroundTintList(getResources().getColorStateList(R.color.greenlightning));
         }
     }
 

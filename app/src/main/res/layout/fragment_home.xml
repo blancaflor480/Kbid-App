@@ -35,7 +35,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_gravity="center"
-            android:fontFamily="@font/titanone_regular"
+            android:fontFamily="@font/dinroundedpro_bold"
             android:text="Welcome to Kid’s Bible"
             android:textColor="@color/white"
             android:textSize="25sp" />

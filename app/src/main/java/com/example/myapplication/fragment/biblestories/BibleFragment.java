@@ -6,22 +6,22 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.example.myapplication.database.Converters;
 import com.example.myapplication.fragment.biblestories.favoritelist.favoritelist;
 import com.google.firebase.Timestamp;
+
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication.R;
 import com.example.myapplication.database.AppDatabase;
-import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import android.widget.RadioButton;
@@ -38,7 +38,7 @@ import java.util.concurrent.Executors;
 public class BibleFragment extends AppCompatActivity {
 
     SwipeRefreshLayout swipeRefreshLayout;
-    ImageView arrowback,playlist;
+    ImageView arrowback;
     RecyclerView recyclerView;
     AdapterBible adapterBible;
     List<ModelBible> bibleStories;
@@ -46,6 +46,11 @@ public class BibleFragment extends AppCompatActivity {
     AppDatabase appDatabase;
     RadioGroup storiesSwitch;
     TextView comingSoonTextView;
+
+    // New UI components
+    LottieAnimationView noConnectionAnimation, playlist;
+    TextView noConnectionMessage;
+    ImageButton restartButton;
 
     @SuppressLint("NonConstantResourceId")
     @Override
@@ -89,7 +94,15 @@ public class BibleFragment extends AppCompatActivity {
         // Initialize "Coming Soon!" TextView
         comingSoonTextView = findViewById(R.id.comingsoon);
 
-        // Load Bible stories initially
+        // Initialize "No Connection" UI components
+        noConnectionAnimation = findViewById(R.id.noconnection);
+        noConnectionMessage = findViewById(R.id.no_connection_message);
+        restartButton = findViewById(R.id.restart);
+
+        // Set onClickListener for restart button
+        restartButton.setOnClickListener(v -> refreshBibleStories());
+
+        // Load Bible stories initially without triggering refresh
         loadBibleStories();
 
         // Setup the SwipeRefreshLayout listener for refreshing Bible stories
@@ -98,51 +111,82 @@ public class BibleFragment extends AppCompatActivity {
         // Set up listener for RadioGroup
         storiesSwitch.setOnCheckedChangeListener((group, checkedId) -> {
             if (checkedId == R.id.rb_all_stories) {
-                // Set backgrounds
                 rbAllStories.setBackgroundResource(R.drawable.bg_selected);
                 rbUpcomingStories.setBackgroundResource(R.drawable.bg_unselected);
-                // Load all stories
                 loadAllStories();
             } else if (checkedId == R.id.rb_upcoming_stories) {
-                // Set backgrounds
                 rbAllStories.setBackgroundResource(R.drawable.bg_unselected);
                 rbUpcomingStories.setBackgroundResource(R.drawable.bg_selected);
-                // Load upcoming stories
                 loadUpcomingStories();
             }
         });
     }
 
-
-    // Function to refresh Bible stories
+    // Function to refresh Bible stories manually only on swipe or restart button click
     private void refreshBibleStories() {
         swipeRefreshLayout.setRefreshing(true);
 
-        // Reload data based on network availability
         if (isOnline()) {
+            // Hide "No Connection" UI components
+            noConnectionAnimation.setVisibility(View.GONE);
+            noConnectionMessage.setVisibility(View.GONE);
+            restartButton.setVisibility(View.GONE);
+
+            // Show RecyclerView and other content
+            recyclerView.setVisibility(View.VISIBLE);
+            storiesSwitch.setVisibility(View.VISIBLE);
+            playlist.setVisibility(View.VISIBLE);
+            arrowback.setVisibility(View.VISIBLE);
+
             fetchFromFirestore();
         } else {
-            loadFromLocalStorage();
-        }
+            // Check if there's any data in local storage
+            Executors.newSingleThreadExecutor().execute(() -> {
+                List<ModelBible> localStories = appDatabase.bibleDao().getAllBibleStories();
+                if (!localStories.isEmpty()) {
+                    runOnUiThread(() -> {
+                        adapterBible = new AdapterBible(BibleFragment.this, localStories);
+                        recyclerView.setAdapter(adapterBible);
 
-        // Stop the refresh animation once data is loaded
-        swipeRefreshLayout.setRefreshing(false);
+                        recyclerView.setVisibility(View.VISIBLE);
+                        storiesSwitch.setVisibility(View.VISIBLE);
+                        playlist.setVisibility(View.VISIBLE);
+                        arrowback.setVisibility(View.VISIBLE);
+
+                        // Hide "No Connection" UI because we have local data
+                        noConnectionAnimation.setVisibility(View.GONE);
+                        noConnectionMessage.setVisibility(View.GONE);
+                        restartButton.setVisibility(View.GONE);
+                    });
+                } else {
+                    // Show "No Connection" UI if no local data is available
+                    runOnUiThread(() -> {
+                        noConnectionAnimation.setVisibility(View.VISIBLE);
+                        noConnectionMessage.setVisibility(View.VISIBLE);
+                        restartButton.setVisibility(View.VISIBLE);
+
+                        recyclerView.setVisibility(View.GONE);
+                        storiesSwitch.setVisibility(View.GONE);
+                        playlist.setVisibility(View.GONE);
+                        arrowback.setVisibility(View.GONE);
+                        comingSoonTextView.setVisibility(View.GONE);
+                    });
+                }
+
+                runOnUiThread(() -> swipeRefreshLayout.setRefreshing(false));
+            });
+        }
     }
 
 
     private void loadBibleStories() {
         bibleStories = new ArrayList<>();
-
-        // Load data from local storage first
         loadFromLocalStorage();
 
-        // Check if device is online
         if (isOnline()) {
-            // Fetch data from Firestore
             fetchFromFirestore();
         } else {
-            // No internet connection, show local data
-            adapterBible = new AdapterBible(this, bibleStories);  // Pass context and list
+            adapterBible = new AdapterBible(this, bibleStories);
             recyclerView.setAdapter(adapterBible);
         }
     }
@@ -154,70 +198,112 @@ public class BibleFragment extends AppCompatActivity {
     }
 
     private void fetchFromFirestore() {
-        swipeRefreshLayout.setRefreshing(true);
         db.collection("stories")
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && task.getResult() != null) {
-                        bibleStories.clear(); // Clear existing stories to avoid duplicates
+                        bibleStories.clear(); // Clear existing list
                         for (DocumentSnapshot document : task.getResult()) {
-                            String id = document.getId();  // Fetch Firestore document ID
-                            String title = document.getString("title");  // Fetch title
-                            String description = document.getString("description");  // Fetch description
-                            String verse = document.getString("verse");  // Fetch verse
-                            Timestamp timestamp = document.getTimestamp("timestamp");  // Fetch timestamp as Timestamp object
-                            String imageUrl = document.getString("imageUrl");  // Fetch image URL
+                            String id = document.getId();
+                            String title = document.getString("title");
+                            String description = document.getString("description");
+                            String verse = document.getString("verse");
+                            Timestamp timestamp = document.getTimestamp("timestamp");
+                            String imageUrl = document.getString("imageUrl");
 
-                            // Convert Timestamp to formatted String
                             String formattedTimestamp = null;
                             if (timestamp != null) {
                                 formattedTimestamp = Converters.fromTimestampToString(timestamp.toDate().getTime());
                             }
 
-                            // Create ModelBible object
                             ModelBible story = new ModelBible(id, title, description, verse, formattedTimestamp, imageUrl);
                             bibleStories.add(story);
 
-                            // Save to local database
+                            // Save the story in SQLite
                             Executors.newSingleThreadExecutor().execute(() -> {
-                                appDatabase.bibleDao().insert(story);  // Insert each story into the local database
+                                appDatabase.bibleDao().insert(story);
                             });
                         }
 
-                        // Update RecyclerView adapter with the list of stories
-                        adapterBible = new AdapterBible(BibleFragment.this, bibleStories);  // Pass context and list
-                        recyclerView.setAdapter(adapterBible);
+                        // Ensure the adapter is initialized before calling notifyDataSetChanged
+                        if (adapterBible == null) {
+                            adapterBible = new AdapterBible(BibleFragment.this, bibleStories);
+                            recyclerView.setAdapter(adapterBible);
+                        } else {
+                            adapterBible.notifyDataSetChanged(); // Safely update the adapter
+                        }
                     }
                     swipeRefreshLayout.setRefreshing(false);
+                })
+                .addOnFailureListener(e -> {
+                    swipeRefreshLayout.setRefreshing(false);
+                    // Show "No Connection" UI if fetch fails and no data in local storage
+                    Executors.newSingleThreadExecutor().execute(() -> {
+                        List<ModelBible> localStories = appDatabase.bibleDao().getAllBibleStories();
+                        if (localStories.isEmpty()) {
+                            runOnUiThread(() -> {
+                                noConnectionAnimation.setVisibility(View.VISIBLE);
+                                noConnectionMessage.setVisibility(View.VISIBLE);
+                                restartButton.setVisibility(View.VISIBLE);
+
+                                recyclerView.setVisibility(View.GONE);
+                                storiesSwitch.setVisibility(View.GONE);
+                                playlist.setVisibility(View.GONE);
+                                arrowback.setVisibility(View.GONE);
+                                comingSoonTextView.setVisibility(View.GONE);
+                            });
+                        }
+                    });
                 });
     }
 
+
+
+
     private void loadFromLocalStorage() {
-        swipeRefreshLayout.setRefreshing(true);
-
         Executors.newSingleThreadExecutor().execute(() -> {
-            List<ModelBible> localStories = appDatabase.bibleDao().getAllBibleStories();  // Retrieve all stories from the local database
-            bibleStories.addAll(localStories);  // Add local stories to the main list
-
+            List<ModelBible> localStories = appDatabase.bibleDao().getAllBibleStories();
             runOnUiThread(() -> {
-                adapterBible = new AdapterBible(BibleFragment.this, bibleStories);
-                recyclerView.setAdapter(adapterBible);
+                if (!localStories.isEmpty()) {
+                    bibleStories.clear();
+                    bibleStories.addAll(localStories); // Add local stories
+                    adapterBible = new AdapterBible(BibleFragment.this, bibleStories);
+                    recyclerView.setAdapter(adapterBible);
+                } else {
+                    // Show "No Data" UI if no stories are found and there's no internet connection
+                    if (!isOnline()) {
+                        showNoConnectionUI();
+                    }
+                }
             });
         });
     }
 
+    private void showNoConnectionUI() {
+        noConnectionAnimation.setVisibility(View.VISIBLE);
+        noConnectionMessage.setVisibility(View.VISIBLE);
+        restartButton.setVisibility(View.VISIBLE);
+
+        recyclerView.setVisibility(View.GONE);
+        storiesSwitch.setVisibility(View.GONE);
+        playlist.setVisibility(View.GONE);
+        arrowback.setVisibility(View.GONE);
+        comingSoonTextView.setVisibility(View.GONE);
+    }
+
+
     private void loadAllStories() {
         Executors.newSingleThreadExecutor().execute(() -> {
-            List<ModelBible> allStories = appDatabase.bibleDao().getAllBibleStories();  // Retrieve all stories from the local database
+            List<ModelBible> allStories = appDatabase.bibleDao().getAllBibleStories();
 
             runOnUiThread(() -> {
                 if (allStories.isEmpty()) {
-                    comingSoonTextView.setVisibility(View.VISIBLE);  // Show "Coming Soon!" message
-                    recyclerView.setVisibility(View.GONE);  // Hide RecyclerView
+                    comingSoonTextView.setVisibility(View.VISIBLE);
+                    recyclerView.setVisibility(View.GONE);
                 } else {
-                    comingSoonTextView.setVisibility(View.GONE);  // Hide "Coming Soon!" message
-                    recyclerView.setVisibility(View.VISIBLE);  // Show RecyclerView
-                    adapterBible = new AdapterBible(BibleFragment.this, allStories);  // Pass context and list
+                    comingSoonTextView.setVisibility(View.GONE);
+                    recyclerView.setVisibility(View.VISIBLE);
+                    adapterBible = new AdapterBible(BibleFragment.this, allStories);
                     recyclerView.setAdapter(adapterBible);
                 }
             });
@@ -227,16 +313,16 @@ public class BibleFragment extends AppCompatActivity {
     private void loadUpcomingStories() {
         Executors.newSingleThreadExecutor().execute(() -> {
             String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-            List<ModelBible> upcomingStories = appDatabase.bibleDao().getUpcomingBibleStories(currentDate);  // Retrieve upcoming stories from the local database
+            List<ModelBible> upcomingStories = appDatabase.bibleDao().getUpcomingBibleStories(currentDate);
 
             runOnUiThread(() -> {
                 if (upcomingStories.isEmpty()) {
-                    comingSoonTextView.setVisibility(View.VISIBLE);  // Show "Coming Soon!" message
-                    recyclerView.setVisibility(View.GONE);  // Hide RecyclerView
+                    comingSoonTextView.setVisibility(View.VISIBLE);
+                    recyclerView.setVisibility(View.GONE);
                 } else {
-                    comingSoonTextView.setVisibility(View.GONE);  // Hide "Coming Soon!" message
-                    recyclerView.setVisibility(View.VISIBLE);  // Show RecyclerView
-                    adapterBible = new AdapterBible(BibleFragment.this, upcomingStories);  // Pass context and list
+                    comingSoonTextView.setVisibility(View.GONE);
+                    recyclerView.setVisibility(View.VISIBLE);
+                    adapterBible = new AdapterBible(BibleFragment.this, upcomingStories);
                     recyclerView.setAdapter(adapterBible);
                 }
             });

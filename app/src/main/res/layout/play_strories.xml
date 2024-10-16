@@ -29,8 +29,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:cardCornerRadius="15dp"
-            app:cardElevation="2dp"
             app:cardBackgroundColor="@color/white"
             app:contentPadding="10dp">
 
@@ -132,7 +130,7 @@
                 android:text="Title Stories"
                 android:textAlignment="center"
                 android:fontFamily="@font/dinroundedpro_bold"
-                android:textSize="23sp"
+                android:textSize="20sp"
                 android:textColor="@android:color/black" />
 
             <TextView
@@ -166,9 +164,9 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="10dp"
+            android:padding="13dp"
             android:gravity="center"
-            android:layout_marginBottom="5dp"
+            android:layout_marginTop="15dp"
             android:background="@drawable/bg_narrator"
 
             >
@@ -193,60 +191,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginBottom="5dp"
+        android:layout_marginBottom="0dp"
         android:layout_alignParentBottom="true"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp">
+        >
 
-        <!-- Duration Display and Toggle SeekBar -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="5dp"
-            android:gravity="center_vertical">
-
-            <!-- Current Time Display -->
-            <TextView
-                android:id="@+id/textCurrentTime"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="00:00"
-                android:textSize="14sp"
-                android:textColor="@color/black"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp"/>
-
-            <!-- SeekBar to Monitor and Control Progress -->
-            <SeekBar
-                android:id="@+id/seekBar"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:progressTint="@color/blue"
-                android:thumbTint="@color/blue"
-                android:max="100"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp"/>
-
-            <!-- Total Duration Display -->
-            <TextView
-                android:id="@+id/textTotalDuration"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="03:00"
-                android:textSize="14sp"
-                android:textColor="@color/black"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp"/>
-        </LinearLayout>
 
         <!-- Existing CardView Layout for Player Controls -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="5dp"
-            app:cardBackgroundColor="@color/gray"
+            app:cardBackgroundColor="@color/greenlightning"
             app:contentPadding="2dp">
 
             <RelativeLayout
@@ -266,7 +220,7 @@
                         android:layout_width="60dp"
                         android:layout_height="60dp"
                         android:scaleType="fitCenter"
-                        android:backgroundTint="@color/gray"
+                        android:backgroundTint="@color/greenlightning"
                         android:src="@drawable/fast_rewind" />
 
                     <ImageButton
@@ -274,7 +228,7 @@
                         android:layout_width="60dp"
                         android:layout_height="60dp"
                         android:scaleType="fitCenter"
-                        android:backgroundTint="@color/gray"
+                        android:backgroundTint="@color/greenlightning"
                         android:src="@drawable/play_circle" />
                     <ImageButton
                         android:id="@+id/buttonpause"
@@ -282,7 +236,7 @@
                         android:layout_height="60dp"
                         android:scaleType="fitCenter"
                         android:visibility="gone"
-                        android:backgroundTint="@color/gray"
+                        android:backgroundTint="@color/greenlightning"
                         android:src="@drawable/pause_circle" />
 
                     <ImageButton
@@ -290,7 +244,7 @@
                         android:layout_width="60dp"
                         android:layout_height="60dp"
                         android:scaleType="fitCenter"
-                        android:backgroundTint="@color/gray"
+                        android:backgroundTint="@color/greenlightning"
                         android:src="@drawable/fast_forward" />
                 </LinearLayout>
 
@@ -302,7 +256,7 @@
                     android:layout_alignParentStart="true"
                     android:layout_centerVertical="true"
                     android:scaleType="fitCenter"
-                    android:backgroundTint="@color/gray"
+                    android:backgroundTint="@color/greenlightning"
                     android:src="@drawable/repeat"
                     android:layout_marginEnd="10dp" />
                 <ImageButton
@@ -312,7 +266,7 @@
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
                     android:scaleType="fitCenter"
-                    android:backgroundTint="@color/gray"
+                    android:backgroundTint="@color/greenlightning"
                     android:src="@drawable/restart"
                     android:layout_marginEnd="10dp" />
             </RelativeLayout>
