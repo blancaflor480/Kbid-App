@@ -156,6 +156,34 @@ public class BiblePlay extends AppCompatActivity {
     }
 
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        checkIfStoryIsFavorite();
+    }
+
+    private void checkIfStoryIsFavorite() {
+        String storyId = getCurrentStoryId(); // Get the current story ID as a string
+        AppDatabase db = AppDatabase.getDatabase(this);
+        FavoriteDao favoriteDao = db.FavoriteDao();
+
+        // Use an executor to perform the database operation in the background
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            // Check if the favorite exists for the current user
+            Modelfavoritelist existingFavorite = favoriteDao.getFavoriteByStoryIdAndUserId(storyId);
+
+            runOnUiThread(() -> {
+                if (existingFavorite != null) {
+                    // If favorite exists, set button color to gray
+                    addplaylist.setBackgroundTintList(getResources().getColorStateList(R.color.gray));
+                } else {
+                    // If favorite doesn't exist, set button color to green
+                    addplaylist.setBackgroundTintList(getResources().getColorStateList(R.color.greenlightning));
+                }
+            });
+        });
+    }
 
     private void addStoryToFavorites() {
         String storyId = getCurrentStoryId(); // Get the current story ID as a string
@@ -170,34 +198,51 @@ public class BiblePlay extends AppCompatActivity {
         // Use an executor to perform the database operation in the background
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            // Query to check if the story exists
+            // Query to check if the story exists in the Bible table
             ModelBible story = bibleDao.getStoryById(storyId); // Use the storyId as a string
             Log.d("BiblePlay", "Story Retrieved: " + (story != null)); // Debugging log
 
             if (story != null) {
-                Modelfavoritelist favorite = new Modelfavoritelist();
-                favorite.setStoryId(storyId); // Set the existing storyId
-                favorite.setUserId(getCurrentUserId()); // Set the current user ID
-                favorite.setTitle(storyTitle); // Set the story title
+                // Check if the favorite already exists for the current user
+                Modelfavoritelist existingFavorite = favoriteDao.getFavoriteByStoryIdAndUserId(storyId);
 
-                try {
-                    favoriteDao.insert(favorite);
-                    runOnUiThread(() ->
-                            Toast.makeText(BiblePlay.this, "Added to Playlist: " + storyTitle, Toast.LENGTH_SHORT).show()
-                    );
-                } catch (SQLiteConstraintException e) {
-                    Log.e("BiblePlay", "Foreign key constraint failed: " + e.getMessage());
-                    runOnUiThread(() ->
-                            Toast.makeText(BiblePlay.this, "Failed to add to favorites.", Toast.LENGTH_SHORT).show()
-                    );
+                if (existingFavorite != null) {
+                    // If favorite already exists, remove it from favorites
+                    favoriteDao.delete(existingFavorite); // Delete operation should be in background
+                    runOnUiThread(() -> {
+                        addplaylist.setBackgroundTintList(getResources().getColorStateList(R.color.greenlightning)); // Change to green
+                        Toast.makeText(BiblePlay.this, "Removed from Favorites: " + storyTitle, Toast.LENGTH_SHORT).show();
+                    });
+                } else {
+                    // If favorite doesn't exist, insert it
+                    Modelfavoritelist favorite = new Modelfavoritelist();
+                    favorite.setStoryId(storyId); // Set the existing storyId
+                    favorite.setUserId(getCurrentUserId()); // Set the current user ID
+                    favorite.setTitle(storyTitle); // Set the story title
+
+                    try {
+                        favoriteDao.insert(favorite); // Insert operation should be in background
+                        runOnUiThread(() -> {
+                            addplaylist.setBackgroundTintList(getResources().getColorStateList(R.color.gray)); // Change to gray
+                            Toast.makeText(BiblePlay.this, "Added to Favorites: " + storyTitle, Toast.LENGTH_SHORT).show();
+                        });
+                    } catch (SQLiteConstraintException e) {
+                        Log.e("BiblePlay", "Foreign key constraint failed: " + e.getMessage());
+                        runOnUiThread(() -> {
+                            Toast.makeText(BiblePlay.this, "Failed to add to favorites.", Toast.LENGTH_SHORT).show();
+                        });
+                    }
                 }
             } else {
-                runOnUiThread(() ->
-                        Toast.makeText(BiblePlay.this, "Story does not exist.", Toast.LENGTH_SHORT).show()
-                );
+                runOnUiThread(() -> {
+                    Toast.makeText(BiblePlay.this, "Story does not exist.", Toast.LENGTH_SHORT).show();
+                });
             }
         });
     }
+
+
+
 
     // Example method to get the current story ID, you might already have this implemented
     private String getCurrentStoryId() {

@@ -1,0 +1,6 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#E8F5A9"/> <!-- Light green color -->
+    <corners android:topLeftRadius="400dp"
+        android:topRightRadius="400dp" /> <!-- Creates the curve -->
+</shape>

@@ -44,7 +44,7 @@
                 android:id="@+id/textStories"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="GAMES"
+                android:text="Games"
                 android:fontFamily="@font/dinroundedpro_bold"
                 android:textSize="25sp"
                 android:layout_gravity="center"
@@ -119,13 +119,13 @@
             android:layout_height="350dp"
             android:orientation="vertical"
             app:cardCornerRadius="30dp"
-            app:cardBackgroundColor="@color/purple">
+            app:cardBackgroundColor="@color/dirtywhite">
 
                 <ImageView
                     android:id="@+id/imageQuiz"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@raw/quiz"
+                    android:src="@raw/quiz_comingsoon"
                     android:layout_centerHorizontal="true"
                     android:scaleType="centerCrop"
                     />

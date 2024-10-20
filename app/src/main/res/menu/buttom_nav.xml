@@ -6,16 +6,16 @@
         android:id="@+id/itHome"
         android:title=""
         app:showAsAction="ifRoom"
-        android:icon="@drawable/baseline_house_24"/>
+        android:icon="@drawable/home_latest"/>
     <item
         android:id="@+id/itAchievement"
         android:title=""
         app:showAsAction="ifRoom"
-        android:icon="@drawable/baseline_star_24"/>
+        android:icon="@drawable/star_latest"/>
 
     <item
         android:id="@+id/itSettings"
         android:title=""
         app:showAsAction="ifRoom"
-        android:icon="@drawable/baseline_settings_24"/>
+        android:icon="@drawable/settings_latest"/>
 </menu>

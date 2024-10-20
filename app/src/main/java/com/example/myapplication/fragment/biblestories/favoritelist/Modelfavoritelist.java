@@ -1,15 +1,12 @@
 package com.example.myapplication.fragment.biblestories.favoritelist;
 
 import androidx.annotation.NonNull;
-import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
 import com.example.myapplication.database.Converters;
-import com.example.myapplication.fragment.biblestories.BibleFragment;
 import com.example.myapplication.fragment.biblestories.ModelBible;
-import com.example.myapplication.fragment.biblestories.playlist.BiblePlay;
 
 @Entity(tableName = "favorite",
         foreignKeys = @ForeignKey(entity = ModelBible.class,  // Use the correct Story entity
@@ -24,6 +21,7 @@ public class Modelfavoritelist {
     private int id;  // Change to String to match the Firestore ID
 
     private String storyId; // This should reference the 'id' in the Story entity
+
     private String userId;
 
 
@@ -36,9 +34,10 @@ public class Modelfavoritelist {
     // Default constructor
     public Modelfavoritelist() {}
 
+
     // Constructor to initialize the object
-    public Modelfavoritelist(@NonNull int id, String title, String description, String verse, String timestamp, String imageUrl) {
-        this.id = id; // Match the type with String
+    public Modelfavoritelist(String storyId, String title, String description, String verse, String timestamp, String imageUrl) {
+        this.storyId = storyId;
         this.title = title;
         this.description = description;
         this.verse = verse;

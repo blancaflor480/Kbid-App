@@ -60,7 +60,7 @@ public class favoritelist extends AppCompatActivity {
         // Load from local storage first
         loadFromLocalStorage();
 
-        // If online, fetch from Firestore
+        // If online, fetch from Firestore and check for updates
         if (isOnline()) {
             fetchFromFirestore();
         }
@@ -77,11 +77,11 @@ public class favoritelist extends AppCompatActivity {
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && task.getResult() != null) {
-                        bibleStories.clear();  // Clear to avoid duplicates
+                        List<Modelfavoritelist> fetchedStories = new ArrayList<>();
 
                         for (DocumentSnapshot document : task.getResult()) {
                             // Fetch data from Firestore
-                            int id = Integer.parseInt(document.getId());
+                            String storyId = document.getId();
                             String title = document.getString("title");
                             String description = document.getString("description");
                             String verse = document.getString("verse");
@@ -95,17 +95,27 @@ public class favoritelist extends AppCompatActivity {
                             }
 
                             // Create the story object
-                            Modelfavoritelist story = new Modelfavoritelist(id, title, description, verse, formattedTimestamp, imageUrl);
-                            bibleStories.add(story);
+                            Modelfavoritelist story = new Modelfavoritelist(storyId, title, description, verse, formattedTimestamp, imageUrl);
+                            fetchedStories.add(story);
 
-                            // Save story locally
-                            Executors.newSingleThreadExecutor().execute(() -> appDatabase.FavoriteDao().insert(story));
+                            // Check if story exists locally
+                            Executors.newSingleThreadExecutor().execute(() -> {
+                                Modelfavoritelist localStory = appDatabase.FavoriteDao().getFavoriteByStoryIdAndUserId(storyId);
+                                if (localStory == null || !localStory.equals(story)) {
+                                    // Update local SQLite if story doesn't exist or is different
+                                    appDatabase.FavoriteDao().insert(story);
+                                }
+                            });
                         }
 
-                        // Update RecyclerView with fetched data
+                        // Update UI with fetched data from Firestore
                         runOnUiThread(() -> {
-                            adapterfavoritelist = new Adapterfavoritelist(favoritelist.this, bibleStories);
-                            recyclerView.setAdapter(adapterfavoritelist);
+                            // If fetched stories have updates, update the local list
+                            if (!fetchedStories.isEmpty()) {
+                                bibleStories.clear();
+                                bibleStories.addAll(fetchedStories);
+                                adapterfavoritelist.notifyDataSetChanged();
+                            }
                         });
                     }
                 });
@@ -113,10 +123,10 @@ public class favoritelist extends AppCompatActivity {
 
     private void loadFromLocalStorage() {
         Executors.newSingleThreadExecutor().execute(() -> {
-            List<Modelfavoritelist> localStories = appDatabase.FavoriteDao().getAllBibleStories();
+            List<Modelfavoritelist> localStoriesWithDetails = appDatabase.FavoriteDao().getAllFavoriteStoriesWithDetails();
 
             runOnUiThread(() -> {
-                if (localStories.isEmpty()) {
+                if (localStoriesWithDetails.isEmpty()) {
                     // Show empty view if no data is found
                     emptyTextView.setVisibility(View.VISIBLE);
                     recyclerView.setVisibility(View.GONE);
@@ -125,13 +135,14 @@ public class favoritelist extends AppCompatActivity {
                     emptyTextView.setVisibility(View.GONE);
                     recyclerView.setVisibility(View.VISIBLE);
 
-                    bibleStories.addAll(localStories);
+                    bibleStories.clear();
+                    bibleStories.addAll(localStoriesWithDetails);
 
-                    // Update adapter with local data
                     adapterfavoritelist = new Adapterfavoritelist(favoritelist.this, bibleStories);
                     recyclerView.setAdapter(adapterfavoritelist);
                 }
             });
         });
     }
+
 }

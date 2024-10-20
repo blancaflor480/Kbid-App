@@ -3,6 +3,7 @@ package com.example.myapplication.fragment;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,18 +11,31 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.VideoView;
+import com.bumptech.glide.Glide;
+import android.widget.ImageView;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.myapplication.R;
+import com.example.myapplication.database.AppDatabase;
+import com.example.myapplication.database.userdb.User;
+import com.example.myapplication.database.userdb.UserDao;
 import com.example.myapplication.fragment.biblegames.GamesFragment;
 import com.example.myapplication.fragment.biblestories.BibleFragment;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 public class FragmentHome extends Fragment {
-    TextView clickStories;
+    TextView clickStories,userNameTextView;
     TextView clickGames;
     VideoView videoView;
+    ImageView imageView, imageright, userAvatarImageView;
+    // For displaying user name
+      // For displaying user avatar
+
+    private AppDatabase db;
+    private UserDao userDao;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
@@ -29,49 +43,57 @@ public class FragmentHome extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
-        // Initialize VideoView using the view object
-        videoView = view.findViewById(R.id.videoView);
+        imageView = view.findViewById(R.id.cloudgif);
+        imageright = view.findViewById(R.id.cloudgifright);
+        userNameTextView = view.findViewById(R.id.name);
+        userAvatarImageView = view.findViewById(R.id.avatar);
 
-        // Set the video URI
-        Uri uri = Uri.parse("android.resource://" + requireContext().getPackageName() + "/" + R.raw.bg_gif1);
-        videoView.setVideoURI(uri);
+        // Initialize database and DAO
+        db = AppDatabase.getDatabase(getContext());
+        userDao = db.userDao();
 
-        // Set video scaling mode for full stretch
-        videoView.setOnPreparedListener(mediaPlayer -> {
-            mediaPlayer.setLooping(true); // Set video to loop
-            mediaPlayer.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);
-        });
+        // Load user data
+        loadUserData();
 
-        // Initialize the TextViews
+        // Glide GIF loading (already implemented in your original code)
+        Glide.with(this)
+                .asGif()
+                .load(R.raw.cloud)
+                .into(imageView);
+        Glide.with(this)
+                .asGif()
+                .load(R.raw.cloud)
+                .into(imageright);
+
+        // Set up click listeners
         clickStories = view.findViewById(R.id.clickStories);
         clickGames = view.findViewById(R.id.clickGames);
 
-        // Set click listeners for the TextViews
-        clickStories.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                navigateToBibleActivity();
-            }
-        });
-
-        clickGames.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                navigateToBiblegamesActivity();
-            }
-        });
+        clickStories.setOnClickListener(v -> navigateToBibleActivity());
+        clickGames.setOnClickListener(v -> navigateToBiblegamesActivity());
 
         return view;
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        // Start playing the video when the fragment resumes
-        if (videoView != null) {
-            videoView.start();
-        }
+    private void loadUserData() {
+        AsyncTask.execute(() -> {
+            User user = userDao.getFirstUser(); // Get the first user from the database
+            if (user != null) {
+                // Update UI on the main thread
+                requireActivity().runOnUiThread(() -> {
+                    // Set greeting message with the user's name
+                    String greetingMessage = "Hello, " + user.getChildName(); // Create greeting message
+                    userNameTextView.setText(greetingMessage); // Display greeting message
+
+                    // Load avatar using Glide
+                    Glide.with(requireContext()) // Use requireContext() for Glide
+                            .load(user.getAvatarResourceId()) // Load avatar using Glide
+                            .into(userAvatarImageView);
+                });
+            }
+        });
     }
+
 
     private void navigateToBibleActivity() {
         Intent intent = new Intent(getActivity(), BibleFragment.class);

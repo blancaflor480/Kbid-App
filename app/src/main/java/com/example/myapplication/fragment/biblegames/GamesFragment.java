@@ -30,7 +30,7 @@ public class GamesFragment extends AppCompatActivity {
         arrowback = findViewById(R.id.arrowback);
 
         // Initialize playQuiz ImageView
-        playQuiz = findViewById(R.id.playquiz);  // Ensure you have an ImageView or Button with this ID in your XML
+       //playQuiz = findViewById(R.id.playquiz);  // Ensure you have an ImageView or Button with this ID in your XML
         playPics = findViewById(R.id.playpics);  // Ensure you have an ImageView or Button with this ID in your XML
 
         // Set the click listener for arrowback
@@ -42,14 +42,14 @@ public class GamesFragment extends AppCompatActivity {
         });
 
         // Set the click listener for playQuiz
-        playQuiz.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+       // playQuiz.setOnClickListener(new View.OnClickListener() {
+        //     @Override
+        //    public void onClick(View v) {
                 // Navigate to QuizGame activity
-                Intent intent = new Intent(GamesFragment.this, QuizGame.class);
-                startActivity(intent);
-            }
-        });
+        //        Intent intent = new Intent(GamesFragment.this, QuizGame.class);
+        //        startActivity(intent);
+       //     }
+       // });
 
         // Set the click listener for playQuiz
         playPics.setOnClickListener(new View.OnClickListener() {
