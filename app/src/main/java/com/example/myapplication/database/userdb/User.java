@@ -14,18 +14,20 @@ public class User {
     private String avatarName;
     private int avatarResourceId;
     private byte[] avatarImage;
+    private String email;  // Field name is "email"
 
     // No-argument constructor required by Room
     public User() {
     }
 
     // Constructor including avatarImage
-    public User(String childName, String childAge, String avatarName, int avatarResourceId, byte[] avatarImage) {
+    public User(String childName, String childAge, String avatarName, int avatarResourceId, byte[] avatarImage, String email) {
         this.childName = childName;
         this.childAge = childAge;
         this.avatarName = avatarName;
         this.avatarResourceId = avatarResourceId;
         this.avatarImage = avatarImage;
+        this.email = email;  // Set email field
     }
 
     // Getters and Setters
@@ -75,5 +77,13 @@ public class User {
 
     public void setAvatarImage(byte[] avatarImage) {
         this.avatarImage = avatarImage;
+    }
+
+    public String getEmail() {  // Corrected getter name
+        return email;
+    }
+
+    public void setEmail(String email) {  // Corrected setter name
+        this.email = email;
     }
 }

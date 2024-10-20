@@ -103,7 +103,8 @@ public class ChildAgeActivity extends AppCompatActivity {
             } else {
                 // No user exists, create a new one with default name and provided age
                 byte[] defaultAvatarImage = null; // Replace with actual byte array if you have an image
-                currentUser = new User("Default Name", age, "Default Avatar", R.drawable.lion, defaultAvatarImage);
+                String email = "No Bind";
+                currentUser = new User("Default Name", age, "Default Avatar", R.drawable.lion, defaultAvatarImage, email);
 
                 // Replace "Default Name" with the actual child's name if needed
                 userDao.insert(currentUser);

@@ -1,66 +1,107 @@
 package com.example.myapplication.fragment;
 
+import android.graphics.Color;
 import android.os.Bundle;
-
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
+import android.os.AsyncTask;
+import android.util.Log;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.ToggleButton;
+import com.bumptech.glide.Glide;
+import com.example.myapplication.database.AppDatabase;
+import com.example.myapplication.database.userdb.User;
+import com.example.myapplication.database.userdb.UserDao;
 import com.example.myapplication.R;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link FragmentSettings#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class FragmentSettings extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    ImageView userAvatarImageView;
+    TextView clickStories, userNameTextView;
+    ToggleButton toggleSound, toggleProgress, toggleAnnounce;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private AppDatabase db;
+    private UserDao userDao;
 
-    public FragmentSettings() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment FragmentSettings.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static FragmentSettings newInstance(String param1, String param2) {
-        FragmentSettings fragment = new FragmentSettings();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
+    // Reference to the no account layout
+    private View noAccountLayout;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_settings, container, false);
+        View view = inflater.inflate(R.layout.fragment_settings, container, false);
+
+        userNameTextView = view.findViewById(R.id.name);
+        userAvatarImageView = view.findViewById(R.id.avatar);
+        // Initialize database and DAO
+        db = AppDatabase.getDatabase(getContext());
+        userDao = db.userDao();
+
+        // Find ToggleButtons
+        toggleSound = view.findViewById(R.id.togglesound);
+        toggleProgress = view.findViewById(R.id.toggleprogress);
+        toggleAnnounce = view.findViewById(R.id.toggleannounce);
+
+        // Find the no account layout
+        noAccountLayout = view.findViewById(R.id.noaccount);
+
+        // Set listeners for each toggle button
+        setUpToggleButton(toggleSound);
+        setUpToggleButton(toggleProgress);
+        setUpToggleButton(toggleAnnounce);
+
+        // Load user data
+        loadUserData();
+
+        return view;
+    }
+
+    private void loadUserData() {
+        AsyncTask.execute(() -> {
+            User user = userDao.getFirstUser(); // Get the first user from the database
+            requireActivity().runOnUiThread(() -> {
+                if (user != null) {
+                    // User exists, update UI
+                    String greetingMessage = user.getChildName(); // Create greeting message
+                    userNameTextView.setText(greetingMessage); // Display greeting message
+
+                    // Load avatar using Glide
+                    Glide.with(requireContext()) // Use requireContext() for Glide
+                            .load(user.getAvatarResourceId()) // Load avatar using Glide
+                            .into(userAvatarImageView);
+
+                    // Check user's email status
+                    if ("No Bind".equals(user.getEmail())) {
+                        // If email is "No Bind", show no account layout
+                        noAccountLayout.setVisibility(View.VISIBLE);
+                    } else {
+                        // Hide no account layout for other email statuses
+                        noAccountLayout.setVisibility(View.GONE);
+                    }
+                } else {
+                    // No user exists, show no account layout
+                    noAccountLayout.setVisibility(View.VISIBLE);
+                }
+            });
+        });
+    }
+
+    private void setUpToggleButton(ToggleButton toggleButton) {
+        toggleButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                // Toggle is ON, set green background with rounded corners
+                toggleButton.setBackgroundResource(R.drawable.toggle_on);
+                toggleButton.setTextColor(Color.WHITE);
+            } else {
+                // Toggle is OFF, set red background with rounded corners
+                toggleButton.setBackgroundResource(R.drawable.toggle_off);
+                toggleButton.setTextColor(Color.WHITE);
+            }
+        });
     }
 }

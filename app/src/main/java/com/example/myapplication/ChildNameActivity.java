@@ -104,8 +104,11 @@ public class ChildNameActivity extends AppCompatActivity {
             int defaultAvatarResourceId = R.drawable.lion; // Ensure you have this drawable in your project
             byte[] defaultAvatarImage = null; // Or replace this with actual image data if available
 
+            // Set email to null
+            String email = "No Bind";
+
             // Create and insert the user
-            User user = new User(name, name, defaultAvatarName, defaultAvatarResourceId, defaultAvatarImage);
+            User user = new User(name, name, defaultAvatarName, defaultAvatarResourceId, defaultAvatarImage, email);
             long userId = userDao.insert(user); // Assuming this returns the user ID
 
             // Insert into fourpicsoneword table
@@ -114,19 +117,18 @@ public class ChildNameActivity extends AppCompatActivity {
             // Create the FourPicsOneWord object with the correct constructor
             fourPicsOneWord = new FourPicsOneWord((int) userId, 1, 0, new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date()));
 
-
             // Insert into quizgames table
             QuizGames quizGames = new QuizGames();
             quizGames.setUserId((int) userId);
             quizGames.setScore(0);  // Setting default score or as needed
             quizGames.setDate(new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date())); // Set the current date
 
-
-            // Assuming you have DAOs for the new tables, you would call them here
+            // Insert into respective tables
             db.fourPicsOneWordDao().insert(fourPicsOneWord);
             db.quizGamesDao().insert(quizGames);
         });
     }
+
 
 
     private void loadSavedName() {
