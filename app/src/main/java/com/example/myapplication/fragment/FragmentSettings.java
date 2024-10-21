@@ -1,5 +1,6 @@
 package com.example.myapplication.fragment;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
@@ -12,20 +13,29 @@ import android.view.ViewGroup;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 import com.bumptech.glide.Glide;
+import com.example.myapplication.AvatarSelectionActivity;
 import com.example.myapplication.database.AppDatabase;
 import com.example.myapplication.database.userdb.User;
 import com.example.myapplication.database.userdb.UserDao;
 import com.example.myapplication.R;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class FragmentSettings extends Fragment {
 
     ImageView userAvatarImageView;
     TextView clickStories, userNameTextView;
     ToggleButton toggleSound, toggleProgress, toggleAnnounce;
+    EditText userAgeEditText,userNameEditText;
 
     private AppDatabase db;
     private UserDao userDao;
@@ -40,6 +50,7 @@ public class FragmentSettings extends Fragment {
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
 
         userNameTextView = view.findViewById(R.id.name);
+
         userAvatarImageView = view.findViewById(R.id.avatar);
         // Initialize database and DAO
         db = AppDatabase.getDatabase(getContext());
@@ -60,9 +71,12 @@ public class FragmentSettings extends Fragment {
 
         // Find the exit TextView
         CardView exitTextView = view.findViewById(R.id.exit);
-
         // Set click listener for exit TextView
         exitTextView.setOnClickListener(v -> showExitConfirmationDialog());
+
+        ImageButton changeInfoView = view.findViewById(R.id.changeinfo); // Add reference to changeinfo
+        changeInfoView.setOnClickListener(v -> showEditProfileDialog());
+
         // Load user data
         loadUserData();
 
@@ -142,5 +156,93 @@ public class FragmentSettings extends Fragment {
 
         dialog.show(); // Show the dialog
     }
+    private void showEditProfileDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+
+        // Inflate the custom layout
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.edit_profile, null);
+
+        builder.setView(dialogView); // Set the custom layout
+
+        // Find the EditText fields, close button, and other views in the dialog layout
+        ImageView avatarImageView = dialogView.findViewById(R.id.avatar); // This is the avatar in the dialog
+        EditText editName = dialogView.findViewById(R.id.Editname);
+        EditText editAge = dialogView.findViewById(R.id.Editage);
+        Button saveButton = dialogView.findViewById(R.id.save);
+        ImageButton closeButton = dialogView.findViewById(R.id.close); // Close button
+        ImageButton changeProfileButton = dialogView.findViewById(R.id.changepf);
+
+        // Load current user data (from the database) using ExecutorService
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            User user = userDao.getFirstUser(); // Get the first user from the database
+            requireActivity().runOnUiThread(() -> {
+                if (user != null) {
+                    // Set the current data in the EditText fields
+                    editName.setText(user.getChildName());
+                    editAge.setText(String.valueOf(user.getChildAge())); // Convert int age to String
+
+                    // Load avatar using Glide
+                    Glide.with(requireContext()) // Use requireContext() for Glide
+                            .load(user.getAvatarResourceId()) // Load avatar using user's resource id
+                            .into(avatarImageView); // Set the avatar in the dialog's ImageView
+                }
+            });
+        });
+
+        changeProfileButton.setOnClickListener(v -> {
+            // Start AvatarSelectionActivity
+            Intent intent = new Intent(getActivity(), AvatarSelectionActivity.class);
+            startActivityForResult(intent, 1); // Use a request code of 1
+        });
+
+        // Create and show the dialog
+        AlertDialog dialog = builder.create();
+
+        // Set up the close button click listener
+        closeButton.setOnClickListener(v -> dialog.dismiss());
+
+        // Set up the save button click listener
+        saveButton.setOnClickListener(v1 -> {
+            // Get the updated name and age from the EditText fields
+            String newName = editName.getText().toString();
+            String newAgeStr = editAge.getText().toString();
+
+            // Convert the age to an integer
+            int newAge;
+            try {
+                newAge = Integer.parseInt(newAgeStr);
+            } catch (NumberFormatException e) {
+                Toast.makeText(requireContext(), "Invalid age format", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Save the updated data to the database using ExecutorService
+            executor.execute(() -> {
+                User user = userDao.getFirstUser();
+                if (user != null) {
+                    user.setChildName(newName);  // Update the child's name
+                    user.setChildAge(String.valueOf(newAge));    // Update the child's age
+                    userDao.updateUser(user);    // Update the user in the database
+
+                    // Update the UI after saving
+                    requireActivity().runOnUiThread(() -> {
+                        userNameTextView.setText(newName); // Update the displayed name in the fragment
+                        Toast.makeText(requireContext(), "Profile updated!", Toast.LENGTH_SHORT).show();
+                    });
+                }
+            });
+
+            // Dismiss the dialog
+            dialog.dismiss();
+        });
+
+        dialog.show(); // Show the dialog
+    }
+
+
+
+
 
 }
