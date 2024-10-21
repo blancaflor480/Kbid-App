@@ -3,12 +3,15 @@ package com.example.myapplication.fragment;
 import android.graphics.Color;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
@@ -55,6 +58,11 @@ public class FragmentSettings extends Fragment {
         setUpToggleButton(toggleProgress);
         setUpToggleButton(toggleAnnounce);
 
+        // Find the exit TextView
+        CardView exitTextView = view.findViewById(R.id.exit);
+
+        // Set click listener for exit TextView
+        exitTextView.setOnClickListener(v -> showExitConfirmationDialog());
         // Load user data
         loadUserData();
 
@@ -104,4 +112,35 @@ public class FragmentSettings extends Fragment {
             }
         });
     }
+    private void showExitConfirmationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+
+        // Inflate the custom layout
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.confirmation_exit, null);
+
+        builder.setView(dialogView); // Set the custom layout
+
+        // Find the buttons in the custom layout
+        Button btnYes = dialogView.findViewById(R.id.btnYes);
+        Button btnNo = dialogView.findViewById(R.id.btnNo);
+        TextView dialogTitle = dialogView.findViewById(R.id.dialogTitle);
+        TextView dialogMessage = dialogView.findViewById(R.id.dialogMessage);
+
+        // Create the dialog instance
+        AlertDialog dialog = builder.create();
+
+        // Set click listeners
+        btnYes.setOnClickListener(v -> {
+            dialog.dismiss(); // Dismiss the dialog before finishing the activity
+            requireActivity().finish(); // Close the app
+        });
+
+        btnNo.setOnClickListener(v -> {
+            dialog.dismiss(); // Dismiss the dialog
+        });
+
+        dialog.show(); // Show the dialog
+    }
+
 }
