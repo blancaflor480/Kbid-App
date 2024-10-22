@@ -47,12 +47,13 @@
 
     <RelativeLayout
         android:id="@+id/header"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="@id/curvedTop"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginStart="20dp">
 
+        <!-- Name TextView -->
         <TextView
             android:id="@+id/name"
             android:layout_width="wrap_content"
@@ -62,8 +63,9 @@
             android:textColor="@color/black"
             android:textSize="23sp"
             android:layout_marginTop="30dp"
-            android:layout_marginStart="20dp"/>
+            android:layout_marginStart="20dp" />
 
+        <!-- Welcome TextView -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -72,27 +74,33 @@
             android:textColor="@color/black"
             android:textSize="15sp"
             android:layout_marginTop="55dp"
-            android:layout_marginStart="20dp"/>
+            android:layout_marginStart="20dp" />
 
+        <!-- Notification Section (aligned to the end) -->
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="320dp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="20dp"
             android:layout_marginTop="32dp">
 
-
+            <!-- Notification Button -->
             <ImageButton
                 android:id="@+id/notif"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:background="@drawable/notif" />
+
+            <!-- Notification Indicator -->
             <View
                 android:layout_width="13dp"
                 android:layout_height="13dp"
                 android:background="@drawable/indicator_notif"
-                android:layout_marginStart="17dp"
-                android:layout_marginBottom="1in"
-                />
+                android:layout_alignEnd="@id/notif"
+                android:layout_marginEnd="0dp"
+                android:layout_marginTop="0dp" />
+
+            <!-- Notification Count -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -100,11 +108,12 @@
                 android:text="0"
                 android:textColor="@color/white"
                 android:textSize="10sp"
-                android:layout_marginStart="21dp"
-                android:layout_marginBottom="1in"
-                />
+                android:layout_alignEnd="@id/notif"
+                android:layout_marginEnd="4dp"
+                android:layout_marginTop="0dp" />
         </RelativeLayout>
     </RelativeLayout>
+
 
     <!-- FrameLayout with Profile Image inside -->
     <FrameLayout

@@ -158,42 +158,51 @@
                     app:cardCornerRadius="15dp"
                     app:cardBackgroundColor="@color/white">
 
-                    <ImageView
-                        android:layout_width="35dp"
-                        android:layout_height="35dp"
-                        android:background="@drawable/sound"
-                        android:scaleType="centerInside"
-                        android:layout_marginTop="17dp"
-                        android:layout_marginStart="20dp"/>
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
 
-                    <TextView
-                        android:id="@+id/clicksound"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Sound Effects"
-                        android:fontFamily="@font/dinroundedpro_bold"
-                        android:textSize="20sp"
-                        android:textColor="@color/black"
-                        android:padding="5dp"
-                        android:layout_marginStart="65dp"
-                        android:layout_marginTop="18dp"/>
+                        <ImageView
+                            android:layout_width="35dp"
+                            android:layout_height="35dp"
+                            android:background="@drawable/sound"
+                            android:scaleType="centerInside"
+                            android:layout_marginTop="17dp"
+                            android:layout_marginStart="20dp"
+                            android:id="@+id/imageViewSound"/>
 
-                    <ToggleButton
-                        android:id="@+id/togglesound"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="260dp"
-                        android:layout_marginTop="11dp"
-                        android:background="@drawable/toggle_off"
-                        android:text="ToggleButton"
-                        android:textColor="@color/white"
-                        android:textOff="Off"
-                        android:textOn="On"
-                        android:textSize="15sp"
-                        android:textStyle="bold" />
+                        <TextView
+                            android:id="@+id/clicksound"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Sound Effects"
+                            android:fontFamily="@font/dinroundedpro_bold"
+                            android:textSize="20sp"
+                            android:textColor="@color/black"
+                            android:padding="5dp"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginTop="18dp"
+                            android:layout_toEndOf="@id/imageViewSound"/>
 
+                        <ToggleButton
+                            android:id="@+id/togglesound"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="15dp"
+                            android:background="@drawable/toggle_off"
+                            android:text="ToggleButton"
+                            android:textColor="@color/white"
+                            android:textOff="Off"
+                            android:textOn="On"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                    </RelativeLayout>
 
                 </androidx.cardview.widget.CardView>
+
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -210,6 +219,7 @@
                         />
                 </LinearLayout>
 
+                <!-- CardView 1: Weekly Progress -->
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="70dp"
@@ -218,40 +228,54 @@
                     app:cardCornerRadius="15dp"
                     app:cardBackgroundColor="@color/white">
 
-                    <ImageView
-                        android:layout_width="35dp"
-                        android:layout_height="35dp"
-                        android:background="@drawable/target"
-                        android:scaleType="centerInside"
-                        android:layout_marginTop="17dp"
-                        android:layout_marginStart="20dp"/>
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
 
-                    <TextView
-                        android:id="@+id/click"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Weekly Progress"
-                        android:fontFamily="@font/dinroundedpro_bold"
-                        android:textSize="20sp"
-                        android:textColor="@color/black"
-                        android:padding="5dp"
-                        android:layout_marginStart="65dp"
-                        android:layout_marginTop="18dp"/>
-                    <ToggleButton
-                        android:id="@+id/toggleprogress"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="260dp"
-                        android:layout_marginTop="11dp"
-                        android:background="@drawable/toggle_off"
-                        android:text="ToggleButton"
-                        android:textColor="@color/white"
-                        android:textOff="Off"
-                        android:textOn="On"
-                        android:textSize="15sp"
-                        android:textStyle="bold" />
-                    />
+                        <ImageView
+                            android:layout_width="35dp"
+                            android:layout_height="35dp"
+                            android:background="@drawable/target"
+                            android:scaleType="centerInside"
+                            android:layout_marginTop="17dp"
+                            android:layout_marginStart="20dp"
+                            android:id="@+id/imageViewTarget"/>
+
+                        <TextView
+                            android:id="@+id/click"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Weekly Progress"
+                            android:fontFamily="@font/dinroundedpro_bold"
+                            android:textSize="20sp"
+                            android:textColor="@color/black"
+                            android:padding="5dp"
+                            android:layout_marginStart="10dp"
+
+                            android:layout_marginTop="18dp"
+                            android:layout_toEndOf="@id/imageViewTarget"/>
+
+                        <ToggleButton
+                            android:id="@+id/toggleprogress"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="15dp"
+
+                            android:background="@drawable/toggle_off"
+                            android:text="ToggleButton"
+                            android:textColor="@color/white"
+                            android:textOff="Off"
+                            android:textOn="On"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                    </RelativeLayout>
+
                 </androidx.cardview.widget.CardView>
+
+                <!-- CardView 2: Announcement -->
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="70dp"
@@ -260,39 +284,49 @@
                     app:cardCornerRadius="15dp"
                     app:cardBackgroundColor="@color/white">
 
-                    <ImageView
-                        android:layout_width="35dp"
-                        android:layout_height="35dp"
-                        android:background="@drawable/announcement"
-                        android:scaleType="centerInside"
-                        android:layout_marginTop="17dp"
-                        android:layout_marginStart="20dp"/>
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
 
-                    <TextView
-                        android:id="@+id/clickprog"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Announcement"
-                        android:fontFamily="@font/dinroundedpro_bold"
-                        android:textSize="20sp"
-                        android:textColor="@color/black"
-                        android:padding="5dp"
-                        android:layout_marginStart="65dp"
-                        android:layout_marginTop="18dp"/>
-                    <ToggleButton
-                        android:id="@+id/toggleannounce"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="260dp"
-                        android:layout_marginTop="11dp"
-                        android:background="@drawable/toggle_off"
-                        android:text="ToggleButton"
-                        android:textColor="@color/white"
-                        android:textOff="Off"
-                        android:textOn="On"
-                        android:textSize="15sp"
-                        android:textStyle="bold" />
-                    />
+                        <ImageView
+                            android:layout_width="35dp"
+                            android:layout_height="35dp"
+                            android:background="@drawable/announcement"
+                            android:scaleType="centerInside"
+                            android:layout_marginTop="17dp"
+                            android:layout_marginStart="20dp"
+                            android:id="@+id/imageViewAnnouncement"/>
+
+                        <TextView
+                            android:id="@+id/clickprog"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Announcement"
+                            android:fontFamily="@font/dinroundedpro_bold"
+                            android:textSize="20sp"
+                            android:textColor="@color/black"
+                            android:padding="5dp"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginTop="18dp"
+                            android:layout_toEndOf="@id/imageViewAnnouncement"/>
+
+                        <ToggleButton
+                            android:id="@+id/toggleannounce"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="15dp"
+                            android:background="@drawable/toggle_off"
+                            android:text="ToggleButton"
+                            android:textColor="@color/white"
+                            android:textOff="Off"
+                            android:textOn="On"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                    </RelativeLayout>
+
                 </androidx.cardview.widget.CardView>
 
                 <androidx.cardview.widget.CardView

@@ -156,11 +156,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-android:orientation="vertical"
-        >
+        android:orientation="vertical">
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonchange"
-            android:layout_width="350dp"
+            android:layout_width="match_parent"
             android:layout_height="60dp"
             android:layout_marginStart="30dp"
             android:layout_marginEnd="30dp"
@@ -170,10 +170,11 @@ android:orientation="vertical"
             android:text="Change"
             android:textColor="@color/white"
             android:textSize="20sp"
-            app:backgroundTint="@color/greenlightning"/>
+            app:backgroundTint="@color/greenlightning" />
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/buttoncancel"
-            android:layout_width="350dp"
+            android:layout_width="match_parent"
             android:layout_height="60dp"
             android:layout_marginStart="30dp"
             android:layout_marginEnd="30dp"
@@ -183,8 +184,8 @@ android:orientation="vertical"
             android:text="Cancel"
             android:textColor="@color/white"
             android:textSize="20sp"
-            app:backgroundTint="@color/lightred"/>
-
+            app:backgroundTint="@color/lightred" />
 
     </LinearLayout>
+
 </RelativeLayout>
