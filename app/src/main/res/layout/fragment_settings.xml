@@ -57,7 +57,7 @@
                     android:layout_marginBottom="10dp"
                     android:layout_marginTop="10dp"/>
                 <Button
-                    android:id="@+id/createacc"
+                    android:id="@+id/signup"
                     android:layout_width="320dp"
                     android:layout_height="65dp"
                     android:layout_gravity="center"
@@ -68,7 +68,7 @@
                     android:fontFamily="@font/dinroundedpro_bold"
                     />
                 <Button
-                    android:id="@+id/already"
+                    android:id="@+id/signin"
                     android:layout_width="320dp"
                     android:layout_height="65dp"
 

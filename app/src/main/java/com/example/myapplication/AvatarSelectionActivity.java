@@ -127,11 +127,12 @@ public class AvatarSelectionActivity extends AppCompatActivity {
                 // Update the user in the database
                 userDao.updateUser(currentUser);
 
-                // Redirect to HomeActivity
+                // Redirect to FragmentSettings with transition
                 runOnUiThread(() -> {
                     Toast.makeText(AvatarSelectionActivity.this, "Avatar updated successfully", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(AvatarSelectionActivity.this, FragmentSettings.class);
                     startActivity(intent);
+                    overridePendingTransition(R.anim.enter_anim, R.anim.exit_anim); // Apply animations
                     finish();
                 });
             }

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="30dp"
+    android:background="@drawable/confirmation_bg">
+
+    <LinearLayout
+        android:id="@+id/askurquestion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:gravity="center">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ask your parents"
+            android:textColor="@color/black"
+            android:textSize="25sp"
+            android:fontFamily="@font/dinroundedpro_bold"
+            android:gravity="center"
+            android:layout_marginBottom="20dp" />
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/profileFrame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/askurquestion"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="20dp"
+        android:layout_gravity="center">
+
+        <ImageView
+            android:id="@+id/avatar"
+            android:layout_width="150dp"
+            android:layout_height="155dp"
+            android:background="@drawable/circle_avatarbg"
+            android:scaleType="centerCrop"
+            android:src="@drawable/noah" />
+
+        <View
+            android:id="@+id/changeavatar"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:background="@drawable/circle_alert"
+            android:layout_marginTop="90dp"
+            android:layout_marginStart="100dp" />
+
+        <ImageButton
+            android:id="@+id/changepf"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/alert"
+            android:scaleType="centerInside"
+            android:layout_marginTop="100dp"
+            android:layout_marginStart="110dp" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@id/profileFrame"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/question"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Who is son of God?"
+            android:textColor="@color/black"
+            android:textSize="25sp"
+            android:fontFamily="@font/dinroundedpro_bold"
+            android:gravity="center" />
+
+        <EditText
+            android:id="@+id/Editname"
+            android:layout_width="match_parent"
+            android:layout_height="65dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/rounded_input_name"
+            android:ems="10"
+            android:fontFamily="@font/dinroundedpro_light"
+            android:inputType="text"
+            android:padding="15dp"
+            android:hint="Answer"
+            android:textAlignment="center"
+            android:textColorHint="@color/darkmin"
+            android:textColor="@color/darkmin"
+            android:textSize="18sp"
+            android:layout_marginBottom="20dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+            <Button
+                android:id="@+id/submit"
+                android:layout_width="150dp"
+                android:layout_height="65dp"
+                android:text="Submit"
+                android:textColor="@android:color/white"
+                android:fontFamily="@font/dinroundedpro_bold"
+                android:textSize="18sp"
+                android:backgroundTint="@color/greenlightning" />
+            <Button
+                android:id="@+id/cancel"
+                android:layout_width="150dp"
+                android:layout_height="65dp"
+                android:layout_marginLeft="10dp"
+                android:text="Cancel"
+                android:textColor="@android:color/white"
+                android:fontFamily="@font/dinroundedpro_bold"
+                android:textSize="18sp"
+                android:backgroundTint="@color/lightred" />
+        </LinearLayout>
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

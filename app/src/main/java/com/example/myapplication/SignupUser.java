@@ -137,7 +137,6 @@ public class SignupUser extends AppCompatActivity {
                 });
     }
 
-
     private void registerUser() {
         String email = inputEmail.getText().toString().trim();
         String password = inputPassword.getText().toString().trim();
@@ -171,13 +170,28 @@ public class SignupUser extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         // Sign in success
                         FirebaseUser user = auth.getCurrentUser();
-                        addUserToFirestore(user, password);
+                        sendVerificationEmail(user);  // Send verification email
                     } else {
                         // If sign in fails
                         hideLoader();
                         Toast.makeText(SignupUser.this, "Authentication failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
+
+    private void sendVerificationEmail(FirebaseUser user) {
+        if (user != null) {
+            user.sendEmailVerification()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(SignupUser.this, "Verification email sent to " + user.getEmail(), Toast.LENGTH_SHORT).show();
+                            addUserToFirestore(user, null);
+                        } else {
+                            Toast.makeText(SignupUser.this, "Failed to send verification email.", Toast.LENGTH_SHORT).show();
+                            hideLoader();
+                        }
+                    });
+        }
     }
 
     private void addUserToFirestore(FirebaseUser user, String password) {
@@ -231,13 +245,11 @@ public class SignupUser extends AppCompatActivity {
     private void showNoInternet() {
         noInternet.setVisibility(View.VISIBLE);
         loader.setVisibility(View.GONE);
-        buttonSignup.setVisibility(View.VISIBLE);
-        Toast.makeText(SignupUser.this, "No internet connection. Please check your connection and try again.", Toast.LENGTH_SHORT).show();
+        buttonSignup.setVisibility(View.GONE);
     }
 
     private void navigateToHome() {
-        Intent intent = new Intent(SignupUser.this, HomeActivity.class);
-        startActivity(intent);
+        startActivity(new Intent(SignupUser.this, HomeActivity.class));
         finish();
     }
 }
