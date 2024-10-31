@@ -34,6 +34,8 @@
         <activity android:name=".fragment.biblegames.quizgame.QuizGame" />
         <activity android:name=".fragment.biblegames.quizgame.ScoreActivity" />
         <activity android:name=".fragment.biblegames.fourpiconeword.FourPicOneword" />
+        <activity android:name=".fragment.biblegames.GameDescriptionFourPics" />
+
         <activity android:name=".fragment.biblegames.fourpiconeword.NextActivity" />
        <activity android:name=".fragment.biblestories.favoritelist.favoritelist" />
 

@@ -131,9 +131,46 @@
             android:inputType="text"
             android:padding="15dp"
             android:hint="Age"
+            android:layout_marginBottom="20dp"
             android:textColorHint="@color/darkmin"
             android:textColor="@color/darkmin"
             android:textSize="18sp" />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="20dp"
+            android:gravity="center_vertical">
+
+            <View
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:background="@raw/google" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="oogle"
+                android:textColor="@color/black"
+                android:textSize="25sp"
+                android:fontFamily="@font/dinroundedpro_bold"
+                android:layout_marginStart="1dp"/>
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/google"
+            android:layout_width="match_parent"
+            android:layout_height="65dp"
+            android:background="@drawable/rounded_input_name"
+            android:ems="10"
+            android:fontFamily="@font/dinroundedpro_light"
+            android:hint="Google"
+            android:padding="15dp"
+            android:textColor="@color/darkmin"
+            android:textColorHint="@color/darkmin"
+            android:textSize="18sp"
+            android:focusable="false"
+            android:clickable="false"/>
 
         <Button
             android:id="@+id/save"

@@ -38,7 +38,7 @@
                 android:layout_height="wrap_content"
                 android:padding="10dp"
                 android:layout_marginTop="10dp"
-                android:src="@drawable/arrowback"
+                android:src="@drawable/left_arrow"
                 android:background="@drawable/shape_arrow"
                 android:layout_gravity="start"/>
 

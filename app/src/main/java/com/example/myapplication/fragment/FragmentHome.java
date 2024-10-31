@@ -27,6 +27,7 @@ import com.example.myapplication.fragment.notification.ModelNotification;
 import com.example.myapplication.fragment.notification.NotificationAdapter;
 import java.util.ArrayList;
 import java.util.List;
+import android.media.MediaPlayer;
 
 public class FragmentHome extends Fragment {
     TextView clickStories, userNameTextView;
@@ -35,6 +36,7 @@ public class FragmentHome extends Fragment {
     ImageView imageView, imageright, userAvatarImageView;
     ImageButton notif;
 
+    private MediaPlayer mediaPlayer;
     private AppDatabase db;
     private UserDao userDao;
 
@@ -71,13 +73,34 @@ public class FragmentHome extends Fragment {
         clickStories = view.findViewById(R.id.clickStories);
         clickGames = view.findViewById(R.id.clickGames);
 
-        clickStories.setOnClickListener(v -> navigateToBibleActivity());
-        clickGames.setOnClickListener(v -> navigateToBiblegamesActivity());
+        clickStories.setOnClickListener(v -> {
+            playClickSound(); // Play sound effect
+            navigateToBibleActivity();
+        });
+
+        clickGames.setOnClickListener(v -> {
+            playClickSound(); // Play sound effect
+            navigateToBiblegamesActivity();
+        });
 
         // Set up notification button click listener
-        notif.setOnClickListener(v -> showNotificationDialog());
+        notif.setOnClickListener(v -> {
+            playClickSound(); // Play sound effect
+            showNotificationDialog();
+        });
 
         return view;
+    }
+
+    private void playClickSound() {
+        // Release any previously playing sound to prevent overlapping
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+        }
+        // Initialize MediaPlayer with the sound file
+        mediaPlayer = MediaPlayer.create(getContext(), R.raw.clickpop); // Ensure your sound file is in res/raw
+        mediaPlayer.setOnCompletionListener(mp -> mp.release()); // Release after playing
+        mediaPlayer.start(); // Play the sound
     }
 
     private void showNotificationDialog() {
@@ -123,8 +146,6 @@ public class FragmentHome extends Fragment {
 
         return notifications; // Return the list of notifications
     }
-
-
 
     private void loadUserData() {
         AsyncTask.execute(() -> {

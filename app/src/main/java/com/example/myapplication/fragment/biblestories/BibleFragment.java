@@ -34,6 +34,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Executors;
+import android.media.MediaPlayer;
 
 public class BibleFragment extends AppCompatActivity {
 
@@ -46,7 +47,8 @@ public class BibleFragment extends AppCompatActivity {
     AppDatabase appDatabase;
     RadioGroup storiesSwitch;
     TextView comingSoonTextView;
-
+    // Existing member variables
+    MediaPlayer clickSound;
     // New UI components
     LottieAnimationView noConnectionAnimation, playlist;
     TextView noConnectionMessage;
@@ -68,6 +70,7 @@ public class BibleFragment extends AppCompatActivity {
         // Initialize arrowback ImageView
         arrowback = findViewById(R.id.arrowback);
 
+
         // Set the click listener for arrowback
         arrowback.setOnClickListener(v -> onBackPressed());
 
@@ -76,6 +79,12 @@ public class BibleFragment extends AppCompatActivity {
             startActivity(new Intent(BibleFragment.this, favoritelist.class));
         });
 
+        // Initialize MediaPlayer for sound effect
+        clickSound = MediaPlayer.create(this, R.raw.clickpop);
+        arrowback.setOnClickListener(v -> {
+            playClickSound(); // Play sound effect
+            onBackPressed(); // Handle back press
+        });
         // Initialize RecyclerView with the correct ID
         recyclerView = findViewById(R.id.recyclep);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -105,6 +114,7 @@ public class BibleFragment extends AppCompatActivity {
         // Load Bible stories initially without triggering refresh
         loadBibleStories();
 
+
         // Setup the SwipeRefreshLayout listener for refreshing Bible stories
         swipeRefreshLayout.setOnRefreshListener(this::refreshBibleStories);
 
@@ -122,6 +132,20 @@ public class BibleFragment extends AppCompatActivity {
         });
     }
 
+    // Function to play the click sound
+    private void playClickSound() {
+        if (clickSound != null) {
+            clickSound.start(); // Play the sound
+        }
+    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (clickSound != null) {
+            clickSound.release(); // Release the MediaPlayer resources
+            clickSound = null;
+        }
+    }
     // Function to refresh Bible stories manually only on swipe or restart button click
     private void refreshBibleStories() {
         swipeRefreshLayout.setRefreshing(true);

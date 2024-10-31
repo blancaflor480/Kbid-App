@@ -49,5 +49,9 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
     <!-- TODO: Remove or change this placeholder text -->
-
+    <!-- res/values/styles.xml -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Make sure these are NOT forcing the default Material button style -->
+        <item name="buttonStyle">@null</item>
+    </style>
 </resources>

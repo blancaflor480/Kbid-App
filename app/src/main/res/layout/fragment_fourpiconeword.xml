@@ -28,7 +28,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             app:cardCornerRadius="15dp"
-            app:cardElevation="2dp"
             app:cardBackgroundColor="@color/purple"
             app:contentPadding="12dp">
 

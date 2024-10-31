@@ -206,6 +206,8 @@ public class FragmentSettings extends Fragment {
         ImageView avatarImageView = dialogView.findViewById(R.id.avatar); // This is the avatar in the dialog
         EditText editName = dialogView.findViewById(R.id.Editname);
         EditText editAge = dialogView.findViewById(R.id.Editage);
+        EditText google = dialogView.findViewById(R.id.google);
+
         Button saveButton = dialogView.findViewById(R.id.save);
         ImageButton closeButton = dialogView.findViewById(R.id.close); // Close button
         ImageButton changeProfileButton = dialogView.findViewById(R.id.changepf);
@@ -219,7 +221,7 @@ public class FragmentSettings extends Fragment {
                     // Set the current data in the EditText fields
                     editName.setText(user.getChildName());
                     editAge.setText(String.valueOf(user.getChildAge())); // Convert int age to String
-
+                    google.setText(user.getEmail());
                     // Load avatar using Glide
                     Glide.with(requireContext()) // Use requireContext() for Glide
                             .load(user.getAvatarResourceId()) // Load avatar using user's resource id

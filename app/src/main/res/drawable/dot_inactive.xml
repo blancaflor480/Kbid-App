@@ -1,0 +1,8 @@
+<!-- res/drawable/dot_inactive.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <size
+        android:width="10dp"
+        android:height="10dp" />
+    <solid android:color="#B0BEC5" /> <!-- Light Gray color -->
+    <corners android:radius="5dp" /> <!-- Circular shape -->
+</shape>

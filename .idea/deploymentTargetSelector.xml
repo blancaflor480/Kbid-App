@@ -4,7 +4,7 @@
     <selectionStates>
       <SelectionState runConfigName="Kbid App">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2024-10-22T07:28:47.778573300Z">
+        <DropdownSelection timestamp="2024-10-22T07:35:35.854021400Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="PhysicalDevice" identifier="serial=d0589734" />
