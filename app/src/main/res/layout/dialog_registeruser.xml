@@ -135,7 +135,25 @@
             android:textColor="@android:color/white"
             android:fontFamily="@font/dinroundedpro_bold"
             android:textSize="18sp"
+            android:layout_marginBottom="20dp"
             android:backgroundTint="@color/greenlightning" />
+        <LinearLayout
+            android:id="@+id/Label2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginBottom="5dp"
+            android:layout_gravity="center"
+            >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Already have an Account"
+                android:textColor="@color/greenlightning"
+                android:textSize="17sp"
+                android:fontFamily="@font/dinroundedpro_medium" />
+
+        </LinearLayout>
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -8,15 +8,21 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.VideoView;
 import android.widget.ImageView;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
+import com.example.myapplication.AvatarSelectionActivity;
 import com.example.myapplication.R;
 import com.example.myapplication.database.AppDatabase;
 import com.example.myapplication.database.userdb.User;
@@ -25,8 +31,20 @@ import com.example.myapplication.fragment.biblegames.GamesFragment;
 import com.example.myapplication.fragment.biblestories.BibleFragment;
 import com.example.myapplication.fragment.notification.ModelNotification;
 import com.example.myapplication.fragment.notification.NotificationAdapter;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import android.media.MediaPlayer;
 
 public class FragmentHome extends Fragment {
@@ -35,10 +53,18 @@ public class FragmentHome extends Fragment {
     VideoView videoView;
     ImageView imageView, imageright, userAvatarImageView;
     ImageButton notif;
+    EditText userAgeEditText,userNameEditText;
+    private View editProfileOverlay;
+    private ImageView changeInfoButton;
+
+    private ExecutorService executor;
+    private GoogleSignInClient googleSignInClient;
+    private static final int RC_SIGN_IN = 9001;
 
     private MediaPlayer mediaPlayer;
     private AppDatabase db;
     private UserDao userDao;
+    private BreakIterator googleEditText;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
@@ -51,6 +77,22 @@ public class FragmentHome extends Fragment {
         userNameTextView = view.findViewById(R.id.name);
         userAvatarImageView = view.findViewById(R.id.avatar);
         notif = view.findViewById(R.id.notif); // Initialize your notification button
+        changeInfoButton = view.findViewById(R.id.changeinfo);
+
+        // Show the dialog when clicking on changeinfo
+        changeInfoButton.setOnClickListener(v -> showEditProfileDialog());
+
+        // Initialize edit profile overlay
+        editProfileOverlay = view.findViewById(R.id.editprofile);
+
+        // Toggle edit profile overlay on avatar click
+        userAvatarImageView.setOnClickListener(v -> {
+            if (editProfileOverlay.getVisibility() == View.GONE) {
+                editProfileOverlay.setVisibility(View.VISIBLE);
+            } else {
+                editProfileOverlay.setVisibility(View.GONE);
+            }
+        });
 
         // Initialize database and DAO
         db = AppDatabase.getDatabase(getContext());
@@ -163,6 +205,128 @@ public class FragmentHome extends Fragment {
         });
     }
 
+    private void showEditProfileDialog() {
+        // Initialize GoogleSignInOptions and GoogleSignInClient
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+        googleSignInClient = GoogleSignIn.getClient(requireActivity(), gso);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.edit_profile, null);
+        builder.setView(dialogView);
+
+        ImageView avatarImageView = dialogView.findViewById(R.id.avatar);
+        EditText editName = dialogView.findViewById(R.id.Editname);
+        EditText editAge = dialogView.findViewById(R.id.Editage);
+        EditText googleEditText = dialogView.findViewById(R.id.google);
+        AppCompatButton connectButton = dialogView.findViewById(R.id.connect);
+        AppCompatButton saveButton = dialogView.findViewById(R.id.save);
+        ImageButton closeButton = dialogView.findViewById(R.id.close);
+        ImageButton changeProfileButton = dialogView.findViewById(R.id.changepf);
+
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            User user = userDao.getFirstUser();
+            requireActivity().runOnUiThread(() -> {
+                if (user != null) {
+                    editName.setText(user.getChildName());
+                    editAge.setText(String.valueOf(user.getChildAge()));
+                    googleEditText.setText(user.getEmail());
+                    Glide.with(requireContext())
+                            .load(user.getAvatarResourceId())
+                            .into(avatarImageView);
+                }
+            });
+        });
+
+        changeProfileButton.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), AvatarSelectionActivity.class);
+            startActivityForResult(intent, 1);
+        });
+
+        connectButton.setOnClickListener(v -> {
+            Intent signInIntent = googleSignInClient.getSignInIntent();
+            startActivityForResult(signInIntent, RC_SIGN_IN);
+        });
+
+        AlertDialog dialog = builder.create();
+        closeButton.setOnClickListener(v -> dialog.dismiss());
+
+        saveButton.setOnClickListener(v1 -> {
+            String newName = editName.getText().toString();
+            String newAgeStr = editAge.getText().toString();
+            int newAge;
+
+            try {
+                newAge = Integer.parseInt(newAgeStr);
+            } catch (NumberFormatException e) {
+                Toast.makeText(requireContext(), "Invalid age format", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            executor.execute(() -> {
+                User user = userDao.getFirstUser();
+                if (user != null) {
+                    user.setChildName(newName);
+                    user.setChildAge(String.valueOf(newAge));
+                    userDao.updateUser(user);
+                    requireActivity().runOnUiThread(() -> {
+                        userNameTextView.setText(newName);
+                        Toast.makeText(requireContext(), "Profile updated!", Toast.LENGTH_SHORT).show();
+                    });
+                }
+            });
+
+            dialog.dismiss();
+        });
+
+        dialog.show();
+    }
+
+    // Handle Google Sign-In result
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == RC_SIGN_IN) {
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            handleSignInResult(task);
+        }
+    }
+
+    // Process the result of Google Sign-In
+    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
+        try {
+            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+            if (account != null) {
+                String email = account.getEmail();
+                googleEditText.setText(email);
+
+                // Save the email in SQLite and Firebase
+                executor.execute(() -> {
+                    User user = userDao.getFirstUser();
+                    if (user != null) {
+                        user.setEmail(email);
+                        userDao.updateUser(user);
+
+                        // Update Firebase with new email
+                        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+                        firestore.collection("user").document(user.getUid())
+                                .update("email", email)
+                                .addOnSuccessListener(aVoid ->
+                                        Toast.makeText(requireContext(), "Google account connected!", Toast.LENGTH_SHORT).show()
+                                )
+                                .addOnFailureListener(e ->
+                                        Toast.makeText(requireContext(), "Firebase update failed", Toast.LENGTH_SHORT).show()
+                                );
+                    }
+                });
+            }
+        } catch (ApiException e) {
+            Toast.makeText(requireContext(), "Google Sign-In failed", Toast.LENGTH_SHORT).show();
+        }
+    }
     private void navigateToBibleActivity() {
         Intent intent = new Intent(getActivity(), BibleFragment.class);
         startActivity(intent);

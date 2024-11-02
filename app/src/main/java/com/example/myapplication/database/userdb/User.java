@@ -9,6 +9,7 @@ public class User {
     @PrimaryKey(autoGenerate = true)
     private int id;
 
+    private String uid;
     private String childName;
     private String childAge;
     private String avatarName;
@@ -85,5 +86,13 @@ public class User {
 
     public void setEmail(String email) {  // Corrected setter name
         this.email = email;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 }

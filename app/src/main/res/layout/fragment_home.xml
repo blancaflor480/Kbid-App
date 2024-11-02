@@ -131,7 +131,40 @@
             android:layout_height="150dp"
             android:background="@drawable/circle_avatarbg"
             android:scaleType="centerCrop"
-            android:src="@drawable/lion" />
+            android:src="@drawable/lion"
+            />
+
+        <LinearLayout
+            android:id="@+id/editprofile"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="@drawable/circle_editprofile"
+            android:visibility="gone"
+            >
+
+            <!-- Centered Pencil Icon -->
+            <ImageView
+                android:id="@+id/changeinfo"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:scaleType="centerCrop"
+                android:src="@raw/pencil"
+                android:layout_gravity="center"
+                android:layout_marginBottom="10dp" />
+
+            <!-- Text directly below the Pencil Icon -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Edit Profile"
+                android:textColor="@color/white"
+                android:fontFamily="@font/dinroundedpro_bold"
+                android:gravity="center"
+                android:layout_marginTop="5dp" />
+        </LinearLayout>
+
     </FrameLayout>
 
     <!-- Scrollable Section -->

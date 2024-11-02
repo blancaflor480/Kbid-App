@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
@@ -27,14 +28,27 @@ import com.example.myapplication.database.AppDatabase;
 import com.example.myapplication.database.userdb.User;
 import com.example.myapplication.database.userdb.UserDao;
 import com.example.myapplication.R;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.ApiException;
 
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,42 +63,32 @@ public class FragmentSettings extends Fragment {
     TextView clickStories, userNameTextView;
     ToggleButton toggleSound, toggleProgress, toggleAnnounce;
     EditText userAgeEditText,userNameEditText;
-
+    private ExecutorService executor;
+    private GoogleSignInClient googleSignInClient;
+    private static final int RC_SIGN_IN = 9001;
     private AppDatabase db;
     private UserDao userDao;
     private Map<String, String> questionsAndAnswers;
 
     // Reference to the no account layout
     private View noAccountLayout;
+    private View AppCompatButton;
+    private BreakIterator googleEditText;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
 
-        // Initialize the questions and answers
-        questionsAndAnswers = new HashMap<>();
-        questionsAndAnswers.put("Who is the son of God?", "Jesus");
-        questionsAndAnswers.put("Who led the Israelites out of Egypt?", "Moses");
-        questionsAndAnswers.put("Who was thrown into the lion's den?", "Daniel");
-        questionsAndAnswers.put("Who was swallowed by a big fish?", "Jonah");
-        questionsAndAnswers.put("Who was the strongest man in the Bible?", "Samson");
-    }
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
 
-        userNameTextView = view.findViewById(R.id.name);
 
-        userAvatarImageView = view.findViewById(R.id.avatar);
         // Initialize database and DAO
         db = AppDatabase.getDatabase(getContext());
         userDao = db.userDao();
 
         // Find ToggleButtons
         toggleSound = view.findViewById(R.id.togglesound);
-        toggleProgress = view.findViewById(R.id.toggleprogress);
         toggleAnnounce = view.findViewById(R.id.toggleannounce);
 
         // Find the no account layout
@@ -92,7 +96,6 @@ public class FragmentSettings extends Fragment {
 
         // Set listeners for each toggle button
         setUpToggleButton(toggleSound);
-        setUpToggleButton(toggleProgress);
         setUpToggleButton(toggleAnnounce);
 
         // Find the exit TextView
@@ -100,8 +103,8 @@ public class FragmentSettings extends Fragment {
         // Set click listener for exit TextView
         exitTextView.setOnClickListener(v -> showExitConfirmationDialog());
 
-        ImageButton changeInfoView = view.findViewById(R.id.changeinfo); // Add reference to changeinfo
-        changeInfoView.setOnClickListener(v -> showEditProfileDialog());
+       // ImageButton changeInfoView = view.findViewById(R.id.changeinfo); // Add reference to changeinfo
+       // changeInfoView.setOnClickListener(v -> showEditProfileDialog());
 
 
         // Set up the sign-in button listener
@@ -109,8 +112,6 @@ public class FragmentSettings extends Fragment {
         signInButton.setOnClickListener(v -> showLoginDialog());
         Button signUpButton = view.findViewById(R.id.signup);  // Find the button in your layout
         signUpButton.setOnClickListener(v -> showSignUpDialog());  // Set click listener to show the sign-up dialog
-
-        // Trigger the dialog when settings are accessed
 
 
 
@@ -126,14 +127,6 @@ public class FragmentSettings extends Fragment {
             requireActivity().runOnUiThread(() -> {
                 if (user != null) {
                     // User exists, update UI
-                    String greetingMessage = user.getChildName(); // Create greeting message
-                    userNameTextView.setText(greetingMessage); // Display greeting message
-
-                    // Load avatar using Glide
-                    Glide.with(requireContext()) // Use requireContext() for Glide
-                            .load(user.getAvatarResourceId()) // Load avatar using Glide
-                            .into(userAvatarImageView);
-
                     // Check user's email status
                     if ("No Bind".equals(user.getEmail())) {
                         // If email is "No Bind", show no account layout
@@ -163,6 +156,7 @@ public class FragmentSettings extends Fragment {
             }
         });
     }
+
     private void showExitConfirmationDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
 
@@ -193,94 +187,7 @@ public class FragmentSettings extends Fragment {
 
         dialog.show(); // Show the dialog
     }
-    private void showEditProfileDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
 
-        // Inflate the custom layout
-        LayoutInflater inflater = requireActivity().getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.edit_profile, null);
-
-        builder.setView(dialogView); // Set the custom layout
-
-        // Find the EditText fields, close button, and other views in the dialog layout
-        ImageView avatarImageView = dialogView.findViewById(R.id.avatar); // This is the avatar in the dialog
-        EditText editName = dialogView.findViewById(R.id.Editname);
-        EditText editAge = dialogView.findViewById(R.id.Editage);
-        EditText google = dialogView.findViewById(R.id.google);
-
-        Button saveButton = dialogView.findViewById(R.id.save);
-        ImageButton closeButton = dialogView.findViewById(R.id.close); // Close button
-        ImageButton changeProfileButton = dialogView.findViewById(R.id.changepf);
-
-        // Load current user data (from the database) using ExecutorService
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.execute(() -> {
-            User user = userDao.getFirstUser(); // Get the first user from the database
-            requireActivity().runOnUiThread(() -> {
-                if (user != null) {
-                    // Set the current data in the EditText fields
-                    editName.setText(user.getChildName());
-                    editAge.setText(String.valueOf(user.getChildAge())); // Convert int age to String
-                    google.setText(user.getEmail());
-                    // Load avatar using Glide
-                    Glide.with(requireContext()) // Use requireContext() for Glide
-                            .load(user.getAvatarResourceId()) // Load avatar using user's resource id
-                            .into(avatarImageView); // Set the avatar in the dialog's ImageView
-                }
-            });
-        });
-
-        changeProfileButton.setOnClickListener(v -> {
-            // Start AvatarSelectionActivity
-            Intent intent = new Intent(getActivity(), AvatarSelectionActivity.class);
-            startActivityForResult(intent, 1); // Use a request code of 1
-        });
-
-        // Create and show the dialog
-        AlertDialog dialog = builder.create();
-
-        // Set up the close button click listener
-        closeButton.setOnClickListener(v -> dialog.dismiss());
-
-        // Set up the save button click listener
-        saveButton.setOnClickListener(v1 -> {
-            // Get the updated name and age from the EditText fields
-            String newName = editName.getText().toString();
-            String newAgeStr = editAge.getText().toString();
-
-            // Convert the age to an integer
-            int newAge;
-            try {
-                newAge = Integer.parseInt(newAgeStr);
-            } catch (NumberFormatException e) {
-                Toast.makeText(requireContext(), "Invalid age format", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            // Save the updated data to the database using ExecutorService
-            executor.execute(() -> {
-                User user = userDao.getFirstUser();
-                if (user != null) {
-                    user.setChildName(newName);  // Update the child's name
-                    user.setChildAge(String.valueOf(newAge));    // Update the child's age
-                    userDao.updateUser(user);    // Update the user in the database
-
-                    // Update the UI after saving
-                    requireActivity().runOnUiThread(() -> {
-                        userNameTextView.setText(newName); // Update the displayed name in the fragment
-                        Toast.makeText(requireContext(), "Profile updated!", Toast.LENGTH_SHORT).show();
-                    });
-                }
-            });
-
-            // Dismiss the dialog
-            dialog.dismiss();
-        });
-
-        dialog.show(); // Show the dialog
-    }
-
-    //Login
 //Login
     private void showLoginDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
@@ -441,77 +348,5 @@ public class FragmentSettings extends Fragment {
                     Toast.makeText(getContext(), "Failed to register user: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
-
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        // Only show the dialog when this fragment is visible
-        showAskYourParentDialog();
-    }
-    private void showAskYourParentDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-
-        // Inflate the custom layout
-        LayoutInflater inflater = requireActivity().getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.dialog_askyourparent, null);
-        builder.setView(dialogView);
-
-        // Find the views in the dialog
-        EditText parentAnswerEditText = dialogView.findViewById(R.id.Editname);
-        Button submitButton = dialogView.findViewById(R.id.submit);
-        Button cancelButton = dialogView.findViewById(R.id.cancel);
-        TextView questionTextView = dialogView.findViewById(R.id.question);
-
-        // Create the dialog instance
-        AlertDialog dialog = builder.create();
-
-        // Get the Vibrator service
-        Vibrator vibrator = (Vibrator) requireContext().getSystemService(Context.VIBRATOR_SERVICE);
-
-        // Randomly select a question
-        List<String> questions = new ArrayList<>(questionsAndAnswers.keySet());
-        String randomQuestion = questions.get(new Random().nextInt(questions.size()));
-        questionTextView.setText(randomQuestion);
-
-        // Set click listener for the submit button
-        submitButton.setOnClickListener(v -> {
-            String answer = parentAnswerEditText.getText().toString().trim();
-            String correctAnswer = questionsAndAnswers.get(randomQuestion);
-
-            // Check if the answer is correct
-            if (answer.equalsIgnoreCase(correctAnswer)) {
-                // Dismiss the dialog if the correct answer is provided
-                dialog.dismiss();
-                Toast.makeText(requireContext(), "Correct! Access granted.", Toast.LENGTH_SHORT).show();
-            } else {
-                // Show an error message if the answer is wrong
-                parentAnswerEditText.setBackgroundResource(R.drawable.red_outline);
-                parentAnswerEditText.setText("");
-
-                // Vibrate the device for 1000 milliseconds
-                if (vibrator != null) {
-                    vibrator.vibrate(1000);
-                }
-            }
-        });
-
-        // Set click listener for the cancel button
-        cancelButton.setOnClickListener(v -> {
-            dialog.dismiss(); // Close the dialog
-            // Navigate to HomeActivity
-            Intent intent = new Intent(requireContext(), HomeActivity.class);
-            startActivity(intent);
-            requireActivity().finish(); // Optional: close the current activity if needed
-        });
-
-        // Disable dismissing the dialog by clicking outside or pressing the back button
-        dialog.setCancelable(false);
-        dialog.setCanceledOnTouchOutside(false);
-
-        // Show the dialog
-        dialog.show();
-    }
-
 
 }

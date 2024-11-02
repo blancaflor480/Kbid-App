@@ -11,6 +11,7 @@
         android:id="@+id/homepage"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="#E8F5A9"
         />
 
     <ScrollView
@@ -19,10 +20,10 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="vertical"
             android:padding="16dp"
-            android:background="#E8F5A9">
+            >
 
             <TextView
                 android:id="@+id/textView"
@@ -84,13 +85,13 @@
 
             </LinearLayout>
 
-            <FrameLayout
+            <!--<FrameLayout
                 android:id="@+id/profileFrame"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginTop="30dp"> <!-- Negative margin to slightly overlap the curve -->
+                android:layout_marginTop="30dp">
 
                 <ImageView
                     android:id="@+id/avatar"
@@ -125,7 +126,7 @@
                 android:layout_marginTop="15dp"
                 android:fontFamily="@font/dinroundedpro_bold"
                 android:textColor="@android:color/black"
-                 />
+                 />-->
 
 
             <LinearLayout
@@ -220,60 +221,6 @@
                 </LinearLayout>
 
                 <!-- CardView 1: Weekly Progress -->
-                <androidx.cardview.widget.CardView
-                    android:layout_width="match_parent"
-                    android:layout_height="70dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginBottom="16dp"
-                    app:cardCornerRadius="15dp"
-                    app:cardBackgroundColor="@color/white">
-
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent">
-
-                        <ImageView
-                            android:layout_width="35dp"
-                            android:layout_height="35dp"
-                            android:background="@drawable/target"
-                            android:scaleType="centerInside"
-                            android:layout_marginTop="17dp"
-                            android:layout_marginStart="20dp"
-                            android:id="@+id/imageViewTarget"/>
-
-                        <TextView
-                            android:id="@+id/click"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Weekly Progress"
-                            android:fontFamily="@font/dinroundedpro_bold"
-                            android:textSize="20sp"
-                            android:textColor="@color/black"
-                            android:padding="5dp"
-                            android:layout_marginStart="10dp"
-
-                            android:layout_marginTop="18dp"
-                            android:layout_toEndOf="@id/imageViewTarget"/>
-
-                        <ToggleButton
-                            android:id="@+id/toggleprogress"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentEnd="true"
-                            android:layout_centerVertical="true"
-                            android:layout_marginEnd="15dp"
-
-                            android:background="@drawable/toggle_off"
-                            android:text="ToggleButton"
-                            android:textColor="@color/white"
-                            android:textOff="Off"
-                            android:textOn="On"
-                            android:textSize="15sp"
-                            android:textStyle="bold" />
-
-                    </RelativeLayout>
-
-                </androidx.cardview.widget.CardView>
 
                 <!-- CardView 2: Announcement -->
                 <androidx.cardview.widget.CardView
@@ -356,6 +303,28 @@
                     android:layout_marginTop="0dp"
                     android:layout_marginBottom="16dp"
                     app:cardCornerRadius="15dp"
+                    app:cardBackgroundColor="@color/white">
+
+
+                    <TextView
+                        android:id="@+id/privacypolicy"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="PRIVACY POLICY"
+                        android:fontFamily="@font/dinroundedpro_bold"
+                        android:textSize="20sp"
+                        android:textColor="@color/greenlightning"
+                        android:padding="5dp"
+                        android:layout_marginStart="110dp"
+                        android:layout_marginTop="18dp"/>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="70dp"
+                    android:layout_marginTop="0dp"
+                    android:layout_marginBottom="16dp"
+                    app:cardCornerRadius="15dp"
                     app:cardBackgroundColor="@color/lightred">
 
 
@@ -363,12 +332,13 @@
                         android:id="@+id/deleteprof"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="DELETE PROFILE"
+                        android:text="ABOUT US"
                         android:fontFamily="@font/dinroundedpro_bold"
                         android:textSize="20sp"
                         android:textColor="@color/white"
                         android:padding="5dp"
-                        android:layout_marginStart="110dp"
+                        android:textAlignment="center"
+                        android:layout_marginStart="130dp"
                         android:layout_marginTop="18dp"/>
                 </androidx.cardview.widget.CardView>
 
