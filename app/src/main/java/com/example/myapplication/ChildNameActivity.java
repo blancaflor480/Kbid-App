@@ -54,6 +54,7 @@ public class ChildNameActivity extends AppCompatActivity {
         // Set initial state of the button
         buttonContinue.setEnabled(false);
         buttonContinue.setBackgroundColor(Color.GRAY);
+        buttonContinue.setBackgroundResource(R.drawable.btn_getstarted);
 
         buttonContinue.setTextColor(Color.BLACK);
 
@@ -71,10 +72,14 @@ public class ChildNameActivity extends AppCompatActivity {
                     buttonContinue.setEnabled(false);
                     buttonContinue.setBackgroundColor(Color.GRAY);
                     buttonContinue.setTextColor(Color.BLACK);
+                    buttonContinue.setBackgroundResource(R.drawable.btn_getstarted);
+
                 } else {
                     buttonContinue.setEnabled(true);
                     buttonContinue.setBackgroundColor(getResources().getColor(R.color.green));
                     buttonContinue.setTextColor(Color.WHITE);
+                    buttonContinue.setBackgroundResource(R.drawable.btn_getstarted);
+
                 }
             }
 
@@ -139,6 +144,8 @@ public class ChildNameActivity extends AppCompatActivity {
                     inputName.setText(user.getChildName());
                     buttonContinue.setEnabled(true);
                     buttonContinue.setBackgroundColor(getResources().getColor(R.color.greenlightning));
+                    buttonContinue.setBackgroundResource(R.drawable.btn_getstarted);
+
                     buttonContinue.setTextColor(Color.WHITE);
                 });
             }

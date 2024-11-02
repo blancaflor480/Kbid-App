@@ -232,7 +232,7 @@ public class FragmentHome extends Fragment {
             requireActivity().runOnUiThread(() -> {
                 if (user != null) {
                     editName.setText(user.getChildName());
-                    editAge.setText(String.valueOf(user.getChildAge()));
+                    editAge.setText(String.valueOf(user.getChildBirthday()));
                     googleEditText.setText(user.getEmail());
                     Glide.with(requireContext())
                             .load(user.getAvatarResourceId())
@@ -256,21 +256,11 @@ public class FragmentHome extends Fragment {
 
         saveButton.setOnClickListener(v1 -> {
             String newName = editName.getText().toString();
-            String newAgeStr = editAge.getText().toString();
-            int newAge;
-
-            try {
-                newAge = Integer.parseInt(newAgeStr);
-            } catch (NumberFormatException e) {
-                Toast.makeText(requireContext(), "Invalid age format", Toast.LENGTH_SHORT).show();
-                return;
-            }
 
             executor.execute(() -> {
                 User user = userDao.getFirstUser();
                 if (user != null) {
                     user.setChildName(newName);
-                    user.setChildAge(String.valueOf(newAge));
                     userDao.updateUser(user);
                     requireActivity().runOnUiThread(() -> {
                         userNameTextView.setText(newName);

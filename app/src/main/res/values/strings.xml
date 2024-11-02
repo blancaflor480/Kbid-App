@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">K-Bid App</string>
-    <string name="menu_user">User</string>
+    <string name="menu_user">User Management</string>
+    <string name="menu_adminaccount">Admin Account</string>
+
     <string name="menu_all_users">All users</string>
     <string name="menu_admin">Admin</string>
     <string name="menu_content">Content</string>

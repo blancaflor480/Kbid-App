@@ -11,7 +11,7 @@ public class User {
 
     private String uid;
     private String childName;
-    private String childAge;
+    private String childBirthday; // Updated from childAge to childBirthday
     private String avatarName;
     private int avatarResourceId;
     private byte[] avatarImage;
@@ -21,10 +21,10 @@ public class User {
     public User() {
     }
 
-    // Constructor including avatarImage
-    public User(String childName, String childAge, String avatarName, int avatarResourceId, byte[] avatarImage, String email) {
+    // Constructor including avatarImage and updated field name
+    public User(String childName, String childBirthday, String avatarName, int avatarResourceId, byte[] avatarImage, String email) {
         this.childName = childName;
-        this.childAge = childAge;
+        this.childBirthday = childBirthday; // Set childBirthday field
         this.avatarName = avatarName;
         this.avatarResourceId = avatarResourceId;
         this.avatarImage = avatarImage;
@@ -48,12 +48,12 @@ public class User {
         this.childName = childName;
     }
 
-    public String getChildAge() {
-        return childAge;
+    public String getChildBirthday() { // Updated getter name
+        return childBirthday;
     }
 
-    public void setChildAge(String childAge) {
-        this.childAge = childAge;
+    public void setChildBirthday(String childBirthday) { // Updated setter name
+        this.childBirthday = childBirthday;
     }
 
     public String getAvatarName() {

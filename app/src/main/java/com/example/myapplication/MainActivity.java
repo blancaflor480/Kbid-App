@@ -81,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+
     private void checkUserRecord() {
         // Fetch the first user record from the database
         new Thread(() -> {
@@ -94,9 +95,16 @@ public class MainActivity extends AppCompatActivity {
                     // No user record found, navigate to ChildNameActivity
                     navigateToChildNameActivity();
                 }
+
+                // Add a condition to navigate to ChildBirthdayActivity if needed
+               /* boolean shouldNavigateToChildBirthday = (user != null && user.getChildBirthday() != null && !user.getChildBirthday().isEmpty());
+                if (shouldNavigateToChildBirthday) {
+                    navigateToChildBirthdayActivity();
+                }*/
             });
         }).start();
     }
+
 
     private void navigateToChildNameActivity() {
         Log.d("MainActivity", "Navigate to ChildNameActivity");
@@ -104,6 +112,12 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
         finish(); // Close this activity
     }
+    /*private void navigateToChildBirthdayActivity() {
+        Log.d("MainActivity", "Navigate to ChildNameActivity");
+        Intent intent = new Intent(MainActivity.this, ChildAgeActivity.class);
+        startActivity(intent);
+        finish(); // Close this activity
+    }*/
 
     private void checkUserRole(String userId) {
         firestore.collection("user").document(userId).get()
