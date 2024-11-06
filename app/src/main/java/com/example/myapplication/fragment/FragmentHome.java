@@ -18,6 +18,7 @@ import android.widget.ImageView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatButton;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -48,8 +49,8 @@ import java.util.concurrent.Executors;
 import android.media.MediaPlayer;
 
 public class FragmentHome extends Fragment {
-    TextView clickStories, userNameTextView;
-    TextView clickGames;
+    TextView userNameTextView;
+    CardView clickStories, clickGames;
     VideoView videoView;
     ImageView imageView, imageright, userAvatarImageView;
     ImageButton notif;
@@ -234,6 +235,14 @@ public class FragmentHome extends Fragment {
                     editName.setText(user.getChildName());
                     editAge.setText(String.valueOf(user.getChildBirthday()));
                     googleEditText.setText(user.getEmail());
+
+                    // Set visibility of connectButton based on email value
+                    if ("Null".equals(user.getEmail())) {
+                        connectButton.setVisibility(View.VISIBLE);
+                    } else {
+                        connectButton.setVisibility(View.GONE);
+                    }
+
                     Glide.with(requireContext())
                             .load(user.getAvatarResourceId())
                             .into(avatarImageView);

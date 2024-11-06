@@ -15,14 +15,24 @@ public class BibleDatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "kbid-app.db";
     private static final int DATABASE_VERSION = 1; // Incremented version for new fields
 
-    private static final String TABLE_NAME = "stories";
-    private static final String COLUMN_ID = "id";
+    public static final String TABLE_STORIES = "stories";
+    public static final String COLUMN_ID = "id";
     private static final String COLUMN_FIRESTORE_ID = "firestoreId";
     private static final String COLUMN_TITLE = "title";
     private static final String COLUMN_DESCRIPTION = "description";
     private static final String COLUMN_VERSE = "verse";  // New column
     private static final String COLUMN_DATE = "timestamp";  // New column
     private static final String COLUMN_IMAGE_URL = "imageUrl";  // New column
+
+    // Getter methods for private table and column names
+    public static String getTableStories() {
+        return TABLE_STORIES;
+    }
+
+    public static String getColumnId() {
+        return COLUMN_ID;
+    }
+
 
     private static final String TABLE_GAMES = "games";
     private static final String COLUMN__GAME_ID = "id";
@@ -35,10 +45,33 @@ public class BibleDatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_IMAGE_URL4 = "imageUrl4";
     private static final String COLUMN_GAME_DATE = "timestamp";
 
+    private static final String TABLE_ACHIEVEMENTS = "achievements";
+    private static final String COLUMN_ACHIEVEMENT_ID = "id";
+    private static final String COLUMN_USER_ID = "userId";
+    private static final String COLUMN_STORY_ID = "storyId";
+    private static final String COLUMN_ACHIEVEMENT_TITLE = "achievementTitle";
+
+    // Getter methods for table and column names
+    public static String getTableAchievements() {
+        return TABLE_ACHIEVEMENTS;
+    }
+
+    public static String getColumnAchievementId() {
+        return COLUMN_ACHIEVEMENT_ID;
+    }
+
+    public static String getColumnStoryId() {
+        return COLUMN_STORY_ID;
+    }
+
+    public static String getColumnAchievementTitle() {
+        return COLUMN_ACHIEVEMENT_TITLE;
+    }
 
 
 
-    private static final String CREATE_STORIES_TABLE = "CREATE TABLE " + TABLE_NAME + "("
+
+    private static final String CREATE_STORIES_TABLE = "CREATE TABLE " + TABLE_STORIES + "("
             + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
             + COLUMN_FIRESTORE_ID + " TEXT,"
             + COLUMN_TITLE + " TEXT,"
@@ -57,6 +90,14 @@ public class BibleDatabaseHelper extends SQLiteOpenHelper {
             + COLUMN_IMAGE_URL3 + " TEXT,"
             + COLUMN_IMAGE_URL4 + " TEXT,"
             + COLUMN_GAME_DATE + " DATE" + ")";
+
+    private static final String CREATE_ACHIEVEMENTS_TABLE = "CREATE TABLE " + TABLE_ACHIEVEMENTS + "("
+            + COLUMN_ACHIEVEMENT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+            + COLUMN_USER_ID + " INTEGER,"
+            + COLUMN_STORY_ID + " INTEGER,"
+            + COLUMN_ACHIEVEMENT_TITLE + " TEXT,"
+            + "FOREIGN KEY (" + COLUMN_USER_ID + ") REFERENCES users(id),"
+            + "FOREIGN KEY (" + COLUMN_STORY_ID + ") REFERENCES stories(id)" + ")";
 
     public BibleDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -90,11 +131,64 @@ public class BibleDatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
+    public void insertStory(ModelBible story) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.beginTransaction();
+
+        try {
+            ContentValues values = new ContentValues();
+            values.put(COLUMN_FIRESTORE_ID, story.getId());
+            values.put(COLUMN_TITLE, story.getTitle());
+            values.put(COLUMN_DESCRIPTION, story.getDescription());
+            values.put(COLUMN_VERSE, story.getVerse());
+            values.put(COLUMN_DATE, story.getTimestamp());
+            values.put(COLUMN_IMAGE_URL, story.getImageUrl());
+
+            long storyId = db.insert(TABLE_STORIES, null, values);
+
+            if (storyId == -1) {
+                Log.e("BibleDatabaseHelper", "Failed to insert story data");
+            } else {
+                Log.d("BibleDatabaseHelper", "Story data inserted successfully with ID: " + storyId);
+                // Insert achievements for the inserted story
+                insertAchievementsForStory(db, storyId);
+            }
+
+            db.setTransactionSuccessful(); // Commit the transaction if all inserts succeed
+        } catch (Exception e) {
+            Log.e("BibleDatabaseHelper", "Error while inserting story and achievements: " + e.getMessage());
+        } finally {
+            db.endTransaction();
+            db.close();
+        }
+    }
+
+    private void insertAchievementsForStory(SQLiteDatabase db, long storyId) {
+        // Example achievement data; modify as needed
+        String[] achievementTitles = {"Achievement 1", "Achievement 2"};
+
+        for (String title : achievementTitles) {
+            ContentValues values = new ContentValues();
+            values.put(COLUMN_STORY_ID, storyId); // Use the story ID from the inserted story
+            values.put(COLUMN_ACHIEVEMENT_TITLE, title); // Achievement title
+
+            long result = db.insert(TABLE_ACHIEVEMENTS, null, values);
+
+            if (result == -1) {
+                Log.e("BibleDatabaseHelper", "Failed to insert achievement data for story ID: " + storyId);
+            } else {
+                Log.d("BibleDatabaseHelper", "Achievement data inserted successfully for story ID: " + storyId);
+            }
+        }
+    }
+
+
+
 
     public ModelBible getNextStory(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
         ModelBible story = null;
-        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_NAME + " WHERE " + COLUMN_ID + " > ? ORDER BY " + COLUMN_ID + " LIMIT 1", new String[]{String.valueOf(id)});
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_STORIES + " WHERE " + COLUMN_ID + " > ? ORDER BY " + COLUMN_ID + " LIMIT 1", new String[]{String.valueOf(id)});
 
         if (cursor != null) {
             if (cursor.moveToFirst()) {
@@ -131,13 +225,16 @@ public class BibleDatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(CREATE_STORIES_TABLE);
         db.execSQL(CREATE_GAMES_TABLE);
+        db.execSQL(CREATE_ACHIEVEMENTS_TABLE); // Create achievements table
     }
+
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         if (oldVersion < newVersion) {
             // You can implement a more sophisticated upgrade strategy here
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_ACHIEVEMENTS);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_STORIES);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_GAMES);
 
             onCreate(db);

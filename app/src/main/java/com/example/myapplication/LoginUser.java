@@ -38,7 +38,7 @@ public class LoginUser extends AppCompatActivity {
     private FirebaseFirestore firestore;
     private LottieAnimationView loader, noInternet;
     private static final int RC_SIGN_IN = 9001;
-
+    private UserDatabaseHelper userDatabaseHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +48,7 @@ public class LoginUser extends AppCompatActivity {
         // Initialize Firebase Auth and Firestore
         auth = FirebaseAuth.getInstance();
         firestore = FirebaseFirestore.getInstance();
+        userDatabaseHelper = new UserDatabaseHelper(this);
 
         inputEmail = findViewById(R.id.inputEmail);
         inputPassword = findViewById(R.id.inputPassword);
@@ -98,7 +99,33 @@ public class LoginUser extends AppCompatActivity {
                         // Sign in success, get the current user
                         FirebaseUser user = auth.getCurrentUser();
                         if (user != null) {
-                            checkUserInFirestore(user.getUid());
+                            user.reload().addOnCompleteListener(reloadTask -> {
+                                if (reloadTask.isSuccessful()) {
+                                    if (user.isEmailVerified()) {
+                                        // Proceed with Firestore check if email is verified
+                                        checkUserInFirestore(user.getUid(),user.getEmail());
+                                    } else {
+                                        hideLoader();
+                                        // Show message prompting user to verify email
+                                        Toast.makeText(LoginUser.this,
+                                                "Need to verify your account. Please check your email for the verification link.",
+                                                Toast.LENGTH_LONG).show();
+                                        // Optionally, send a verification email if not already sent
+                                        user.sendEmailVerification()
+                                                .addOnSuccessListener(aVoid ->
+                                                        Toast.makeText(LoginUser.this,
+                                                                "Verification email sent. Please check your email.",
+                                                                Toast.LENGTH_SHORT).show())
+                                                .addOnFailureListener(e ->
+                                                        Log.e("Verification", "Failed to send verification email", e));
+                                    }
+                                } else {
+                                    hideLoader();
+                                    Toast.makeText(LoginUser.this,
+                                            "Failed to verify account. Please try again.",
+                                            Toast.LENGTH_SHORT).show();
+                                }
+                            });
                         }
                     } else {
                         // If sign in fails, hide loader and show message
@@ -108,14 +135,26 @@ public class LoginUser extends AppCompatActivity {
                 });
     }
 
-    private void checkUserInFirestore(String userId) {
+    private void checkUserInFirestore(String userId, String email) {
         firestore.collection("user").document(userId).get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         DocumentSnapshot document = task.getResult();
                         if (document.exists()) {
-                            navigateToHome();
+                            // Retrieve child information
+                            Log.d("LoginUser", "Inserting user with email: " + email);
+                            String childName = document.getString("childName");
+                            String childBirthday = document.getString("childBirthday");
+
+                            if (childName != null && childBirthday != null) {
+                                // Save to SQLite, including the email
+                                userDatabaseHelper.addUser(userId, childName, childBirthday, email);
+                                navigateToHome();
+                            } else {
+                                navigateToChildname();
+                            }
                         } else {
+                            // Check if user exists in the admin collection if not found in the user collection
                             firestore.collection("admin").document(userId).get()
                                     .addOnCompleteListener(adminTask -> {
                                         if (adminTask.isSuccessful()) {
@@ -142,6 +181,7 @@ public class LoginUser extends AppCompatActivity {
                     }
                 });
     }
+
 
 
     //Google SignIn
@@ -211,7 +251,7 @@ public class LoginUser extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         FirebaseUser user = auth.getCurrentUser();
                         if (user != null) {
-                            checkUserInFirestore(user.getUid());
+                            checkUserInFirestore(user.getUid(), user.getEmail());
                         }
                     } else {
                         Toast.makeText(LoginUser.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
@@ -224,6 +264,16 @@ public class LoginUser extends AppCompatActivity {
     private void showNoAccountExists() {
         hideLoader();
         Toast.makeText(LoginUser.this, "Your account does not exist.", Toast.LENGTH_SHORT).show();
+    }
+
+    private void navigateToChildname() {
+        FirebaseUser user = auth.getCurrentUser();
+        if (user != null) {
+            Intent intent = new Intent(LoginUser.this, ChildNameActivity.class);
+            intent.putExtra("USER_EMAIL", user.getEmail()); // Pass the verified email
+            startActivity(intent);
+            finish();
+        }
     }
 
     private void navigateToHome() {

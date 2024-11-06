@@ -33,6 +33,7 @@ public class ChildNameActivity extends AppCompatActivity {
     private UserDao userDao;
     private QuizGamesDao quizGamesDao;
     private FourPicsOneWordDao fourPicsOneWordDao;
+    private String email; // Declare email variable
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +50,8 @@ public class ChildNameActivity extends AppCompatActivity {
         fourPicsOneWordDao = db.fourPicsOneWordDao();
 
         // Initialize the database and DAO
+        email = getIntent().getStringExtra("USER_EMAIL");
+        //email = getIntent().getStringExtra("email");
 
 
         // Set initial state of the button
@@ -110,7 +113,7 @@ public class ChildNameActivity extends AppCompatActivity {
             byte[] defaultAvatarImage = null; // Or replace this with actual image data if available
 
             // Set email to null
-            String email = "No Bind";
+            String email = this.email;
 
             // Create and insert the user
             User user = new User(name, name, defaultAvatarName, defaultAvatarResourceId, defaultAvatarImage, email);

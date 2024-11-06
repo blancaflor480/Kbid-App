@@ -1,9 +1,15 @@
 <resources>
     <string-array name="user_options_array">
         <item>All users</item>
-        <item>User</item>
+        <item>New User</item>
+        <item>Old User</item>
+    </string-array>
+    <string-array name="admin_options_array">
+        <item>All users</item>
+        <item>Teacher</item>
         <item>Admin</item>
     </string-array>
+
     <string-array name="option_stories">
         <item>All</item>
         <item>New</item>

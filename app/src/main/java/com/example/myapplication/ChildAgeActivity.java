@@ -184,7 +184,7 @@ public class ChildAgeActivity extends AppCompatActivity {
         if (currentUser == null || currentUser.getChildBirthday() == null || currentUser.getChildBirthday().isEmpty()) {
             return; // Stay in ChildAgeActivity
         }
-        Intent intent = new Intent(ChildAgeActivity.this, SkipageActivity.class);
+        Intent intent = new Intent(ChildAgeActivity.this, AvatarActivity.class);
         startActivity(intent);
     }
 }

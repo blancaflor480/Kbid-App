@@ -120,12 +120,20 @@ public class MainActivity extends AppCompatActivity {
     }*/
 
     private void checkUserRole(String userId) {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+
+        // Check if the user's email is verified
+        if (currentUser != null && !currentUser.isEmailVerified()) {
+            handleAccessError("Please verify your email before logging in.");
+            return;
+        }
+
+        // Fetch user details from Firestore
         firestore.collection("user").document(userId).get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         DocumentSnapshot document = task.getResult();
                         if (document.exists()) {
-                            // User is a regular user, redirect to HomeActivity
                             navigateToHome();
                         } else {
                             // Check if the user is an admin

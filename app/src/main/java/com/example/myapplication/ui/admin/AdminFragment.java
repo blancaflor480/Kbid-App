@@ -1,5 +1,4 @@
-package com.example.myapplication.ui.user;
-
+package com.example.myapplication.ui.admin;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.ContentResolver;
@@ -7,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 
 import android.view.MenuInflater;
@@ -35,6 +33,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.myapplication.R;
+import com.example.myapplication.ui.user.AdapterUser;
+import com.example.myapplication.ui.user.ModelUser;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -45,11 +45,9 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
@@ -62,22 +60,17 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-public class UserFragment extends Fragment {
-
+public class AdminFragment extends Fragment {
     private static final int PICK_IMAGE_REQUEST = 1;
     private Uri imageUri;
     private ImageView ivProfileImage;
     private StorageReference storageRef;
     private TextView notFoundTextView;
     private RecyclerView recyclerView;
-    private AdapterUser adapterUsers;
-    private List<ModelUser> usersList;
+    private AdapterAdmin adapterUsers;
+    private List<ModelAdmin> usersList;
     private FirebaseAuth firebaseAuth;
     private FirebaseFirestore db;
-
-    public UserFragment() {
-        // Required empty public constructor
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -88,7 +81,7 @@ public class UserFragment extends Fragment {
         SearchView searchBar = view.findViewById(R.id.search_bar);
         notFoundTextView = view.findViewById(R.id.not_found_message);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
-                R.array.user_options_array, android.R.layout.simple_spinner_item);
+                R.array.admin_options_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
 
@@ -102,11 +95,11 @@ public class UserFragment extends Fragment {
                         break;
                     case 1:
                         // Handle "User" action
-                        getOlduser();
+                        getTeacher();
                         break;
                     case 2:
                         // Handle "Admin" action
-                        getNewuser();
+                        getAdmins();
                         break;
                 }
             }
@@ -160,7 +153,7 @@ public class UserFragment extends Fragment {
     private void showAddUserDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.dialog_add_kids, null);
+        View dialogView = inflater.inflate(R.layout.dialog_add_user, null);
         builder.setView(dialogView);
 
         EditText etFirstName = dialogView.findViewById(R.id.etFirstName);
@@ -168,6 +161,7 @@ public class UserFragment extends Fragment {
         EditText etLastName = dialogView.findViewById(R.id.etLastName);
         EditText etBirthday = dialogView.findViewById(R.id.etBirthday);
         Spinner spinnerGender = dialogView.findViewById(R.id.spinnerGender);
+        Spinner spinnerRole = dialogView.findViewById(R.id.spinnerRole);
         EditText etEmail = dialogView.findViewById(R.id.etEmail);
         EditText etPassword = dialogView.findViewById(R.id.etPassword);
         ivProfileImage = dialogView.findViewById(R.id.ivProfileImage);
@@ -178,6 +172,11 @@ public class UserFragment extends Fragment {
                 R.array.gender_array, android.R.layout.simple_spinner_item);
         genderAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerGender.setAdapter(genderAdapter);
+
+        ArrayAdapter<CharSequence> roleAdapter = ArrayAdapter.createFromResource(getContext(),
+                R.array.admin_roles_array, android.R.layout.simple_spinner_item);
+        roleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerRole.setAdapter(roleAdapter);
 
         // Set up date picker
         etBirthday.setOnClickListener(new View.OnClickListener() {
@@ -203,13 +202,9 @@ public class UserFragment extends Fragment {
                 String lastName = etLastName.getText().toString().trim();
                 String birthday = etBirthday.getText().toString().trim();
                 String gender = spinnerGender.getSelectedItem().toString();
+                String role = spinnerRole.getSelectedItem().toString();
                 String email = etEmail.getText().toString().trim();
                 String password = etPassword.getText().toString().trim();
-
-                boolean isMCAStudent = false;
-               /* if (spinnerGender.getSelectedItem().toString().equals("MCA Student")) {
-                    isMCAStudent = true;
-                }*/
 
                 if (firstName.isEmpty() || lastName.isEmpty() || birthday.isEmpty() || gender.isEmpty() || email.isEmpty() || password.isEmpty()) {
                     Snackbar.make(getView(), "Please fill in all required fields", Snackbar.LENGTH_LONG)
@@ -217,8 +212,8 @@ public class UserFragment extends Fragment {
                     return;
                 }
 
-                // Create new user without role
-                createNewUser(firstName, middleName, lastName, birthday, gender, email, password, isMCAStudent);
+                // Create new user
+                createNewUser(firstName, middleName, lastName, birthday, gender, role, email, password);
             }
         });
 
@@ -232,8 +227,6 @@ public class UserFragment extends Fragment {
         AlertDialog dialog = builder.create();
         dialog.show();
     }
-
-
 
     private void showDatePicker(EditText etBirthday) {
         final Calendar calendar = Calendar.getInstance();
@@ -273,134 +266,104 @@ public class UserFragment extends Fragment {
         }
     }
 
-    private void createNewUser(String firstName, String middleName, String lastName, String birthday, String gender, String email, String password, boolean isMCAStudent) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        CollectionReference usersRef = db.collection("user");
+    private void createNewUser(String firstName, String middleName, String lastName, String birthday, String gender, String role, String email, String password) {
+        firebaseAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+                            if (firebaseUser != null) {
+                                String uid = firebaseUser.getUid();
 
-        // Query Firestore to get the latest control ID
-        usersRef.orderBy("controlid", Query.Direction.DESCENDING).limit(1).get()
-                .addOnSuccessListener(querySnapshot -> {
-                    int newControlId = 1001; // Default starting value
-
-                    // Check if any documents were retrieved
-                    if (!querySnapshot.isEmpty()) {
-                        // Get the latest control ID from the document
-                        DocumentSnapshot lastDoc = querySnapshot.getDocuments().get(0);
-                        if (lastDoc.contains("controlid")) {
-                            String lastControlIdStr = lastDoc.getString("controlid");
-                            if (lastControlIdStr != null) {
-                                newControlId = Integer.parseInt(lastControlIdStr) + 1;
+                                if (imageUri != null) {
+                                    // Upload profile image if available
+                                    StorageReference fileReference = storageRef.child("Profile_Image/" + uid + "." + getFileExtension(imageUri));
+                                    fileReference.putFile(imageUri)
+                                            .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                                @Override
+                                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                                    fileReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                                        @Override
+                                                        public void onSuccess(Uri uri) {
+                                                            String imageUrl = uri.toString();
+                                                            // Create a new ModelAdmin instance with image URL
+                                                            ModelAdmin newUser = new ModelAdmin(
+                                                                    firstName,
+                                                                    middleName,
+                                                                    lastName,
+                                                                    email,
+                                                                    imageUrl,
+                                                                    uid,
+                                                                    null,
+                                                                    null,
+                                                                    birthday,
+                                                                    gender,
+                                                                    role
+                                                            );
+                                                            saveUserToFirestore(newUser, role, uid);
+                                                        }
+                                                    });
+                                                }
+                                            })
+                                            .addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    Snackbar.make(getView(), "Failed to upload image: " + e.getMessage(), Snackbar.LENGTH_LONG).show();
+                                                }
+                                            });
+                                } else {
+                                    // Create a new ModelAdmin instance without an image URL
+                                    ModelAdmin newUser = new ModelAdmin(
+                                            firstName,
+                                            middleName,
+                                            lastName,
+                                            email,
+                                            null, // No image URL
+                                            uid,
+                                            null,
+                                            null,
+                                            birthday,
+                                            gender,
+                                            role
+                                    );
+                                    saveUserToFirestore(newUser, role, uid);
+                                }
                             }
+                        } else {
+                            Snackbar.make(getView(), "Error creating user: " + task.getException().getMessage(), Snackbar.LENGTH_LONG).show();
                         }
                     }
-
-                    // Proceed with Firebase Authentication for creating a user
-                    int finalNewControlId = newControlId;
-                    firebaseAuth.createUserWithEmailAndPassword(email, password)
-                            .addOnCompleteListener(task -> {
-                                if (task.isSuccessful()) {
-                                    FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-                                    if (firebaseUser != null) {
-                                        String uid = firebaseUser.getUid();
-                                        handleImageUpload(uid, finalNewControlId, firstName, middleName, lastName, birthday, gender, email, isMCAStudent, firebaseUser);
-                                    }
-                                } else {
-                                    Snackbar.make(getView(), "Error creating user: " + task.getException().getMessage(), Snackbar.LENGTH_LONG).show();
-                                }
-                            });
-                })
-                .addOnFailureListener(e -> {
-                    Snackbar.make(getView(), "Error retrieving control ID: " + e.getMessage(), Snackbar.LENGTH_LONG).show();
                 });
     }
 
-    private void handleImageUpload(String uid, int controlId, String firstName, String middleName, String lastName, String birthday, String gender, String email, boolean isMCAStudent, FirebaseUser firebaseUser) {
-        if (imageUri != null) {
-            StorageReference fileReference = storageRef.child("Profile_Image/" + uid + "." + getFileExtension(imageUri));
-            fileReference.putFile(imageUri)
-                    .addOnSuccessListener(taskSnapshot -> fileReference.getDownloadUrl().addOnSuccessListener(uri -> {
-                        String imageUrl = uri.toString();
-                        ModelUser newUser = new ModelUser(
-                                String.valueOf(controlId),
-                                firstName,
-                                middleName,
-                                lastName,
-                                email,
-                                imageUrl,
-                                uid,
-                                null,
-                                null,
-                                birthday,
-                                gender,
-                                isMCAStudent
-                        );
-                        saveUserToFirestore(newUser, uid); // Call with two parameters
-                        sendVerificationEmail(firebaseUser, controlId, isMCAStudent); // Send verification email with FirebaseUser
-                    }))
-                    .addOnFailureListener(e -> Snackbar.make(getView(), "Failed to upload image: " + e.getMessage(), Snackbar.LENGTH_LONG).show());
+
+
+    private void saveUserToFirestore(ModelAdmin newUser, String role, String uid) {
+        // Determine the collection based on the role
+        String collectionName;
+        if (role.equalsIgnoreCase("Teacher") || role.equalsIgnoreCase("SuperAdmin")) {
+            collectionName = "admin";
         } else {
-            ModelUser newUser = new ModelUser(
-                    String.valueOf(controlId),
-                    firstName,
-                    middleName,
-                    lastName,
-                    email,
-                    null, // No image URL
-                    uid,
-                    null,
-                    null,
-                    birthday,
-                    gender,
-                    isMCAStudent // Pass the student status
-            );
-            saveUserToFirestore(newUser, uid); // Call with two parameters
-            sendVerificationEmail(firebaseUser, controlId, isMCAStudent); // Send verification email with FirebaseUser
+            collectionName = "admin"; // Default collection for other roles
         }
-    }
 
-    private void sendVerificationEmail(FirebaseUser user, int controlId, boolean isMCAStudent) {
-        String subject = "Account Verification";
-        String message = "Dear user,\n\n" +
-                "Your account has been created successfully!\n" +
-                "Your Control ID: " + controlId + "\n" +
-                (isMCAStudent ? "You are confirmed as an MCA student." : "You are not confirmed as an MCA student.") + "\n\n" +
-                "Please verify your email by clicking the link we sent.\n\n" +
-                "Thank you!";
-
-        if (user != null) {
-            // Send the Firebase email verification link
-            user.sendEmailVerification()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            Log.d("Verification", "Verification email sent to " + user.getEmail());
-                        } else {
-                            Log.e("Verification", "Error sending verification email", task.getException());
-                        }
-                    });
-
-            // Optionally, send a custom email notification
-            JavaMailAPI javaMailAPI = new JavaMailAPI(getContext(), user.getEmail(), subject, message);
-            javaMailAPI.execute();
-        } else {
-            Log.e("Verification", "User is null. Cannot send verification email.");
-        }
-    }
-
-
-
-    private void saveUserToFirestore(ModelUser newUser, String uid) {
-        // Save to the "user" collection for all roles
-        db.collection("user").document(uid)
+        db.collection(collectionName).document(uid)
                 .set(newUser)
-                .addOnSuccessListener(aVoid -> {
-                    Snackbar.make(getView(), "User added successfully!", Snackbar.LENGTH_LONG).show();
-                    getAllUsers();
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Snackbar.make(getView(), "User added successfully!", Snackbar.LENGTH_LONG).show();
+                        getAllUsers();
+                    }
                 })
-                .addOnFailureListener(e -> {
-                    Snackbar.make(getView(), "Error adding user: " + e.getMessage(), Snackbar.LENGTH_LONG).show();
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Snackbar.make(getView(), "Error adding user: " + e.getMessage(), Snackbar.LENGTH_LONG).show();
+                    }
                 });
     }
-
 
 
 
@@ -412,11 +375,11 @@ public class UserFragment extends Fragment {
 
     private void getAllUsers() {
         final FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-        CollectionReference usersRef = db.collection("user");
+        CollectionReference adminsRef = db.collection("admin");
 
-        final List<ModelUser> combinedList = new ArrayList<>();
+        final List<ModelAdmin> combinedList = new ArrayList<>();
 
-        usersRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        adminsRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                 if (error != null) {
@@ -425,12 +388,12 @@ public class UserFragment extends Fragment {
                 }
                 combinedList.clear();
                 for (QueryDocumentSnapshot doc : value) {
-                    ModelUser modelUser = doc.toObject(ModelUser.class);
-                    if (modelUser.getUid() != null && !modelUser.getUid().equals(firebaseUser.getUid())) {
-                        combinedList.add(modelUser);
+                    ModelAdmin modelAdmin = doc.toObject(ModelAdmin.class);
+                    if (modelAdmin.getUid() != null && !modelAdmin.getUid().equals(firebaseUser.getUid())) {
+                        combinedList.add(modelAdmin);
                     }
                 }
-                usersRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+                adminsRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                         if (error != null) {
@@ -438,14 +401,14 @@ public class UserFragment extends Fragment {
                             return;
                         }
                         for (QueryDocumentSnapshot doc : value) {
-                            ModelUser modelUser = doc.toObject(ModelUser.class);
-                            if (modelUser.getUid() != null && !modelUser.getUid().equals(firebaseUser.getUid())) {
-                                combinedList.add(modelUser);
+                            ModelAdmin modelAdmin = doc.toObject(ModelAdmin.class);
+                            if (modelAdmin.getUid() != null && !modelAdmin.getUid().equals(firebaseUser.getUid())) {
+                                combinedList.add(modelAdmin);
                             }
                         }
                         usersList.clear();
                         usersList.addAll(combinedList);
-                        adapterUsers = new AdapterUser(getActivity(), usersList);
+                        adapterUsers = new AdapterAdmin(getActivity(), usersList);
                         recyclerView.setAdapter(adapterUsers
                         );
                     }
@@ -456,43 +419,50 @@ public class UserFragment extends Fragment {
 
 
 
-    private void getOlduser() {
-        CollectionReference usersRef = db.collection("user");
-        usersRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+    private void getTeacher() {
+        CollectionReference usersRef = db.collection("admin");
+
+        // Filter to get only documents where role is "Teacher"
+        usersRef.whereEqualTo("role", "Teacher").addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                 if (error != null) {
-                    return;
+                    return; // Handle the error if needed
                 }
                 usersList.clear();
                 for (QueryDocumentSnapshot document : value) {
-                    ModelUser user = document.toObject(ModelUser.class);
+                    ModelAdmin user = document.toObject(ModelAdmin.class);
                     usersList.add(user);
                 }
-                adapterUsers = new AdapterUser(getActivity(), usersList);
+                // Update the adapter with the filtered list
+                adapterUsers = new AdapterAdmin(getActivity(), usersList);
                 recyclerView.setAdapter(adapterUsers);
             }
         });
     }
 
-    private void getNewuser() {
-        CollectionReference adminsRef = db.collection("user");
-        adminsRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+    private void getAdmins() {
+        CollectionReference adminsRef = db.collection("admin");
+
+        // Filter to get only documents where role is "SuperAdmin"
+        adminsRef.whereEqualTo("role", "SuperAdmin").addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                 if (error != null) {
-                    return;
+                    return; // Handle the error if needed
                 }
                 usersList.clear();
                 for (QueryDocumentSnapshot document : value) {
-                    ModelUser admin = document.toObject(ModelUser.class);
+                    ModelAdmin admin = document.toObject(ModelAdmin.class);
                     usersList.add(admin);
                 }
-                adapterUsers = new AdapterUser(getActivity(), usersList);
+                // Update the adapter with the filtered list
+                adapterUsers = new AdapterAdmin(getActivity(), usersList);
                 recyclerView.setAdapter(adapterUsers);
             }
         });
     }
+
 
 
 
@@ -501,14 +471,14 @@ public class UserFragment extends Fragment {
         super.onResume();
         // Reset the "Not Found" message and display the full user list
         notFoundTextView.setVisibility(View.GONE);
-        adapterUsers = new AdapterUser(getContext(), usersList);
+        adapterUsers = new AdapterAdmin(getContext(), usersList);
         recyclerView.setAdapter(adapterUsers);
     }
 
 
     private void filterUsers(String query) {
-        List<ModelUser> filteredList = new ArrayList<>();
-        for (ModelUser user : usersList) {
+        List<ModelAdmin> filteredList = new ArrayList<>();
+        for (ModelAdmin user : usersList) {
             String firstname = user.getFirstname() != null ? user.getFirstname().toLowerCase() : "";
             String lastname = user.getLastname() != null ? user.getLastname().toLowerCase() : "";
             String email = user.getEmail() != null ? user.getEmail().toLowerCase() : "";
@@ -527,8 +497,7 @@ public class UserFragment extends Fragment {
             notFoundTextView.setVisibility(View.GONE);
         }
 
-        adapterUsers = new AdapterUser(getContext(), filteredList);
+        adapterUsers = new AdapterAdmin(getContext(), filteredList);
         recyclerView.setAdapter(adapterUsers);
     }
-
 }

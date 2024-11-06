@@ -1,5 +1,6 @@
 package com.example.myapplication;
 
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.TextView;
@@ -22,12 +23,17 @@ public class HomeActivity extends AppCompatActivity {
     ViewPager2 homepage;
     ArrayList<Fragment> fragmentArrayList = new ArrayList<>();
     BottomNavigationView bottom_nav;
-
+    MediaPlayer mediaPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.home);
+
+        // Initialize MediaPlayer with the audio resource
+        mediaPlayer = MediaPlayer.create(this, R.raw.bg_music); // Replace 'your_audio_file' with the actual file name
+        // Set the MediaPlayer to loop
+        mediaPlayer.setLooping(true); // Enable looping
 
         homepage = findViewById(R.id.homepage);
         bottom_nav = findViewById(R.id.bottom_nav);
@@ -71,5 +77,34 @@ public class HomeActivity extends AppCompatActivity {
                 return true;
             }
         });
+        mediaPlayer.start();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Release MediaPlayer resources
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Pause the music when the activity is not in the foreground
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+            mediaPlayer.pause();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Resume the music when the activity comes back to the foreground
+        if (mediaPlayer != null) {
+            mediaPlayer.start();
+        }
     }
 }

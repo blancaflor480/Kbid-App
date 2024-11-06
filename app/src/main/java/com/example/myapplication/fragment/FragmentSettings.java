@@ -89,14 +89,14 @@ public class FragmentSettings extends Fragment {
 
         // Find ToggleButtons
         toggleSound = view.findViewById(R.id.togglesound);
-        toggleAnnounce = view.findViewById(R.id.toggleannounce);
+       // toggleAnnounce = view.findViewById(R.id.toggleannounce);
 
         // Find the no account layout
         noAccountLayout = view.findViewById(R.id.noaccount);
 
         // Set listeners for each toggle button
         setUpToggleButton(toggleSound);
-        setUpToggleButton(toggleAnnounce);
+        //setUpToggleButton(toggleAnnounce);
 
         // Find the exit TextView
         CardView exitTextView = view.findViewById(R.id.exit);

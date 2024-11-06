@@ -1,7 +1,9 @@
 package com.example.myapplication;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -235,12 +237,70 @@ public class SignupUser extends AppCompatActivity {
     }
 
     private void showSuccessMessage() {
+        // Show loader animation for successful registration
         loader.setAnimation(R.raw.registeredsucess);
         loader.setVisibility(View.VISIBLE);
         Toast.makeText(SignupUser.this, "Registered Successfully", Toast.LENGTH_SHORT).show();
-        hideLoader();
-        navigateToHome();
+        hideLoader(); // Assuming you want to hide this loader after a short time
+
+        // Check if the current user is verified
+        FirebaseUser user = auth.getCurrentUser();
+        if (user != null) {
+            if (user.isEmailVerified()) {
+                navigateToChildname(); // Navigate if email is verified
+            } else {
+                // Show a message if email is not verified
+                Toast.makeText(this, "Please verify your email to proceed.", Toast.LENGTH_LONG).show();
+
+                // Set the content view to loading verification layout
+                setContentView(R.layout.loading_verification); // Your loading verification layout XML
+                // Show loading animation
+                loader.setAnimation(R.raw.openemail); // Replace with your loading animation
+                loader.setVisibility(View.VISIBLE); // Make the loader visible
+
+                // Optionally, you can add a delay or a listener to check for email verification
+                // For example, after a few seconds, you might want to check if the email is verified again
+                new Handler().postDelayed(() -> {
+                    // Recheck email verification
+                    FirebaseUser recheckedUser = auth.getCurrentUser();
+                    if (recheckedUser != null && recheckedUser.isEmailVerified()) {
+                        navigateToChildname(); // Navigate if email is verified
+                    } else {
+                        // Optionally, show a message or stay on the current screen
+                        Toast.makeText(this, "Still waiting for email verification...", Toast.LENGTH_LONG).show();
+                    }
+                }, 1000); // Adjust delay as necessary
+            }
+        }
     }
+
+
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        checkEmailVerification();
+    }
+
+    private void checkEmailVerification() {
+        FirebaseUser user = auth.getCurrentUser();
+        if (user != null) {
+            user.reload().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    if (user.isEmailVerified()) {
+                        // Email is verified, navigate to the next activity
+                        navigateToChildname();
+
+                    } else {
+                        // Optionally inform the user
+                        Toast.makeText(this, "Email not verified yet.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
+    }
+
 
     private void showNoInternet() {
         noInternet.setVisibility(View.VISIBLE);
@@ -248,8 +308,13 @@ public class SignupUser extends AppCompatActivity {
         buttonSignup.setVisibility(View.GONE);
     }
 
-    private void navigateToHome() {
-        startActivity(new Intent(SignupUser.this, HomeActivity.class));
-        finish();
+    private void navigateToChildname() {
+        FirebaseUser user = auth.getCurrentUser();
+        if (user != null) {
+            Intent intent = new Intent(SignupUser.this, ChildNameActivity.class);
+            intent.putExtra("USER_EMAIL", user.getEmail()); // Pass the verified email
+            startActivity(intent);
+            finish();
+        }
     }
 }

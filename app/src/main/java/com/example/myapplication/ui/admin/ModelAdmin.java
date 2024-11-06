@@ -1,8 +1,6 @@
-package com.example.myapplication.ui.user;
+package com.example.myapplication.ui.admin;
 
-public class ModelUser {
-
-    private String controlid;
+public class ModelAdmin {
     private String firstname;
     private String middlename;
     private String lastname;
@@ -14,16 +12,14 @@ public class ModelUser {
     private String birthday;
     private String gender;
     private String role;
-    private boolean isMCAStudent; // Add this field
 
-    // Public no-argument constructor
-    public ModelUser() {
-        // This constructor is necessary for Firestore to deserialize the object
+    // No-argument constructor
+    public ModelAdmin() {
+        // Required for Firebase deserialization
     }
 
-    // Constructor with arguments including isMCAStudent
-    public ModelUser(String controlid, String firstname, String middlename, String lastname, String email, String imageUrl, String uid, String onlineStatus, String typingTo, String birthday, String gender, boolean isMCAStudent) {
-        this.controlid = controlid;
+    // Constructor with arguments
+    public ModelAdmin(String firstname, String middlename, String lastname, String email, String imageUrl, String uid, String onlineStatus, String typingTo, String birthday, String gender, String role) {
         this.firstname = firstname;
         this.middlename = middlename;
         this.lastname = lastname;
@@ -35,18 +31,15 @@ public class ModelUser {
         this.birthday = birthday;
         this.gender = gender;
         this.role = role;
-        this.isMCAStudent = isMCAStudent; // Initialize the new field
+    }
+
+    public ModelAdmin(String uid, String firstname, String middlename, String lastname, String birthday, String gender, String role, String email, String imageUrl) {
     }
 
     // Getters and setters...
 
-    public String getControlid() {
-        return controlid;
-    }
 
-    public void setControlid(String controlid) {
-        this.controlid = controlid;
-    }
+
 
     public String getFirstname() {
         return firstname;
@@ -87,6 +80,7 @@ public class ModelUser {
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
+
 
     public String getUid() {
         return uid;
@@ -134,16 +128,6 @@ public class ModelUser {
 
     public void setRole(String role) {
         this.role = role;
-    }
-
-    // Getter for isMCAStudent
-    public boolean isMCAStudent() {
-        return isMCAStudent;
-    }
-
-    // Setter for isMCAStudent
-    public void setMCAStudent(boolean MCAStudent) {
-        isMCAStudent = MCAStudent;
     }
 
     // Method to get the full name
