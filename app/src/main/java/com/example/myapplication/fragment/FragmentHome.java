@@ -2,6 +2,7 @@ package com.example.myapplication.fragment;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,6 +16,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 import android.widget.ImageView;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatButton;
@@ -22,7 +25,11 @@ import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.vectordrawable.graphics.drawable.Animatable2Compat;
+
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.gif.GifDrawable;
+import com.bumptech.glide.request.target.CustomTarget;
 import com.example.myapplication.AvatarSelectionActivity;
 import com.example.myapplication.R;
 import com.example.myapplication.database.AppDatabase;
@@ -39,6 +46,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.bumptech.glide.request.transition.Transition;
+import com.bumptech.glide.request.target.Target;
 
 import java.text.BreakIterator;
 import java.util.ArrayList;
@@ -52,7 +61,7 @@ public class FragmentHome extends Fragment {
     TextView userNameTextView;
     CardView clickStories, clickGames;
     VideoView videoView;
-    ImageView imageView, imageright, userAvatarImageView;
+    ImageView imageView, imageright, userAvatarImageView, sungif,rainbowgif,star1,star2,star3;
     ImageButton notif;
     EditText userAgeEditText,userNameEditText;
     private View editProfileOverlay;
@@ -73,8 +82,14 @@ public class FragmentHome extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
-        imageView = view.findViewById(R.id.cloudgif);
-        imageright = view.findViewById(R.id.cloudgifright);
+        sungif = view.findViewById(R.id.sungif);
+        rainbowgif = view.findViewById(R.id.rainbowgif);
+
+        star1 = view.findViewById(R.id.stars1);
+        star2 = view.findViewById(R.id.stars2);
+        star3 = view.findViewById(R.id.stars3);
+
+        // imageright = view.findViewById(R.id.cloudgifright);
         userNameTextView = view.findViewById(R.id.name);
         userAvatarImageView = view.findViewById(R.id.avatar);
         notif = view.findViewById(R.id.notif); // Initialize your notification button
@@ -105,12 +120,19 @@ public class FragmentHome extends Fragment {
         // Glide GIF loading
         Glide.with(this)
                 .asGif()
-                .load(R.raw.cloud)
-                .into(imageView);
+                .load(R.raw.sun_animate)
+                .into(sungif);
         Glide.with(this)
                 .asGif()
-                .load(R.raw.cloud)
-                .into(imageright);
+                .load(R.raw.cloud1)
+                .into(rainbowgif);
+
+        // Load static images for stars initially
+        Glide.with(this).load(R.raw.star).into(star1);
+        Glide.with(this).load(R.raw.star1).into(star2);
+        Glide.with(this).load(R.raw.star2).into(star3);
+        setupStarClickListeners();
+
 
         // Set up click listeners
         clickStories = view.findViewById(R.id.clickStories);
@@ -135,6 +157,38 @@ public class FragmentHome extends Fragment {
         return view;
     }
 
+    private void setupStarClickListeners() {
+        setupStarAnimation(star1, R.raw.star1gif, R.raw.star);
+        setupStarAnimation(star2, R.raw.star2gif, R.raw.star1);
+        setupStarAnimation(star3, R.raw.star3gif, R.raw.star2);
+    }
+    // Inside your setupStarAnimation method
+    private void setupStarAnimation(ImageView starView, int gifResource, int staticImageResource) {
+        starView.setOnClickListener(v -> {
+            Glide.with(this)
+                    .asGif()
+                    .load(gifResource)
+                    .into(new CustomTarget<GifDrawable>() {
+                        @Override
+                        public void onResourceReady(@NonNull GifDrawable resource, @Nullable Transition<? super GifDrawable> transition) {
+                            starView.setImageDrawable(resource);
+                            resource.setLoopCount(1);
+                            resource.start();
+                            resource.registerAnimationCallback(new Animatable2Compat.AnimationCallback() {
+                                @Override
+                                public void onAnimationEnd(Drawable drawable) {
+                                    Glide.with(FragmentHome.this).load(staticImageResource).into(starView);
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onLoadCleared(@Nullable Drawable placeholder) {
+                            starView.setImageDrawable(placeholder);
+                        }
+                    });
+        });
+    }
     private void playClickSound() {
         // Release any previously playing sound to prevent overlapping
         if (mediaPlayer != null) {
@@ -195,12 +249,12 @@ public class FragmentHome extends Fragment {
             User user = userDao.getFirstUser();
             if (user != null) {
                 requireActivity().runOnUiThread(() -> {
-                    String greetingMessage = "Hello, " + user.getChildName();
+                    String greetingMessage = "Hi, " + user.getChildName();
                     userNameTextView.setText(greetingMessage);
 
-                    Glide.with(requireContext())
+                    /*Glide.with(requireContext())
                             .load(user.getAvatarResourceId())
-                            .into(userAvatarImageView);
+                            .into(userAvatarImageView);*/
                 });
             }
         });
