@@ -64,8 +64,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:padding="10dp"
-                    android:src="@drawable/left_arrow"
-                    android:background="@drawable/shape_arrow"
+                    android:src="@drawable/left_arrowstory"
+                    android:background="@drawable/shape_arrowstory"
                     />
 
                 <!--<TextView
@@ -84,7 +84,7 @@
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
                         android:layout_gravity="right"
-                        android:background="@drawable/btn_getstarted" >
+                        android:background="@drawable/btn_shapestory" >
 
                         <!-- Icon Button -->
                         <ImageButton
@@ -99,9 +99,9 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Edit Playlist"
-                            android:fontFamily="@font/dinroundedpro_medium"
+                            android:fontFamily="@font/gothamroundedmedium"
                             android:textSize="13sp"
-                            android:textColor="@color/white"
+                            android:textColor="@color/black"
                             android:layout_marginStart="1dp"
                             android:padding="8dp" />
                     </LinearLayout>

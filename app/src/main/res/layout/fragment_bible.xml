@@ -38,16 +38,16 @@
                 android:layout_height="wrap_content"
                 android:padding="10dp"
                 android:layout_marginTop="10dp"
-                android:src="@drawable/left_arrow"
-                android:background="@drawable/shape_arrow"
+                android:src="@drawable/left_arrowstory"
+                android:background="@drawable/shape_arrowstory"
                 android:layout_gravity="start"/>
 
             <TextView
                 android:id="@+id/textStories"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Bible Stories"
-                android:fontFamily="@font/dinroundedpro_bold"
+                android:text="Bible Story"
+                android:fontFamily="@font/gothamroundedbold"
                 android:textSize="25sp"
                 android:layout_gravity="center"
                 android:textColor="#000000" />
@@ -86,7 +86,7 @@
             android:orientation="vertical"
             app:cardCornerRadius="30dp"
             app:cardElevation="2dp"
-            app:cardBackgroundColor="@color/greenlightning"
+            app:cardBackgroundColor="#FFE3C1"
             app:contentPadding="5dp">
 
             <RadioGroup
@@ -103,9 +103,9 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="All Stories"
-                    android:fontFamily="@font/dinroundedpro_medium"
+                    android:fontFamily="@font/gothamroundedmedium"
                     android:textSize="13sp"
-                    android:textColor="@color/white"
+                    android:textColor="@color/black"
                     android:buttonTint="@color/transparent"
                     android:gravity="center"
                     android:button="@null"
@@ -116,10 +116,10 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:fontFamily="@font/dinroundedpro_medium"
+                    android:fontFamily="@font/gothamroundedmedium"
                     android:text="Upcoming Stories"
                     android:textSize="13sp"
-                    android:textColor="@color/white"
+                    android:textColor="@color/black"
                     android:buttonTint="@color/transparent"
                     android:gravity="center"
                     android:button="@null"

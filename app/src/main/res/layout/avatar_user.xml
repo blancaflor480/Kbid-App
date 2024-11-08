@@ -30,7 +30,7 @@
             android:layout_marginTop="16dp"
             android:layout_gravity="center"
             android:fontFamily="@font/dinroundedpro_bold"
-            android:text="Choose an Avatar for your kids"
+            android:text="Choose your character"
             android:textColor="@color/dark"
             android:textSize="22sp"
             android:textStyle="bold" />

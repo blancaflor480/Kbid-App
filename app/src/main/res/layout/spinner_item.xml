@@ -3,6 +3,8 @@
     android:id="@+id/spinner_item"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:textColor="@android:color/black"
+    android:textColor="@color/darkmin"
+    android:fontFamily="@font/gothamroundedmedium"
     android:textSize="16sp"
-    android:padding="10dp" />
+    android:padding="10dp"
+    />

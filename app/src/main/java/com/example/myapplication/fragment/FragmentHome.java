@@ -36,6 +36,7 @@ import com.example.myapplication.database.AppDatabase;
 import com.example.myapplication.database.userdb.User;
 import com.example.myapplication.database.userdb.UserDao;
 import com.example.myapplication.fragment.biblegames.GamesFragment;
+import com.example.myapplication.fragment.biblemusic.MusicFragment;
 import com.example.myapplication.fragment.biblestories.BibleFragment;
 import com.example.myapplication.fragment.notification.ModelNotification;
 import com.example.myapplication.fragment.notification.NotificationAdapter;
@@ -59,7 +60,7 @@ import android.media.MediaPlayer;
 
 public class FragmentHome extends Fragment {
     TextView userNameTextView;
-    CardView clickStories, clickGames;
+    CardView clickStories, clickGames, clickSong;
     VideoView videoView;
     ImageView imageView, imageright, userAvatarImageView, sungif,rainbowgif,star1,star2,star3;
     ImageButton notif;
@@ -93,6 +94,7 @@ public class FragmentHome extends Fragment {
         userNameTextView = view.findViewById(R.id.name);
         userAvatarImageView = view.findViewById(R.id.avatar);
         notif = view.findViewById(R.id.notif); // Initialize your notification button
+
         changeInfoButton = view.findViewById(R.id.changeinfo);
 
         // Show the dialog when clicking on changeinfo
@@ -137,6 +139,8 @@ public class FragmentHome extends Fragment {
         // Set up click listeners
         clickStories = view.findViewById(R.id.clickStories);
         clickGames = view.findViewById(R.id.clickGames);
+        clickSong = view.findViewById(R.id.clickSong);
+
 
         clickStories.setOnClickListener(v -> {
             playClickSound(); // Play sound effect
@@ -146,6 +150,11 @@ public class FragmentHome extends Fragment {
         clickGames.setOnClickListener(v -> {
             playClickSound(); // Play sound effect
             navigateToBiblegamesActivity();
+        });
+
+        clickSong.setOnClickListener(v -> {
+            playClickSound(); // Play sound effect
+            navigateToBiblesongActivity();
         });
 
         // Set up notification button click listener
@@ -388,6 +397,11 @@ public class FragmentHome extends Fragment {
 
     private void navigateToBiblegamesActivity() {
         Intent intent = new Intent(getActivity(), GamesFragment.class);
+        startActivity(intent);
+        Log.d("FragmentHome", "Navigating to Biblegames");
+    }
+    private void navigateToBiblesongActivity() {
+        Intent intent = new Intent(getActivity(), MusicFragment.class);
         startActivity(intent);
         Log.d("FragmentHome", "Navigating to Biblegames");
     }

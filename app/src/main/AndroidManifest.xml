@@ -38,8 +38,7 @@
 
         <activity android:name=".fragment.biblegames.fourpiconeword.NextActivity" />
        <activity android:name=".fragment.biblestories.favoritelist.favoritelist" />
-
-
+      <activity android:name=".fragment.biblemusic.MusicFragment"/>
 
         <activity android:name=".AvatarSelectionActivity" />
 

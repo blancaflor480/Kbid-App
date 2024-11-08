@@ -20,17 +20,19 @@ import com.example.myapplication.database.favorite.FavoriteDao;
 import com.example.myapplication.database.fourpicsdb.FourPicsOneWord;
 import com.example.myapplication.database.fourpicsdb.FourPicsOneWordDao;
 import com.example.myapplication.database.gamesdb.Games;
+import com.example.myapplication.database.music.MusicDao;
 import com.example.myapplication.database.quizdb.QuizGames;
 import com.example.myapplication.database.quizdb.QuizGamesDao;
 import com.example.myapplication.database.userdb.User;
 import com.example.myapplication.database.userdb.UserDao;
 import com.example.myapplication.fragment.achievement.StoryAchievementModel;
+import com.example.myapplication.fragment.biblemusic.ModelMusic;
 import com.example.myapplication.fragment.biblestories.ModelBible;
 import com.example.myapplication.database.gamesdb.GamesDao;
 import com.example.myapplication.MainActivity;
 import com.example.myapplication.fragment.biblestories.favoritelist.Modelfavoritelist;
 
-@Database(entities = {ModelBible.class, User.class, Games.class, FourPicsOneWord.class, QuizGames.class, Modelfavoritelist.class, StoryAchievementModel.class}, version = 7)  // Updated version
+@Database(entities = {ModelBible.class, User.class, Games.class, FourPicsOneWord.class, QuizGames.class, Modelfavoritelist.class, StoryAchievementModel.class, ModelMusic.class}, version = 8)  // Updated version
 @TypeConverters({Converters.class})
 public abstract class AppDatabase extends RoomDatabase {
     public abstract BibleDao bibleDao();
@@ -40,6 +42,8 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract QuizGamesDao quizGamesDao();
     public abstract FavoriteDao FavoriteDao();
     public abstract StoryAchievementDao storyAchievementDao();
+    public abstract MusicDao musicDao();
+
 
     private static volatile AppDatabase INSTANCE;
     public static final Executor databaseWriteExecutor = Executors.newFixedThreadPool(4);

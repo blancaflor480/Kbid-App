@@ -36,6 +36,12 @@
         android:label="@string/menu_game"
         tools:layout="@layout/fragment_games_fourpics" />
 
+    <fragment
+        android:id="@+id/nav_song"
+        android:name="com.example.myapplication.ui.content.song.SongFragment"
+        android:label="@string/menu_song"
+        tools:layout="@layout/fragment_song_admin" />
+
 
     <fragment
         android:id="@+id/nav_record"

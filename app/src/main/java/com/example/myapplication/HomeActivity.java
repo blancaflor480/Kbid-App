@@ -107,4 +107,15 @@ public class HomeActivity extends AppCompatActivity {
             mediaPlayer.start();
         }
     }
+    public void toggleMusic(boolean playMusic) {
+        if (playMusic) {
+            if (mediaPlayer != null && !mediaPlayer.isPlaying()) {
+                mediaPlayer.start();
+            }
+        } else {
+            if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+                mediaPlayer.pause();
+            }
+        }
+    }
 }

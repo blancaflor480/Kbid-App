@@ -145,14 +145,19 @@ public class FragmentSettings extends Fragment {
 
     private void setUpToggleButton(ToggleButton toggleButton) {
         toggleButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            // Update the button appearance
             if (isChecked) {
-                // Toggle is ON, set green background with rounded corners
                 toggleButton.setBackgroundResource(R.drawable.toggle_on);
                 toggleButton.setTextColor(Color.WHITE);
             } else {
-                // Toggle is OFF, set red background with rounded corners
                 toggleButton.setBackgroundResource(R.drawable.toggle_off);
                 toggleButton.setTextColor(Color.WHITE);
+            }
+
+            // Access HomeActivity and control the music
+            HomeActivity activity = (HomeActivity) getActivity();
+            if (activity != null) {
+                activity.toggleMusic(isChecked); // Start music if on, pause if off
             }
         });
     }

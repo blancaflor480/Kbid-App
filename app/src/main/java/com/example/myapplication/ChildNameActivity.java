@@ -105,10 +105,10 @@ public class ChildNameActivity extends AppCompatActivity {
         loadSavedName();
     }
 
-    private void saveNameLocally(String name) {
+   private void saveNameLocally(String name) {
         AsyncTask.execute(() -> {
             // Default values for the avatar
-            String defaultAvatarName = "Default Avatar";
+            String defaultAvatarName = "null";
             int defaultAvatarResourceId = R.drawable.lion; // Ensure you have this drawable in your project
             byte[] defaultAvatarImage = null; // Or replace this with actual image data if available
 

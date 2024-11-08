@@ -179,7 +179,7 @@ public class BiblePlay extends AppCompatActivity {
                     addplaylist.setBackgroundTintList(getResources().getColorStateList(R.color.gray));
                 } else {
                     // If favorite doesn't exist, set button color to green
-                    addplaylist.setBackgroundTintList(getResources().getColorStateList(R.color.greenlightning));
+                    addplaylist.setBackgroundTintList(getResources().getColorStateList(R.color.orangelight));
                 }
             });
         });
@@ -210,7 +210,7 @@ public class BiblePlay extends AppCompatActivity {
                     // If favorite already exists, remove it from favorites
                     favoriteDao.delete(existingFavorite); // Delete operation should be in background
                     runOnUiThread(() -> {
-                        addplaylist.setBackgroundTintList(getResources().getColorStateList(R.color.greenlightning)); // Change to green
+                        addplaylist.setBackgroundTintList(getResources().getColorStateList(R.color.orangelight)); // Change to green
                         Toast.makeText(BiblePlay.this, "Removed from Favorites: " + storyTitle, Toast.LENGTH_SHORT).show();
                     });
                 } else {

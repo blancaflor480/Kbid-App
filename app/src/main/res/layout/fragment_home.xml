@@ -43,9 +43,9 @@
             android:layout_width="280dp"
             android:layout_height="200dp"
             android:layout_marginLeft="170dp"
-            android:src="@raw/rainbow_gif"
+            android:src="@raw/cloud1"
             android:rotation="7"
-            android:layout_marginBottom="10dp"
+            android:layout_marginTop="30dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/curvedTop" />
 
@@ -54,11 +54,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="@id/curvedTop"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginStart="0dp"
-            android:gravity="center_horizontal">
+            app:layout_constraintStart_toStartOf="parent">
 
-            <!-- Name TextView -->
+            <!-- Child Button positioned on the left side -->
+
+
+            <!-- Name TextView centered in the parent -->
             <TextView
                 android:id="@+id/name"
                 android:layout_width="wrap_content"
@@ -67,10 +68,9 @@
                 android:text="Hi, Name"
                 android:textColor="@color/black"
                 android:textSize="23sp"
-                android:layout_marginTop="30dp"
-                android:layout_centerHorizontal="true" />
+                android:layout_centerInParent="true" />
 
-            <!-- Welcome TextView -->
+            <!-- Welcome TextView positioned below the Name TextView and centered -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -79,9 +79,22 @@
                 android:textColor="@color/black"
                 android:textSize="15sp"
                 android:layout_below="@id/name"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="10dp"
                 android:layout_centerHorizontal="true" />
-            <RelativeLayout
+            <ImageButton
+                android:id="@+id/child"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/child"
+                android:background="@drawable/circle_buttonchild"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="20dp"
+                android:layout_marginTop="15dp"
+                 />
+        </RelativeLayout>
+
+
+        <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
@@ -117,7 +130,7 @@
                     android:layout_marginEnd="4dp"
                     android:layout_marginTop="0dp" />
             </RelativeLayout>
-        </RelativeLayout>
+
 
         <!-- FrameLayout with Profile Image inside -->
         <FrameLayout

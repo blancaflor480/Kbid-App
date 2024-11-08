@@ -1,191 +1,354 @@
-<!--NOT FINISHED-->
-<androidx.constraintlayout.widget.ConstraintLayout
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#FFFFFF"
-    tools:context=".fragment.FragmentHome">
+    android:layout_height="wrap_content"
+    android:id="@+id/fragment_container"
+    tools:context=".fragment.biblegames.GamesFragment">
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/homepage"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#B1BBFC"
-        />
+        android:background="@color/purple" />
 
-    <!-- Scrollable Content Area -->
-    <ScrollView
+    <!-- Top section -->
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="10dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp">
 
-        <LinearLayout
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            app:cardCornerRadius="15dp"
+            app:cardBackgroundColor="@color/purple"
+            app:contentPadding="12dp">
 
-            <!-- Title with TextView and ImageButton Aligned Horizontally -->
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
+            <ImageView
+                android:id="@+id/arrowback"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="8dp">
+                android:padding="3dp"
+                android:src="@drawable/arrowback" />
+
+            <TextView
+                android:id="@+id/textGames"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="4 Pics 1 Word"
+                android:fontFamily="@font/dinroundedpro_bold"
+                android:textSize="25sp"
+                android:layout_gravity="center"
+                android:textColor="@android:color/white" />
+        </androidx.cardview.widget.CardView>
+
+        <TextView
+            android:id="@+id/level"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Level "
+            android:fontFamily="@font/dinroundedpro_bold"
+            android:textSize="20sp"
+            android:layout_gravity="center"
+            android:textColor="@android:color/white"
+            android:layout_marginTop="10dp" />
+    </LinearLayout>
+
+    <!-- Image grid section -->
+    <GridLayout
+        android:id="@+id/imageGrid"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:rowCount="2"
+        android:columnCount="2"
+        android:layout_marginTop="120dp"
+        android:padding="5dp">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="0dp"
+            android:layout_height="130dp"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:layout_margin="5dp"
+            app:cardCornerRadius="10dp"
+            app:cardBackgroundColor="@android:color/transparent">
+
+            <ImageView
+                android:id="@+id/image1"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/image"
+                android:scaleType="centerCrop" />
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="0dp"
+            android:layout_height="130dp"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:layout_margin="5dp"
+            app:cardCornerRadius="10dp"
+            app:cardBackgroundColor="@android:color/transparent">
+
+            <ImageView
+                android:id="@+id/image2"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/image"
+                android:scaleType="centerCrop" />
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="0dp"
+            android:layout_height="130dp"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:layout_margin="5dp"
+            app:cardCornerRadius="10dp"
+            app:cardBackgroundColor="@android:color/transparent">
+
+            <ImageView
+                android:id="@+id/image3"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/image"
+                android:scaleType="centerCrop" />
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="0dp"
+            android:layout_height="130dp"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:layout_margin="5dp"
+            app:cardCornerRadius="10dp"
+            app:cardBackgroundColor="@android:color/transparent">
+
+            <ImageView
+                android:id="@+id/image4"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/image"
+                android:scaleType="centerCrop" />
+        </androidx.cardview.widget.CardView>
+    </GridLayout>
+
+    <!-- Answer boxes and keyboard -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="390dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp">
+
+        <!-- Answer Boxes -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:cardCornerRadius="15dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@color/yelloworange"
+            app:contentPadding="10dp"
+            android:layout_marginTop="20dp">
+
+            <LinearLayout
+                android:id="@+id/answerBoxes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_gravity="center">
+
+                <!--<TextView
+                    android:id="@+id/answerBox1"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/rounded_box"
+                    android:gravity="center"
+                    android:text=""
+                    android:textSize="24sp"
+                    android:textColor="@android:color/white" />
 
                 <TextView
-                    android:id="@+id/textView"
-                    android:layout_width="0dp"
+                    android:id="@+id/answerBox2"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/rounded_box"
+                    android:gravity="center"
+                    android:text=""
+                    android:textSize="24sp"
+                    android:textColor="@android:color/white" />
+
+                <TextView
+                    android:id="@+id/answerBox3"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/rounded_box"
+                    android:gravity="center"
+                    android:text=""
+                    android:textSize="24sp"
+                    android:textColor="@android:color/white" />
+
+                <TextView
+                    android:id="@+id/answerBox4"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/rounded_box"
+                    android:gravity="center"
+                    android:text=""
+                    android:textSize="24sp"
+                    android:textColor="@android:color/white" />-->
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Keyboard Grid -->
+        <LinearLayout
+            android:id="@+id/enteranswer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp">
+
+            <GridLayout
+                android:id="@+id/keyboardGrid"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:rowCount="2"
+                android:columnCount="5"
+                android:layout_gravity="center">
+
+                <!-- Row 1 -->
+                <Button
+                    android:id="@+id/keyboardButton1"
+                    android:layout_width="50dp"
                     android:layout_height="wrap_content"
-                    android:text="Achievements"
-                    android:textSize="25sp"
-                    android:fontFamily="@font/dinroundedpro_bold"
-                    android:textColor="@color/black"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/leaderboard"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    android:layout_marginStart="5dp"
-                    android:layout_marginEnd="8dp" />
+                    android:layout_margin="5dp"
+                    android:text=""
+                    android:padding="13dp"
+                    android:textSize="18sp"
+                    android:backgroundTint="@color/white"
+                    android:textColor="@color/black" />
+
+                <Button
+                    android:id="@+id/keyboardButton2"
+                    android:layout_width="50dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:text=""
+                    android:padding="13dp"
+                    android:textSize="18sp"
+                    android:backgroundTint="@color/white"
+                    android:textColor="@color/black" />
+                <Button
+                    android:id="@+id/keyboardButton3"
+                    android:layout_width="50dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:text=""
+                    android:padding="13dp"
+                    android:textSize="18sp"
+                    android:backgroundTint="@color/white"
+                    android:textColor="@color/black" />
+                <Button
+                    android:id="@+id/keyboardButton4"
+                    android:layout_width="50dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:text=""
+                    android:padding="13dp"
+                    android:textSize="18sp"
+                    android:backgroundTint="@color/white"
+                    android:textColor="@color/black" />
 
                 <ImageButton
-                    android:id="@+id/leaderboard"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:background="@drawable/trophy"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    android:contentDescription="Trophy Icon" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <!-- Stories Card with RadioGroup -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardCornerRadius="30dp"
-                app:cardBackgroundColor="#F2F2F2"
-                android:layout_marginTop="24dp"
-                android:padding="8dp">
-
-                <RadioGroup
-                    android:id="@+id/stories_switch"
-                    android:layout_width="match_parent"
+                    android:id="@+id/deleteButton"
+                    android:layout_width="50dp"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center">
+                    android:background="@drawable/rounded_answer"
+                    android:padding="13dp"
+                    android:layout_marginTop="10dp"
+                    android:backgroundTint="@color/lightred"
+                    android:scaleType="centerCrop"
+                    android:layout_margin="5dp"
+                    android:clickable="true"
+                    android:src="@drawable/delete_outline"
+                    />
 
-                    <RadioButton
-                        android:id="@+id/allrecord"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="All"
-                        android:fontFamily="@font/dinroundedpro_bold"
-                        android:textSize="15sp"
-                        android:textColor="@color/black"
-                        android:buttonTint="@color/transparent"
-                        android:button="@null"
-                        android:gravity="center"
-                        android:padding="10dp" />
+                <Button
+                    android:id="@+id/keyboardButton5"
+                    android:layout_width="50dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:text=""
+                    android:padding="13dp"
+                    android:textSize="18sp"
+                    android:backgroundTint="@color/white"
+                    android:textColor="@color/black" />
+                <Button
+                    android:id="@+id/keyboardButton6"
+                    android:layout_width="50dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:text=""
+                    android:padding="13dp"
+                    android:textSize="18sp"
+                    android:backgroundTint="@color/white"
+                    android:textColor="@color/black" />
+                <Button
+                    android:id="@+id/keyboardButton7"
+                    android:layout_width="50dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:text=""
+                    android:padding="13dp"
+                    android:textSize="18sp"
+                    android:backgroundTint="@color/white"
+                    android:textColor="@color/black" />
+                <Button
+                    android:id="@+id/keyboardButton8"
+                    android:layout_width="50dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:text=""
+                    android:padding="13dp"
+                    android:textSize="18sp"
+                    android:backgroundTint="@color/white"
+                    android:textColor="@color/black" />
 
-                    <RadioButton
-                        android:id="@+id/storyunlocked"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Story"
-                        android:fontFamily="@font/dinroundedpro_medium"
-                        android:textSize="15sp"
-                        android:textColor="#767676"
-                        android:buttonTint="@color/transparent"
-                        android:button="@null"
-                        android:gravity="center"
-                        android:padding="10dp" />
+                <ImageButton
+                    android:id="@+id/shuffle"
+                    android:layout_width="50dp"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/rounded_answer"
+                    android:padding="13dp"
+                    android:layout_marginTop="10dp"
+                    android:backgroundTint="@color/green"
+                    android:scaleType="centerCrop"
+                    android:clickable="true"
+                    android:layout_margin="5dp"
+                    android:src="@drawable/shuffle"
+                    />
 
-                    <RadioButton
-                        android:id="@+id/gamesunlocked"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Games"
-                        android:fontFamily="@font/dinroundedpro_medium"
-                        android:textSize="15sp"
-                        android:textColor="#767676"
-                        android:buttonTint="@color/transparent"
-                        android:button="@null"
-                        android:gravity="center"
-                        android:padding="10dp" />
 
-                </RadioGroup>
-            </androidx.cardview.widget.CardView>
 
-           <!-- <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text=" Your Progress still you can save"
-                android:padding="8dp"
-                android:textSize="18sp"
-                android:fontFamily="@font/dinroundedpro_medium"
-                android:textColor="@color/black"
-                android:layout_marginTop="20dp"/>-->
-            <!-- Progress Bar
-            <ProgressBar
-                android:id="@+id/progressBar"
-                android:layout_width="match_parent"
-                android:layout_height="16dp"
-                android:layout_weight="1"
-                android:progress="30"
-                android:progressDrawable="@drawable/progressbar_custom" />
-                 -->
-            <!-- SwipeRefreshLayout wrapping the RecyclerView -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Story"
-                android:padding="10dp"
-                android:textSize="20sp"
-                android:fontFamily="@font/dinroundedpro_bold"
-                android:textColor="@color/black"
-                android:layout_marginTop="20dp"/>
-            <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-                android:id="@+id/swipeRefreshLayoutstory"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                >
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recyclepstory"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@color/white" />
 
-            </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Games"
-                android:padding="10dp"
-                android:textSize="20sp"
-                android:fontFamily="@font/dinroundedpro_bold"
-                android:textColor="@color/black"
-                android:layout_marginTop="20dp"/>
-            <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-                android:id="@+id/swipeRefreshLayoutgames"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                >
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recyclepgames"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@color/white" />
-
-            </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
+                <!-- Repeat for other keyboard buttons... -->
+            </GridLayout>
         </LinearLayout>
-
-
-    </ScrollView>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+</RelativeLayout>

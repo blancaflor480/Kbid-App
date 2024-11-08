@@ -31,6 +31,7 @@ public class User {
         this.email = email;  // Set email field
     }
 
+
     // Getters and Setters
     public int getId() {
         return id;
