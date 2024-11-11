@@ -12,7 +12,7 @@ import java.util.List;
 @Dao
 public interface BibleDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insert(ModelBible story); // This method handles inserting a ModelBible object
+    long insert(ModelBible story); // This method handles inserting a ModelBible object
 
     @Query("SELECT * FROM stories WHERE timestamp >= :currentDate ORDER BY timestamp ASC")
     List<ModelBible> getUpcomingBibleStories(String currentDate); // Updated to filter upcoming stories

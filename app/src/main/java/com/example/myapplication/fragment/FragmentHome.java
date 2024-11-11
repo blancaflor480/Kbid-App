@@ -62,8 +62,8 @@ public class FragmentHome extends Fragment {
     TextView userNameTextView;
     CardView clickStories, clickGames, clickSong;
     VideoView videoView;
-    ImageView imageView, imageright, userAvatarImageView, sungif,rainbowgif,star1,star2,star3;
-    ImageButton notif;
+    ImageView imageView, imageright, userAvatarImageView, sungif,rainbowgif,star1,star2,star3,star4;
+    ImageButton notif, editprofile;
     EditText userAgeEditText,userNameEditText;
     private View editProfileOverlay;
     private ImageView changeInfoButton;
@@ -89,28 +89,19 @@ public class FragmentHome extends Fragment {
         star1 = view.findViewById(R.id.stars1);
         star2 = view.findViewById(R.id.stars2);
         star3 = view.findViewById(R.id.stars3);
+        star4 = view.findViewById(R.id.stars4);
+
+
 
         // imageright = view.findViewById(R.id.cloudgifright);
         userNameTextView = view.findViewById(R.id.name);
         userAvatarImageView = view.findViewById(R.id.avatar);
         notif = view.findViewById(R.id.notif); // Initialize your notification button
 
-        changeInfoButton = view.findViewById(R.id.changeinfo);
+        editprofile = view.findViewById(R.id.editprofile);
 
         // Show the dialog when clicking on changeinfo
-        changeInfoButton.setOnClickListener(v -> showEditProfileDialog());
-
-        // Initialize edit profile overlay
-        editProfileOverlay = view.findViewById(R.id.editprofile);
-
-        // Toggle edit profile overlay on avatar click
-        userAvatarImageView.setOnClickListener(v -> {
-            if (editProfileOverlay.getVisibility() == View.GONE) {
-                editProfileOverlay.setVisibility(View.VISIBLE);
-            } else {
-                editProfileOverlay.setVisibility(View.GONE);
-            }
-        });
+        editprofile.setOnClickListener(v -> showEditProfileDialog());
 
         // Initialize database and DAO
         db = AppDatabase.getDatabase(getContext());
@@ -130,9 +121,11 @@ public class FragmentHome extends Fragment {
                 .into(rainbowgif);
 
         // Load static images for stars initially
-        Glide.with(this).load(R.raw.star).into(star1);
+        Glide.with(this).load(R.raw.staryellow).into(star1);
         Glide.with(this).load(R.raw.star1).into(star2);
-        Glide.with(this).load(R.raw.star2).into(star3);
+        Glide.with(this).load(R.raw.starblue).into(star3);
+        Glide.with(this).load(R.raw.starred).into(star4);
+
         setupStarClickListeners();
 
 
@@ -167,9 +160,10 @@ public class FragmentHome extends Fragment {
     }
 
     private void setupStarClickListeners() {
-        setupStarAnimation(star1, R.raw.star1gif, R.raw.star);
+        setupStarAnimation(star1, R.raw.stargif, R.raw.staryellow);
         setupStarAnimation(star2, R.raw.star2gif, R.raw.star1);
-        setupStarAnimation(star3, R.raw.star3gif, R.raw.star2);
+        setupStarAnimation(star3, R.raw.star3gif, R.raw.starblue);
+        setupStarAnimation(star4, R.raw.star4gif, R.raw.starred);
     }
     // Inside your setupStarAnimation method
     private void setupStarAnimation(ImageView starView, int gifResource, int staticImageResource) {

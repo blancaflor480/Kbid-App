@@ -1,5 +1,10 @@
 package com.example.myapplication.fragment.achievement;
 
+import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
+
+import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
@@ -26,10 +31,6 @@ public class StoryAchievementModel {
         this.title = title;
         this.type = type;
         this.storyId = storyId;
-    }
-
-    public StoryAchievementModel() {
-
     }
 
 
@@ -65,5 +66,5 @@ public class StoryAchievementModel {
     public void setStoryId(String storyId) {
         this.storyId = storyId;
     }
-}
 
+}

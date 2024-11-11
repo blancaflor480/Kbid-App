@@ -12,6 +12,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.example.myapplication.database.AppDatabase;
 import com.example.myapplication.database.userdb.User;
@@ -20,7 +21,6 @@ import com.example.myapplication.database.userdb.UserDao;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-
 public class ChildAgeActivity extends AppCompatActivity {
 
     private Spinner spinnerMonth, spinnerDay, spinnerYear;
@@ -54,10 +54,8 @@ public class ChildAgeActivity extends AppCompatActivity {
 
         // Set initial state of the button
         buttonContinue.setEnabled(false);
-        buttonContinue.setBackgroundColor(getResources().getColor(R.color.gray));
-        buttonContinue.setBackgroundResource(R.drawable.btn_disbaled);
-        buttonContinue.setTextColor(Color.BLACK);
-
+        buttonContinue.setBackground(ContextCompat.getDrawable(this, R.drawable.btn_disbaled));
+        buttonContinue.setTextColor(getResources().getColor(R.color.black));
 
         // Load user data
         loadSavedUser();
@@ -73,7 +71,7 @@ public class ChildAgeActivity extends AppCompatActivity {
         AdapterView.OnItemSelectedListener itemSelectedListener = new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                validateSpinners();
+                validateSpinners(); // Validate spinners and enable the button
             }
 
             @Override
@@ -105,8 +103,6 @@ public class ChildAgeActivity extends AppCompatActivity {
         spinnerDay.setAdapter(dayAdapter);
 
         // Setup Years
-        /*int currentYear = Calendar.getInstance().get(Calendar.YEAR);*/
-        // Setup Years - Only 2012 to 2019
         List<String> years = new ArrayList<>();
         years.add("Select");
         for (int i = 2009; i <= 2019; i++) {
@@ -138,30 +134,23 @@ public class ChildAgeActivity extends AppCompatActivity {
 
             int age = calculateAge(selectedYear, selectedMonth, selectedDay);
 
-            // Update validation message
+            // Update validation message and enable button if the age is 12 or under
             if (age <= 12) {
                 validationAge.setText("Your Age: " + age + " Child");
-                validationAge.setTextColor(getResources().getColor(R.color.greenlightning));
                 buttonContinue.setEnabled(true);
-                buttonContinue.setBackgroundColor(getResources().getColor(R.color.greenlightning));
                 buttonContinue.setBackgroundResource(R.drawable.btn_getstarted);
                 buttonContinue.setTextColor(Color.WHITE);
             } else {
                 validationAge.setText("Your Age: " + age + " Teen - You must be 12 or younger to proceed");
-                validationAge.setTextColor(getResources().getColor(R.color.lightred));
                 buttonContinue.setEnabled(false);
-                buttonContinue.setBackgroundColor(getResources().getColor(R.color.gray));
-                buttonContinue.setBackgroundResource(R.drawable.btn_disbaled);
-                buttonContinue.setTextColor(Color.BLACK);
-
+                buttonContinue.setBackground(ContextCompat.getDrawable(this, R.drawable.btn_disbaled));
+                buttonContinue.setTextColor(getResources().getColor(R.color.black));
             }
             validationAge.setVisibility(View.VISIBLE);
 
         } else {
             // Reset the button and validation message if selections are incomplete
-            buttonContinue.setEnabled(false);
-            buttonContinue.setBackgroundColor(Color.GRAY);
-            validationAge.setVisibility(View.GONE);
+
         }
     }
 
@@ -178,6 +167,7 @@ public class ChildAgeActivity extends AppCompatActivity {
 
         return age;
     }
+
     private void saveOrUpdateUser(String childBirthday) {
         AsyncTask.execute(() -> {
             if (currentUser != null) {
@@ -209,10 +199,7 @@ public class ChildAgeActivity extends AppCompatActivity {
                         setSelectedItem(spinnerMonth, month);
                         setSelectedItem(spinnerDay, day);
                         setSelectedItem(spinnerYear, year);
-                        buttonContinue.setEnabled(true);
-                        buttonContinue.setBackgroundColor(getResources().getColor(R.color.greenlightning));
-                        buttonContinue.setBackgroundResource(R.drawable.btn_getstarted);
-                        buttonContinue.setTextColor(Color.WHITE);
+
                     }
                 });
             }
@@ -233,6 +220,7 @@ public class ChildAgeActivity extends AppCompatActivity {
             return; // Stay in ChildAgeActivity
         }
         Intent intent = new Intent(ChildAgeActivity.this, AvatarActivity.class);
+        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
         startActivity(intent);
     }
 }

@@ -85,39 +85,56 @@ public class MainActivity extends AppCompatActivity {
     private void checkUserRecord() {
         // Fetch the first user record from the database
         new Thread(() -> {
-            User user = userDao.getFirstUser();
+            User user = userDao.getFirstUser(); // Get the first user from the database
             runOnUiThread(() -> {
                 hideLoader();  // Hide loader before navigation
+
                 if (user != null) {
-                    // User record found, navigate to HomeActivity
-                    navigateToHome();
+                    // User record found, check for childBirthday
+                    if (user.getChildBirthday() == null || user.getChildBirthday().isEmpty()) {
+                        // If childBirthday is blank, navigate to ChildBirthdayActivity
+                        navigateToChildBirthdayActivity();
+                    } else {
+                        // If childBirthday is valid, check for avatarName
+                        if (user.getAvatarName() == null || user.getAvatarName().isEmpty()) {
+                            // If avatarName is blank, navigate to AvatarActivity
+                            navigateToAvatarActivity();
+                        } else {
+                            // If both childBirthday and avatarName are valid, navigate to HomeActivity
+                            navigateToHome();
+                        }
+                    }
                 } else {
                     // No user record found, navigate to ChildNameActivity
                     navigateToChildNameActivity();
                 }
-
-                // Add a condition to navigate to ChildBirthdayActivity if needed
-               /* boolean shouldNavigateToChildBirthday = (user != null && user.getChildBirthday() != null && !user.getChildBirthday().isEmpty());
-                if (shouldNavigateToChildBirthday) {
-                    navigateToChildBirthdayActivity();
-                }*/
             });
         }).start();
     }
 
 
+
+
+
     private void navigateToChildNameActivity() {
-        Log.d("MainActivity", "Navigate to ChildNameActivity");
         Intent intent = new Intent(MainActivity.this, ChildNameActivity.class);
         startActivity(intent);
+        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
         finish(); // Close this activity
     }
-    /*private void navigateToChildBirthdayActivity() {
-        Log.d("MainActivity", "Navigate to ChildNameActivity");
+    private void navigateToChildBirthdayActivity() {
         Intent intent = new Intent(MainActivity.this, ChildAgeActivity.class);
         startActivity(intent);
+        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
         finish(); // Close this activity
-    }*/
+    }
+
+    private void navigateToAvatarActivity() {
+        Intent intent = new Intent(MainActivity.this, AvatarActivity.class);
+        startActivity(intent);
+        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+        finish(); // Close this activity
+    }
 
     private void checkUserRole(String userId) {
         FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -171,6 +188,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d("MainActivity", "Hide loader and navigate to HomeActivity");
         hideLoader();  // Hide the loader before navigating
         Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+        overridePendingTransition(R.anim.pop_in, R.anim.pop_out);
         startActivity(intent);
         finish(); // Close this activity
     }

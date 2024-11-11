@@ -56,9 +56,8 @@ public class ChildNameActivity extends AppCompatActivity {
 
         // Set initial state of the button
         buttonContinue.setEnabled(false);
-        buttonContinue.setBackgroundColor(Color.GRAY);
-        buttonContinue.setBackgroundResource(R.drawable.btn_getstarted);
-
+        buttonContinue.setBackgroundColor(getResources().getColor(R.color.gray));
+        buttonContinue.setBackgroundResource(R.drawable.btn_disbaled);
         buttonContinue.setTextColor(Color.BLACK);
 
         // Add TextWatcher to EditText
@@ -73,9 +72,9 @@ public class ChildNameActivity extends AppCompatActivity {
                 // Check if EditText is empty
                 if (s.toString().trim().isEmpty()) {
                     buttonContinue.setEnabled(false);
-                    buttonContinue.setBackgroundColor(Color.GRAY);
+                    buttonContinue.setBackgroundColor(getResources().getColor(R.color.gray));
+                    buttonContinue.setBackgroundResource(R.drawable.btn_disbaled);
                     buttonContinue.setTextColor(Color.BLACK);
-                    buttonContinue.setBackgroundResource(R.drawable.btn_getstarted);
 
                 } else {
                     buttonContinue.setEnabled(true);
@@ -108,7 +107,8 @@ public class ChildNameActivity extends AppCompatActivity {
    private void saveNameLocally(String name) {
         AsyncTask.execute(() -> {
             // Default values for the avatar
-            String defaultAvatarName = "null";
+            String defaultAvatarName = "";
+            String childBirthday = "";
             int defaultAvatarResourceId = R.drawable.lion; // Ensure you have this drawable in your project
             byte[] defaultAvatarImage = null; // Or replace this with actual image data if available
 
@@ -116,7 +116,7 @@ public class ChildNameActivity extends AppCompatActivity {
             String email = this.email;
 
             // Create and insert the user
-            User user = new User(name, name, defaultAvatarName, defaultAvatarResourceId, defaultAvatarImage, email);
+            User user = new User(name, childBirthday, defaultAvatarName, defaultAvatarResourceId, defaultAvatarImage, email);
             long userId = userDao.insert(user); // Assuming this returns the user ID
 
             // Insert into fourpicsoneword table
@@ -146,10 +146,9 @@ public class ChildNameActivity extends AppCompatActivity {
                 runOnUiThread(() -> {
                     inputName.setText(user.getChildName());
                     buttonContinue.setEnabled(true);
-                    buttonContinue.setBackgroundColor(getResources().getColor(R.color.greenlightning));
-                    buttonContinue.setBackgroundResource(R.drawable.btn_getstarted);
-
-                    buttonContinue.setTextColor(Color.WHITE);
+                    buttonContinue.setBackgroundColor(getResources().getColor(R.color.gray));
+                    buttonContinue.setBackgroundResource(R.drawable.btn_disbaled);
+                    buttonContinue.setTextColor(Color.BLACK);
                 });
             }
         });
@@ -158,5 +157,7 @@ public class ChildNameActivity extends AppCompatActivity {
     private void proceedToNextActivity() {
         Intent intent = new Intent(ChildNameActivity.this, ChildAgeActivity.class);
         startActivity(intent);
+        // Add a smooth slide transition effect
+        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
     }
 }

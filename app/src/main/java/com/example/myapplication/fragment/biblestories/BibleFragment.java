@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.example.myapplication.database.Converters;
+import com.example.myapplication.fragment.achievement.StoryAchievementModel;
 import com.example.myapplication.fragment.biblestories.favoritelist.favoritelist;
 import com.google.firebase.Timestamp;
 
@@ -226,7 +227,7 @@ public class BibleFragment extends AppCompatActivity {
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && task.getResult() != null) {
-                        bibleStories.clear(); // Clear existing list
+                        bibleStories.clear();
                         for (DocumentSnapshot document : task.getResult()) {
                             String id = document.getId();
                             String title = document.getString("title");
@@ -243,43 +244,38 @@ public class BibleFragment extends AppCompatActivity {
                             ModelBible story = new ModelBible(id, title, description, verse, formattedTimestamp, imageUrl);
                             bibleStories.add(story);
 
-                            // Save the story in SQLite
+                            // Insert story into SQLite and create an achievement entry
                             Executors.newSingleThreadExecutor().execute(() -> {
+                                // Insert the story into the Bible table
                                 appDatabase.bibleDao().insert(story);
+
+                                // Create an achievement entry related to this story
+                                StoryAchievementModel achievement = new StoryAchievementModel(
+                                        title, "Story Achievement", id);
+                                appDatabase.storyAchievementDao().insert(achievement); // Ensure you have this method in the DAO
                             });
                         }
 
-                        // Ensure the adapter is initialized before calling notifyDataSetChanged
                         if (adapterBible == null) {
                             adapterBible = new AdapterBible(BibleFragment.this, bibleStories);
                             recyclerView.setAdapter(adapterBible);
                         } else {
-                            adapterBible.notifyDataSetChanged(); // Safely update the adapter
+                            adapterBible.notifyDataSetChanged();
                         }
                     }
                     swipeRefreshLayout.setRefreshing(false);
                 })
                 .addOnFailureListener(e -> {
                     swipeRefreshLayout.setRefreshing(false);
-                    // Show "No Connection" UI if fetch fails and no data in local storage
                     Executors.newSingleThreadExecutor().execute(() -> {
                         List<ModelBible> localStories = appDatabase.bibleDao().getAllBibleStories();
                         if (localStories.isEmpty()) {
-                            runOnUiThread(() -> {
-                                noConnectionAnimation.setVisibility(View.VISIBLE);
-                                noConnectionMessage.setVisibility(View.VISIBLE);
-                                restartButton.setVisibility(View.VISIBLE);
-
-                                recyclerView.setVisibility(View.GONE);
-                                storiesSwitch.setVisibility(View.GONE);
-                                playlist.setVisibility(View.GONE);
-                                arrowback.setVisibility(View.GONE);
-                                comingSoonTextView.setVisibility(View.GONE);
-                            });
+                            runOnUiThread(this::showNoConnectionUI);
                         }
                     });
                 });
     }
+
 
 
 

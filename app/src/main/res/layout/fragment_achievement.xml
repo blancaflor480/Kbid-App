@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFFFFF"
-    tools:context=".fragment.FragmentHome">
+    tools:context=".fragment.FragmentAchievement">
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/homepage"
@@ -16,15 +16,18 @@
         />
 
     <!-- Scrollable Content Area -->
-    <ScrollView
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefreshLayoutstory"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        >
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="16dp"
+           >
 
             <!-- Title with TextView and ImageButton Aligned Horizontally -->
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -76,33 +79,20 @@
                     android:gravity="center"
                     android:padding="5dp">
 
-                    <RadioButton
-                        android:id="@+id/allrecord"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="All"
-                        android:fontFamily="@font/dinroundedpro_bold"
-                        android:textSize="17sp"
-                        android:textColor="@color/black"
-                        android:buttonTint="@color/transparent"
-                        android:button="@null"
-                        android:gravity="center"
-                        android:padding="10dp" />
 
                     <RadioButton
                         android:id="@+id/story"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Story"
-                        android:fontFamily="@font/dinroundedpro_medium"
-                        android:textSize="17sp"
-                        android:textColor="#767676"
-                        android:buttonTint="@color/transparent"
                         android:button="@null"
+                        android:buttonTint="@color/transparent"
+                        android:fontFamily="@font/dinroundedpro_medium"
                         android:gravity="center"
-                        android:padding="10dp" />
+                        android:padding="10dp"
+                        android:text="Story"
+                        android:textColor="#767676"
+                        android:textSize="17sp" />
 
                     <RadioButton
                         android:id="@+id/games"
@@ -149,20 +139,15 @@
                 android:fontFamily="@font/dinroundedpro_bold"
                 android:textColor="@color/black"
                 android:layout_marginTop="20dp"/>
-            <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-                android:id="@+id/swipeRefreshLayoutstory"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                >
+
+
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recyclepstory"
+                    android:id="@+id/recyclep"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@color/white" />
+                    android:layout_height="wrap_content" />
 
-            </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-            <TextView
+            <!--<TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Games"
@@ -183,10 +168,10 @@
                     android:background="@color/white" />
 
             </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
+-->
         </LinearLayout>
 
 
-    </ScrollView>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,5 +1,7 @@
 package com.example.myapplication.database;
 
+//import static com.example.myapplication.fragment.achievement.StoryAchievementModel.insertAchievementsForStory;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -7,6 +9,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.example.myapplication.fragment.achievement.StoryAchievementModel;
 import com.example.myapplication.fragment.biblestories.ModelBible;
 import com.example.myapplication.ui.content.games.ModelGames;
 
@@ -151,7 +154,7 @@ public class BibleDatabaseHelper extends SQLiteOpenHelper {
             } else {
                 Log.d("BibleDatabaseHelper", "Story data inserted successfully with ID: " + storyId);
                 // Insert achievements for the inserted story
-                insertAchievementsForStory(db, storyId);
+                //insertAchievementsForStory(db, storyId);
             }
 
             db.setTransactionSuccessful(); // Commit the transaction if all inserts succeed
@@ -163,24 +166,8 @@ public class BibleDatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-    private void insertAchievementsForStory(SQLiteDatabase db, long storyId) {
-        // Example achievement data; modify as needed
-        String[] achievementTitles = {"Achievement 1", "Achievement 2"};
 
-        for (String title : achievementTitles) {
-            ContentValues values = new ContentValues();
-            values.put(COLUMN_STORY_ID, storyId); // Use the story ID from the inserted story
-            values.put(COLUMN_ACHIEVEMENT_TITLE, title); // Achievement title
 
-            long result = db.insert(TABLE_ACHIEVEMENTS, null, values);
-
-            if (result == -1) {
-                Log.e("BibleDatabaseHelper", "Failed to insert achievement data for story ID: " + storyId);
-            } else {
-                Log.d("BibleDatabaseHelper", "Achievement data inserted successfully for story ID: " + storyId);
-            }
-        }
-    }
 
 
 

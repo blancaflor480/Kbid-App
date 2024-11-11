@@ -1,4 +1,5 @@
 package com.example.myapplication.fragment.achievement;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,9 +12,13 @@ import java.util.List;
 
 public class StoryAdapterAchievement extends RecyclerView.Adapter<StoryAdapterAchievement.StoryViewHolder>{
     private List<StoryAchievementModel> storyList;
-    public StoryAdapterAchievement(List<StoryAchievementModel> storyList) {
+    private Context context;
+
+    public StoryAdapterAchievement(Context context, List<StoryAchievementModel> storyList) {
+        this.context = context;
         this.storyList = storyList;
     }
+
     @NonNull
     @Override
     public StoryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

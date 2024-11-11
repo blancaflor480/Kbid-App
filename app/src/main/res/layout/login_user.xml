@@ -1,58 +1,76 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".LoginUser">
+    android:background="#FFFFFF">
 
     <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/childname"
+        android:id="@+id/homepage"
         android:layout_width="match_parent"
-        android:background="@color/white"
-        android:layout_height="match_parent" >
-    </androidx.viewpager2.widget.ViewPager2>
+        android:layout_height="match_parent" />
 
+    <View
+        android:id="@+id/curvedTop"
+        android:layout_width="550dp"
+        android:layout_height="150dp"
+        android:background="@drawable/curved_shapelogin"
+        android:rotation="180"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/text1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/gothamroundedbold"
+        android:text="Welcome back"
+        android:textAlignment="center"
+        android:textColor="@color/black"
+        android:textSize="27sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/curvedTop" />
 
+    <TextView
+        android:id="@+id/text2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:fontFamily="@font/gothamroundedmedium"
+        android:text="Login your account"
+        android:textAlignment="center"
+        android:textColor="@color/black"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/text1" />
 
     <LinearLayout
+        android:id="@+id/inputarea"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@id/childname"
-        android:layout_centerInParent="true"
-        android:background="@color/white"
+        android:layout_marginTop="10dp"
+        android:padding="23dp"
         android:orientation="vertical"
-        android:padding="16dp">
-
-
-
-
-
-        <TextView
-            android:id="@+id/textdes"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_gravity="center"
-            android:fontFamily="@font/dinroundedpro_regular"
-            android:text="Enter your Details"
-            android:textColor="@color/dark"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/text2">
 
         <EditText
             android:id="@+id/inputEmail"
             android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:layout_marginTop="16dp"
+            android:layout_height="65dp"
             android:background="@drawable/rounded_input_name"
-            android:ems="10"
-            android:layout_centerHorizontal="true"
             android:fontFamily="@font/dinroundedpro_light"
             android:inputType="text"
             android:padding="15dp"
-            android:hint="Email"
+            android:hint="Email / Control Id"
             android:textColorHint="@color/darkmin"
             android:textColor="@color/darkmin"
             android:textSize="18sp" />
@@ -63,14 +81,13 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:textColorHint="@color/darkmin"
-            android:textColor="@color/darkmin"
             app:endIconTint="@color/darkmin"
             app:endIconMode="password_toggle">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/inputPassword"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
+                android:layout_height="65dp"
                 android:background="@drawable/rounded_input_name"
                 android:fontFamily="@font/dinroundedpro_light"
                 android:padding="15dp"
@@ -81,32 +98,52 @@
                 android:textSize="18sp" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:layout_marginTop="15dp">
+    </LinearLayout>
 
-            <!-- Sign-in Button -->
-            <Button
-                android:id="@+id/buttonSignin"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/btn_getstarted"
-                android:fontFamily="@font/dinroundedpro_bold"
-                android:text="Sign in"
-                app:backgroundTint="#38BD6C"
-                android:textColor="@android:color/white"
-                android:textSize="15sp"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+    <TextView
+        android:id="@+id/forgottedpassword"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="15dp"
+        android:layout_marginEnd="20dp"
+        android:fontFamily="@font/gothamroundedbold"
+        android:text="Forget Password?"
+        android:textAlignment="center"
+        android:textColor="@color/black"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/inputarea" />
 
-            <!-- Loader inside button -->
-            <com.airbnb.lottie.LottieAnimationView
-                android:id="@+id/loader"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/buttonarea"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/forgottedpassword">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonSignin"
+            android:layout_width="0dp"
+            android:layout_height="55dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginTop="15dp"
+            android:background="@drawable/btn_getstarted"
+            android:fontFamily="@font/gothamroundedbold"
+            android:text="LOGIN"
+            android:textColor="@color/white"
+            android:textSize="15sp"
+            app:backgroundTint="@color/greenlightning"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/loader"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             app:lottie_autoPlay="true"
             app:lottie_loop="true"
             app:lottie_rawRes="@raw/loader"
@@ -114,45 +151,28 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <TextView
-            android:id="@+id/button_skip"
-            android:layout_width="match_parent"
-            android:layout_height="35dp"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="10dp"
-            android:fontFamily="@font/dinroundedpro_medium"
-            android:text="Forgot Password?"
-            android:textAlignment="center"
-            android:textColor="@color/dark"
-            android:textSize="18sp" />
-
-
-
-        <com.airbnb.lottie.LottieAnimationView
-            android:id="@+id/nointernet"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:visibility="gone"
-            android:layout_gravity="center"
-            app:lottie_autoPlay="true"
-
-            app:lottie_loop="true"
-            app:lottie_rawRes="@raw/nowifi"/>
-
-
-    </LinearLayout>
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/nointernet"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:visibility="gone"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true"
+        app:lottie_rawRes="@raw/nowifi"
+        app:layout_constraintTop_toBottomOf="@id/buttonarea"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
         android:orientation="vertical"
-        android:layout_marginBottom="10dp">
+        android:layout_marginTop="170dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/buttonarea">
 
         <Button
             android:id="@+id/buttonCreate"
@@ -161,7 +181,7 @@
             app:backgroundTint="#38BD6C"
             android:background="@drawable/btn_getstarted"
             android:layout_marginBottom="10dp"
-            android:fontFamily="@font/dinroundedpro_bold"
+            android:fontFamily="@font/gothamroundedbold"
             android:text="Create Account"
             android:textColor="@android:color/white"
             android:textSize="15sp" />
@@ -188,10 +208,9 @@
                 android:text="SIGN IN WITH GOOGLE"
                 android:textColor="@android:color/black"
                 android:textSize="15sp"
-                android:fontFamily="@font/dinroundedpro_bold" />
+                android:fontFamily="@font/gothamroundedbold" />
 
         </RelativeLayout>
-
     </LinearLayout>
 
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

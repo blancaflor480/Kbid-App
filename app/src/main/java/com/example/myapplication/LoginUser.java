@@ -4,15 +4,19 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.airbnb.lottie.LottieAnimationView;
@@ -22,6 +26,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -32,7 +37,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 public class LoginUser extends AppCompatActivity {
 
     private EditText inputEmail, inputPassword;
-    private Button buttonSignin, buttonCreate;
+    private Button buttonCreate;
+    private MaterialButton buttonSignin;
     private RelativeLayout googlesignIn;
     private FirebaseAuth auth;
     private FirebaseFirestore firestore;
@@ -71,16 +77,16 @@ public class LoginUser extends AppCompatActivity {
     }
 
     private void loginUser() {
-        String email = inputEmail.getText().toString().trim();
+        String emailOrControlId = inputEmail.getText().toString().trim();
         String password = inputPassword.getText().toString().trim();
 
-        if (TextUtils.isEmpty(email)) {
-            Toast.makeText(getApplicationContext(), "Enter email address!", Toast.LENGTH_SHORT).show();
+        if (TextUtils.isEmpty(emailOrControlId)) {
+            showValidationDialog("Enter email or control ID!");
             return;
         }
 
         if (TextUtils.isEmpty(password)) {
-            Toast.makeText(getApplicationContext(), "Enter password!", Toast.LENGTH_SHORT).show();
+            showValidationDialog("Enter password!");
             return;
         }
 
@@ -92,7 +98,35 @@ public class LoginUser extends AppCompatActivity {
         // Show loader and hide the button when login is initiated
         showLoader();
 
-        // Authenticate user
+        // Check if input is email or Control ID
+        if (android.util.Patterns.EMAIL_ADDRESS.matcher(emailOrControlId).matches()) {
+            // Input is an email
+            loginWithEmail(emailOrControlId, password);
+        } else {
+            // Input is a Control ID
+            firestore.collection("user")
+                    .whereEqualTo("controlid", emailOrControlId)
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                            DocumentSnapshot document = task.getResult().getDocuments().get(0);
+                            String email = document.getString("email");
+
+                            if (email != null) {
+                                loginWithEmail(email, password);
+                            } else {
+                                hideLoader();
+                                showValidationDialog("No account associated with this Control ID.");
+                            }
+                        } else {
+                            hideLoader();
+                            showValidationDialog("Invalid Control ID. Please try again.");
+                        }
+                    });
+        }
+    }
+
+    private void loginWithEmail(String email, String password) {
         auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
@@ -103,13 +137,11 @@ public class LoginUser extends AppCompatActivity {
                                 if (reloadTask.isSuccessful()) {
                                     if (user.isEmailVerified()) {
                                         // Proceed with Firestore check if email is verified
-                                        checkUserInFirestore(user.getUid(),user.getEmail());
+                                        checkUserInFirestore(user.getUid(), user.getEmail());
                                     } else {
                                         hideLoader();
                                         // Show message prompting user to verify email
-                                        Toast.makeText(LoginUser.this,
-                                                "Need to verify your account. Please check your email for the verification link.",
-                                                Toast.LENGTH_LONG).show();
+                                        showValidationDialog("Need to verify your account. Please check your email for the verification link.");
                                         // Optionally, send a verification email if not already sent
                                         user.sendEmailVerification()
                                                 .addOnSuccessListener(aVoid ->
@@ -121,18 +153,34 @@ public class LoginUser extends AppCompatActivity {
                                     }
                                 } else {
                                     hideLoader();
-                                    Toast.makeText(LoginUser.this,
-                                            "Failed to verify account. Please try again.",
-                                            Toast.LENGTH_SHORT).show();
+                                    showValidationDialog("Failed to verify account. Please try again.");
                                 }
                             });
                         }
                     } else {
                         // If sign in fails, hide loader and show message
                         hideLoader();
-                        Toast.makeText(LoginUser.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
+                        showValidationDialog("Incorrect email or password. Please try again.");
                     }
                 });
+    }
+
+
+    private void showValidationDialog(String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(LoginUser.this);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_authenticateaccount, null);
+        builder.setView(dialogView);
+
+        AlertDialog dialog = builder.create();
+
+        TextView messageTextView = dialogView.findViewById(R.id.message);
+        messageTextView.setText(message);
+
+        Button buttonOk = dialogView.findViewById(R.id.submit);
+        buttonOk.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
     }
 
     private void checkUserInFirestore(String userId, String email) {

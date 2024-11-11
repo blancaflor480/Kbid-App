@@ -6,16 +6,19 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.airbnb.lottie.LottieAnimationView;
@@ -38,7 +41,7 @@ import java.util.Map;
 public class SignupUser extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 9001;
-    private EditText inputEmail, inputPassword;
+    private EditText inputEmail, inputPassword,inputConfirmPassword;
     private Button buttonSignup, buttonCreate;
     private RelativeLayout googlesignIn;
     private FirebaseAuth auth;
@@ -62,7 +65,7 @@ public class SignupUser extends AppCompatActivity {
         googlesignIn = findViewById(R.id.googlesignIn);
         loader = findViewById(R.id.loader);
         noInternet = findViewById(R.id.nointernet);
-
+        inputConfirmPassword = findViewById(R.id.inputConfirmPassword);
         // Configure Google Sign-In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id)) // Use your web client ID from Firebase console
@@ -142,19 +145,25 @@ public class SignupUser extends AppCompatActivity {
     private void registerUser() {
         String email = inputEmail.getText().toString().trim();
         String password = inputPassword.getText().toString().trim();
+        String confirmPassword = inputConfirmPassword.getText().toString().trim();
 
         if (TextUtils.isEmpty(email)) {
-            Toast.makeText(getApplicationContext(), "Enter email address!", Toast.LENGTH_SHORT).show();
+            showValidationDialog("Enter email address!");
             return;
         }
 
         if (TextUtils.isEmpty(password)) {
-            Toast.makeText(getApplicationContext(), "Enter password!", Toast.LENGTH_SHORT).show();
+            showValidationDialog("Enter password!");
             return;
         }
 
         if (password.length() < 6) {
-            Toast.makeText(getApplicationContext(), "Password too short, enter minimum 6 characters!", Toast.LENGTH_SHORT).show();
+            showValidationDialog("Password too short, enter minimum 6 characters!");
+            return;
+        }
+
+        if (!password.equals(confirmPassword)) {
+            showValidationDialog("Passwords do not match. Please re-enter.");
             return;
         }
 
@@ -176,7 +185,7 @@ public class SignupUser extends AppCompatActivity {
                     } else {
                         // If sign in fails
                         hideLoader();
-                        Toast.makeText(SignupUser.this, "Authentication failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        showValidationDialog("Authentication failed: " + task.getException().getMessage());
                     }
                 });
     }
@@ -189,7 +198,7 @@ public class SignupUser extends AppCompatActivity {
                             Toast.makeText(SignupUser.this, "Verification email sent to " + user.getEmail(), Toast.LENGTH_SHORT).show();
                             addUserToFirestore(user, null);
                         } else {
-                            Toast.makeText(SignupUser.this, "Failed to send verification email.", Toast.LENGTH_SHORT).show();
+                            showValidationDialog("Failed to send verification email.");
                             hideLoader();
                         }
                     });
@@ -198,7 +207,7 @@ public class SignupUser extends AppCompatActivity {
 
     private void addUserToFirestore(FirebaseUser user, String password) {
         if (user == null) {
-            Toast.makeText(this, "User is null. Cannot add to Firestore.", Toast.LENGTH_SHORT).show();
+            showValidationDialog("User is null. Cannot add to Firestore.");
             hideLoader();
             return;
         }
@@ -221,7 +230,7 @@ public class SignupUser extends AppCompatActivity {
                 .addOnFailureListener(e -> {
                     Log.w("SignupUser", "Error adding user to Firestore", e);
                     hideLoader();
-                    Toast.makeText(SignupUser.this, "Failed to add user to Firestore: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    showValidationDialog("Failed to add user to Firestore: " + e.getMessage());
                 });
     }
 
@@ -272,6 +281,23 @@ public class SignupUser extends AppCompatActivity {
                 }, 1000); // Adjust delay as necessary
             }
         }
+    }
+
+    private void showValidationDialog(String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(SignupUser.this);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_authenticateaccount, null);
+        builder.setView(dialogView);
+
+        AlertDialog dialog = builder.create();
+
+        TextView messageTextView = dialogView.findViewById(R.id.message);
+        messageTextView.setText(message);
+
+        Button buttonOk = dialogView.findViewById(R.id.submit);
+        buttonOk.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
     }
 
 

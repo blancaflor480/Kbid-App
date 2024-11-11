@@ -6,6 +6,8 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -22,7 +24,9 @@ public class AvatarActivity extends AppCompatActivity {
     private AppDatabase db;
     private UserDao userDao;
     private User currentUser;
-
+    private Handler handler;
+    private Runnable loadingRunnable;
+    private TextView loadingTextView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,6 +86,31 @@ public class AvatarActivity extends AppCompatActivity {
         }
     }
 
+    private void showLoadingAnimation() {
+        loadingTextView = findViewById(R.id.text);
+
+        // Define a Runnable to update the TextView with "LOADING." "LOADING.." and "LOADING..."
+        loadingRunnable = new Runnable() {
+            private int dotCount = 0;
+
+            @Override
+            public void run() {
+                // Cycle through "LOADING", "LOADING.", "LOADING..", and "LOADING..."
+                String text = "LOADING" + new String(new char[dotCount]).replace("\0", ".");
+                loadingTextView.setText(text);
+
+                // Update dotCount (0 to 3) to animate the dots
+                dotCount = (dotCount + 1) % 4;
+
+                // Schedule the next run after 500 milliseconds (adjust as needed)
+                handler.postDelayed(this, 500);
+            }
+        };
+
+        handler = new Handler();
+        handler.post(loadingRunnable); // Start the animation
+    }
+
     private void selectAvatar(String avatarName, int avatarResourceId) {
         // Convert drawable to byte[]
         Drawable drawable = getResources().getDrawable(avatarResourceId);
@@ -97,15 +126,26 @@ public class AvatarActivity extends AppCompatActivity {
 
                 userDao.updateUser(currentUser);
 
-                // Redirect to HomeActivity after saving
                 runOnUiThread(() -> {
-                    Intent intent = new Intent(AvatarActivity.this, HomeActivity.class);
-                    startActivity(intent);
-                    finish();
+                    // Set the new content view and initialize loadingTextView
+                    setContentView(R.layout.loader_homepage);
+                    loadingTextView = findViewById(R.id.text);
+
+                    showLoadingAnimation();
+
+                    // Delay transition to HomeActivity
+                    new Handler().postDelayed(() -> {
+                        if (handler != null) handler.removeCallbacks(loadingRunnable);
+                        Intent intent = new Intent(AvatarActivity.this, HomeActivity.class);
+                        overridePendingTransition(R.anim.pop_in, R.anim.pop_out);
+                        startActivity(intent);
+                        finish();
+                    }, 5000);
                 });
             }
         });
     }
+
 
     private byte[] bitmapToByteArray(Bitmap bitmap) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
