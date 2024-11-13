@@ -11,6 +11,7 @@ public class ModelStories {
     private String imageUrl;
     private String id; // This should match the Firestore document ID
     private Date timestamp;
+    private String audioUrl;
 
     // No-argument constructor
     public ModelStories() {
@@ -18,7 +19,7 @@ public class ModelStories {
     }
 
     // Constructor with arguments
-    public ModelStories(String title, String type, String verse, String email, String imageUrl, String id, Date timestamp, String description) {
+    public ModelStories(String title, String type, String verse, String email, String imageUrl, String id, Date timestamp, String description, String audioUrl) {
         this.title = title;
         this.type = type;
         this.verse = verse;
@@ -27,16 +28,18 @@ public class ModelStories {
         this.id = id;
         this.timestamp = timestamp;
         this.description = description;
+        this.audioUrl = audioUrl;
     }
 
     // Constructor for when the ID is needed
-    public ModelStories(String title, String verse, String description, String imageUrl, String id, Date timestamp) {
+    public ModelStories(String title, String verse, String description, String imageUrl, String id, Date timestamp, String audioUrl) {
         this.title = title;
         this.verse = verse;
         this.description = description;
         this.imageUrl = imageUrl;
         this.id = id; // Set the ID here
         this.timestamp = timestamp;
+        this.audioUrl = audioUrl;
     }
 
     // Getters and setters
@@ -95,4 +98,13 @@ public class ModelStories {
     public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
     }
+
+    public String getAudioUrl() {
+        return audioUrl;
+    }
+
+    public void setAudioUrl(String audioUrl) {
+        this.audioUrl = audioUrl;
+    }
+
 }

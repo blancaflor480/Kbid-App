@@ -319,8 +319,24 @@ public class LoginUser extends AppCompatActivity {
         if (user != null) {
             Intent intent = new Intent(LoginUser.this, ChildNameActivity.class);
             intent.putExtra("USER_EMAIL", user.getEmail()); // Pass the verified email
-            startActivity(intent);
-            finish();
+
+            // If control ID was used for login, get control ID from Firestore and pass it
+            firestore.collection("user")
+                    .document(user.getUid())
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                String controlId = document.getString("controlid");
+                                if (controlId != null) {
+                                    intent.putExtra("CONTROL_ID", controlId);
+                                }
+                            }
+                            startActivity(intent);
+                            finish();
+                        }
+                    });
         }
     }
 

@@ -42,7 +42,8 @@ import java.util.Date;
 import java.util.List;
 
 public class StoriesFragment extends Fragment {
-
+    private static final int PICK_AUDIO_REQUEST = 2;
+    private Uri audioUri;
     private static final int PICK_IMAGE_REQUEST = 1;
     private Uri imageUri;
     private StorageReference storageRef;
@@ -208,6 +209,12 @@ public class StoriesFragment extends Fragment {
         EditText etDescription = addView.findViewById(R.id.etDescription);
         ivImagePreview = addView.findViewById(R.id.ivImagePreview);
         Button btnUploadImage = addView.findViewById(R.id.btnUploadImage);
+        Button btnUploadAudio = addView.findViewById(R.id.btnUploadAudio);
+
+        btnUploadAudio.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(intent, PICK_AUDIO_REQUEST);
+        });
 
         btnUploadImage.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -222,14 +229,23 @@ public class StoriesFragment extends Fragment {
                     String verse = etVerse.getText().toString();
                     String description = etDescription.getText().toString();
 
-                    if (imageUri != null) {
+                    if (imageUri != null && audioUri != null) {
+                        // Upload image first
+                        uploadImageToFirebase(imageUri, title, verse, description);
+                    } else if (audioUri != null) {
+                        // Upload only audio
+                        uploadAudioToFirebase(audioUri, title, verse, description, null);
+                    } else if (imageUri != null) {
+                        // Upload only image
                         uploadImageToFirebase(imageUri, title, verse, description);
                     } else {
-                        uploadStoryToFirestore(null, title, verse, description);
+                        uploadStoryToFirestore(null, title, verse, description, null);
                     }
                 })
                 .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
                 .show();
+
+
     }
 
     @Override
@@ -238,25 +254,49 @@ public class StoriesFragment extends Fragment {
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
             imageUri = data.getData();
             ivImagePreview.setImageURI(imageUri);
+        } else if (requestCode == PICK_AUDIO_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
+            audioUri = data.getData();
         }
     }
 
     private void uploadImageToFirebase(Uri imageUri, String title, String verse, String description) {
-        StorageReference imageRef = storageRef.child("Content/stories/" + System.currentTimeMillis() + ".jpg");
+        StorageReference imageRef = storageRef.child("Content/stories/images/" + System.currentTimeMillis() + ".jpg");
 
         imageRef.putFile(imageUri)
                 .addOnSuccessListener(taskSnapshot -> imageRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
-                    uploadStoryToFirestore(downloadUri.toString(), title, verse, description);
+                    String imageUrl = downloadUri.toString();
+
+                    if (audioUri != null) {
+                        // If there is an audioUri, upload audio after image
+                        uploadAudioToFirebase(audioUri, title, verse, description, imageUrl);
+                    } else {
+                        // If no audioUri, just upload the story with the image URL
+                        uploadStoryToFirestore(imageUrl, title, verse, description, null);
+                    }
                 }))
                 .addOnFailureListener(e -> {
                     Snackbar.make(getView(), "Image upload failed.", Snackbar.LENGTH_SHORT).show();
                 });
     }
 
+
+    private void uploadAudioToFirebase(Uri audioUri, String title, String verse, String description, String imageUrl) {
+        StorageReference audioRef = storageRef.child("Content/stories/audio/" + System.currentTimeMillis() + ".mp3");
+
+        audioRef.putFile(audioUri)
+                .addOnSuccessListener(taskSnapshot -> audioRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
+                    String audioUrl = downloadUri.toString();
+                    uploadStoryToFirestore(imageUrl, title, verse, description, audioUrl);
+                }))
+                .addOnFailureListener(e -> {
+                    Snackbar.make(getView(), "Audio upload failed.", Snackbar.LENGTH_SHORT).show();
+                });
+    }
+
     // Method to upload story to Firestore
-    private void uploadStoryToFirestore(String imageUrl, String title, String verse, String description) {
+    private void uploadStoryToFirestore(String imageUrl, String title, String verse, String description, String audioUrl) {
         Date currentDate = new Date(); // Get the current date and time
-        ModelStories story = new ModelStories(title, verse, description, imageUrl, null, currentDate); // Pass null for ID initially
+        ModelStories story = new ModelStories(title, verse, description, imageUrl, null, currentDate, audioUrl); // Pass null for ID initially
 
         db.collection("stories").add(story)
                 .addOnSuccessListener(documentReference -> {
@@ -277,5 +317,6 @@ public class StoriesFragment extends Fragment {
                     Snackbar.make(getView(), "Failed to add story.", Snackbar.LENGTH_SHORT).show();
                 });
     }
+
 
 }

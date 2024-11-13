@@ -21,19 +21,20 @@ public class ModelBible {
     private String verse; // New field for verse
     private String timestamp;  // Change this to String for formatted date
     private String imageUrl; // New field for image URL
-
+    private String audioUrl;
     // No-argument constructor required by Firebase Firestore
     public ModelBible() {
     }
 
     // Constructor to initialize the ModelBible object
-    public ModelBible(@NonNull String id, String title, String description, String verse, String timestamp, String imageUrl) {
+    public ModelBible(@NonNull String id, String title, String description, String verse, String timestamp, String imageUrl, String audioUrl) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.verse = verse;
         this.timestamp = timestamp; // Updated to String
         this.imageUrl = imageUrl;
+        this.audioUrl = audioUrl;
     }
 
     @NonNull
@@ -84,4 +85,12 @@ public class ModelBible {
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
+
+    public String getAudioUrl() {
+        return audioUrl;
+    }
+    public void setAudioUrl(String audioUrl) {
+        this.audioUrl = audioUrl;
+    }
+
 }

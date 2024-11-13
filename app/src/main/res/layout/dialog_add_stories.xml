@@ -69,6 +69,13 @@
         </LinearLayout>
 
         <Button
+            android:id="@+id/btnUploadAudio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Upload Audio" />
+
+        <Button
             android:id="@+id/btnUploadImage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

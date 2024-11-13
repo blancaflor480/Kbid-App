@@ -279,6 +279,7 @@ public class FragmentHome extends Fragment {
         EditText editName = dialogView.findViewById(R.id.Editname);
         EditText editAge = dialogView.findViewById(R.id.Editage);
         EditText googleEditText = dialogView.findViewById(R.id.google);
+        TextView controlnumber = dialogView.findViewById(R.id.controlnumber);
         AppCompatButton connectButton = dialogView.findViewById(R.id.connect);
         AppCompatButton saveButton = dialogView.findViewById(R.id.save);
         ImageButton closeButton = dialogView.findViewById(R.id.close);
@@ -292,7 +293,15 @@ public class FragmentHome extends Fragment {
                     editName.setText(user.getChildName());
                     editAge.setText(String.valueOf(user.getChildBirthday()));
                     googleEditText.setText(user.getEmail());
+                    controlnumber.setText(user.getControlid());
 
+                    // Set the control number visibility based on its value
+                    if (user.getControlid() == null || user.getControlid().isEmpty()) {
+                        controlnumber.setVisibility(View.GONE);  // Hide if no control ID
+                    } else {
+                        controlnumber.setText("ID: " + user.getControlid());
+                        controlnumber.setVisibility(View.VISIBLE);  // Show and set value if present
+                    }
                     // Set visibility of connectButton based on email value
                     if ("Null".equals(user.getEmail())) {
                         connectButton.setVisibility(View.VISIBLE);

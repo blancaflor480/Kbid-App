@@ -178,7 +178,8 @@ public class ChildAgeActivity extends AppCompatActivity {
                 // No user exists, create a new one with default name and provided birthday
                 byte[] defaultAvatarImage = null; // Replace with actual byte array if you have an image
                 String email = "No Bind";
-                currentUser = new User("Default Name", childBirthday, "Default Avatar", R.drawable.lion, defaultAvatarImage, email);
+                String controlid = "";
+                currentUser = new User("Default Name", childBirthday, "Default Avatar", R.drawable.lion, defaultAvatarImage, email, controlid);
                 userDao.insert(currentUser);
             }
         });

@@ -70,6 +70,7 @@ public class AdapterBible extends RecyclerView.Adapter<AdapterBible.MyHolder> {
             intent.putExtra("description", bibleVerse.getDescription());
             intent.putExtra("imageUrl", bibleVerse.getImageUrl());
             intent.putExtra("timestamp", bibleVerse.getTimestamp());
+            intent.putExtra("audioUrl", bibleVerse.getAudioUrl());
 
             // Start the activity
             context.startActivity(intent);

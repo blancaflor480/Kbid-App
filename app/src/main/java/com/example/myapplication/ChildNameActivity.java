@@ -33,7 +33,7 @@ public class ChildNameActivity extends AppCompatActivity {
     private UserDao userDao;
     private QuizGamesDao quizGamesDao;
     private FourPicsOneWordDao fourPicsOneWordDao;
-    private String email; // Declare email variable
+    private String email, controlid; // Declare email variable
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +51,7 @@ public class ChildNameActivity extends AppCompatActivity {
 
         // Initialize the database and DAO
         email = getIntent().getStringExtra("USER_EMAIL");
+        controlid = getIntent().getStringExtra("CONTROL_ID");
         //email = getIntent().getStringExtra("email");
 
 
@@ -111,12 +112,12 @@ public class ChildNameActivity extends AppCompatActivity {
             String childBirthday = "";
             int defaultAvatarResourceId = R.drawable.lion; // Ensure you have this drawable in your project
             byte[] defaultAvatarImage = null; // Or replace this with actual image data if available
-
             // Set email to null
             String email = this.email;
+            String controlid = this.controlid;
 
             // Create and insert the user
-            User user = new User(name, childBirthday, defaultAvatarName, defaultAvatarResourceId, defaultAvatarImage, email);
+            User user = new User(name, childBirthday, defaultAvatarName, defaultAvatarResourceId, defaultAvatarImage, email, controlid);
             long userId = userDao.insert(user); // Assuming this returns the user ID
 
             // Insert into fourpicsoneword table

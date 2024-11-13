@@ -235,13 +235,14 @@ public class BibleFragment extends AppCompatActivity {
                             String verse = document.getString("verse");
                             Timestamp timestamp = document.getTimestamp("timestamp");
                             String imageUrl = document.getString("imageUrl");
+                            String audioUrl = document.getString("audioUrl");
 
                             String formattedTimestamp = null;
                             if (timestamp != null) {
                                 formattedTimestamp = Converters.fromTimestampToString(timestamp.toDate().getTime());
                             }
 
-                            ModelBible story = new ModelBible(id, title, description, verse, formattedTimestamp, imageUrl);
+                            ModelBible story = new ModelBible(id, title, description, verse, formattedTimestamp, imageUrl, audioUrl);
                             bibleStories.add(story);
 
                             // Insert story into SQLite and create an achievement entry

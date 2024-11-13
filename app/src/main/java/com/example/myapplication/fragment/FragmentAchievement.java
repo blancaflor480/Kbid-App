@@ -1,11 +1,13 @@
 package com.example.myapplication.fragment;
 
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -18,8 +20,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication.R;
 import com.example.myapplication.database.AppDatabase;
+import com.example.myapplication.fragment.achievement.LeaderBoard;
 import com.example.myapplication.fragment.achievement.StoryAchievementModel;
 import com.example.myapplication.fragment.achievement.StoryAdapterAchievement;
+import com.example.myapplication.fragment.biblemusic.MusicFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +32,7 @@ import java.util.concurrent.Executors;
 public class FragmentAchievement extends Fragment {
 
     private ImageView underMaintenance;
+    private ImageButton leaderboard;
     private RadioGroup achievementSwitch;
     private RecyclerView recyclepstory;
     private StoryAdapterAchievement storyAdapter;
@@ -40,6 +45,7 @@ public class FragmentAchievement extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_achievement, container, false);
 
         // Initialize the RecyclerView and the achievement list
+        leaderboard = rootView.findViewById(R.id.leaderboard);
         storyList = new ArrayList<>();
         storyAdapter = new StoryAdapterAchievement(requireContext(), storyList);
 
@@ -58,6 +64,9 @@ public class FragmentAchievement extends Fragment {
         setRadioButtonStyle(storyButton, true);
         setRadioButtonStyle(gamesButton, false);
 
+        leaderboard.setOnClickListener(v -> {
+            Navigateleaderboard();
+        });
         // Set up listener for RadioGroup
         achievementSwitch.setOnCheckedChangeListener((group, checkedId) -> {
             resetRadioButtonStyles(storyButton,gamesButton);
@@ -140,5 +149,10 @@ public class FragmentAchievement extends Fragment {
         } else {
             Log.d("FragmentAchievement", "No achievements found.");
         }
+    }
+
+    private void Navigateleaderboard() {
+        Intent intent = new Intent(getActivity(), LeaderBoard.class);
+        startActivity(intent);
     }
 }
