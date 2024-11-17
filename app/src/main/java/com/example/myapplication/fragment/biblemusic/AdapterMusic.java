@@ -1,12 +1,16 @@
 package com.example.myapplication.fragment.biblemusic;
 
+import android.app.MediaRouteButton;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -40,30 +44,24 @@ public class AdapterMusic extends RecyclerView.Adapter<AdapterMusic.MyHolder> {
 
         // Set the title text
         holder.title.setText(bibleMusic.getTitle());
-
-        String profileImage = bibleMusic.getImageUrl();
-
-        // Load image using Glide, with default and error images
+        // Load image using Glide
         Glide.with(context)
                 .load(bibleMusic.getImageUrl())
                 .placeholder(R.drawable.image)
                 .error(R.drawable.image)
                 .into(holder.profileImage);
 
-        // Set an OnClickListener on the itemView to navigate to BiblePlay
-        holder.itemView.setOnClickListener(v -> {
-            Intent intent = new Intent(context, BiblePlay.class);
-
-            // Pass the music details to the activity
-            intent.putExtra("id", bibleMusic.getId());
-            intent.putExtra("title", bibleMusic.getTitle());
-            intent.putExtra("description", bibleMusic.getDescription());
-            intent.putExtra("imageUrl", bibleMusic.getImageUrl());
-            intent.putExtra("audioUrl", bibleMusic.getAudioUrl());
-            intent.putExtra("timestamp", bibleMusic.getTimestamp());
-
-            context.startActivity(intent);
+        holder.playButton.setOnClickListener(v -> {
+            String videoUrl = bibleMusicList.get(position).getVideoUrl();
+            if (videoUrl != null && !videoUrl.isEmpty()) {
+                Intent intent = new Intent(context, VideoPlayerActivity.class);
+                intent.putExtra("videoUrl", videoUrl);
+                context.startActivity(intent);
+            } else {
+                Toast.makeText(context, "Video URL not available", Toast.LENGTH_SHORT).show();
+            }
         });
+
     }
 
     @Override
@@ -76,11 +74,13 @@ public class AdapterMusic extends RecyclerView.Adapter<AdapterMusic.MyHolder> {
 
         TextView title;
         ImageView profileImage;
+        ImageButton playButton;
 
         public MyHolder(@NonNull View itemView) {
             super(itemView);
             profileImage = itemView.findViewById(R.id.thumbnailp);
             title = itemView.findViewById(R.id.titlep);
+            playButton = itemView.findViewById(R.id.videoView);
         }
     }
 }

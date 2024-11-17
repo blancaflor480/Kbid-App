@@ -9,7 +9,7 @@ public class ModelSong {
     private String imageUrl;
     private String id; // This should match the Firestore document ID
     private Date timestamp;
-    private String audioUrl;
+    private String videoUrl;
 
 
     // No-argument constructor
@@ -17,10 +17,10 @@ public class ModelSong {
         // Required for Firebase deserialization
     }
     // Constructor with arguments
-    public ModelSong(String title, String song, String audioUrl, String description, String email, String imageUrl, Object o, Date timestamp) {
+    public ModelSong(String title, String song, String videoUrl, String description, String email, String imageUrl, Object o, Date timestamp) {
         this.title = title;
         this.song = song;
-        this.audioUrl = audioUrl;
+        this.videoUrl = videoUrl;
         this.email = email;
         this.imageUrl = imageUrl;
         this.id = id;
@@ -45,12 +45,12 @@ public class ModelSong {
         this.imageUrl = imageUrl;
     }
 
-    public String getAudioUrl() {
-        return audioUrl;
+    public String getVideoUrl() {
+        return videoUrl;
     }
 
-    public void setAudioUrl(String audioUrl) {
-        this.audioUrl = audioUrl;
+    public void setVideoUrl(String videoUrl) {
+        this.videoUrl = videoUrl;
     }
 
     public String getSong() {

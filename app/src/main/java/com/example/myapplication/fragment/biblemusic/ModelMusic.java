@@ -7,8 +7,9 @@ import androidx.room.TypeConverters;
 import com.example.myapplication.database.Converters;
 
 import java.util.Date;
+
 @TypeConverters({Converters.class})
-@Entity(tableName = "song") // You can specify the table name if you like
+@Entity(tableName = "video") // You can specify the table name if you like
 public class ModelMusic {
 
     @PrimaryKey(autoGenerate = true) // If you want Room to auto-generate the ID
@@ -18,27 +19,28 @@ public class ModelMusic {
     private String title;
     private String description;
     private String imageUrl;
-    private String audioUrl;
+    private String videoUrl;
     private String timestamp;
 
     // Constructor with arguments
-    public ModelMusic(String firebaseId,String title, String audioUrl, String description, String imageUrl, String timestamp) {
+    public ModelMusic(String firebaseId, String title, String videoUrl, String description, String imageUrl, String timestamp) {
         this.firebaseId = firebaseId;
         this.title = title;
-        this.audioUrl = audioUrl;
+        this.videoUrl = videoUrl;
         this.imageUrl = imageUrl;
         this.timestamp = timestamp;
         this.description = description;
     }
 
+    // Getters and setters
     public String getFirebaseId() {
         return firebaseId;
     }
+
     public void setFirebaseId(String firebaseId) {
         this.firebaseId = firebaseId;
     }
 
-    // Getters and setters
     public String getTitle() {
         return title;
     }
@@ -55,12 +57,12 @@ public class ModelMusic {
         this.imageUrl = imageUrl;
     }
 
-    public String getAudioUrl() {
-        return audioUrl;
+    public String getVideoUrl() { // Corrected getter name
+        return videoUrl;
     }
 
-    public void setAudioUrl(String audioUrl) {
-        this.audioUrl = audioUrl;
+    public void setVideoUrl(String videoUrl) { // Corrected setter name
+        this.videoUrl = videoUrl;
     }
 
     public String getDescription() {

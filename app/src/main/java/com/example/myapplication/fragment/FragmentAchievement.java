@@ -11,19 +11,20 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.myapplication.R;
 import com.example.myapplication.database.AppDatabase;
 import com.example.myapplication.fragment.achievement.LeaderBoard;
 import com.example.myapplication.fragment.achievement.StoryAchievementModel;
 import com.example.myapplication.fragment.achievement.StoryAdapterAchievement;
-import com.example.myapplication.fragment.biblemusic.MusicFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +33,9 @@ import java.util.concurrent.Executors;
 public class FragmentAchievement extends Fragment {
 
     private ImageView underMaintenance;
+    private ViewPager2 homepage;
     private ImageButton leaderboard;
+    private TextView storytitle, gametitle, emptyMessage; // Added emptyMessage here
     private RadioGroup achievementSwitch;
     private RecyclerView recyclepstory;
     private StoryAdapterAchievement storyAdapter;
@@ -52,6 +55,7 @@ public class FragmentAchievement extends Fragment {
         recyclepstory = rootView.findViewById(R.id.recyclep);
         recyclepstory.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclepstory.setAdapter(storyAdapter);
+
         // Initialize the Database Helper
         appDatabase = AppDatabase.getDatabase(requireContext());
 
@@ -60,6 +64,12 @@ public class FragmentAchievement extends Fragment {
         RadioButton storyButton = rootView.findViewById(R.id.story);
         RadioButton gamesButton = rootView.findViewById(R.id.games);
 
+        // Initialize the TextViews for storytitle, gametitle, and emptyMessage
+        storytitle = rootView.findViewById(R.id.storytitle);
+        gametitle = rootView.findViewById(R.id.gametitle);
+        emptyMessage = rootView.findViewById(R.id.emptyMessage); // Initialize emptyMessage here
+        homepage = rootView.findViewById(R.id.homepage);
+
         // Set initial style for RadioButtons
         setRadioButtonStyle(storyButton, true);
         setRadioButtonStyle(gamesButton, false);
@@ -67,23 +77,41 @@ public class FragmentAchievement extends Fragment {
         leaderboard.setOnClickListener(v -> {
             Navigateleaderboard();
         });
+
         // Set up listener for RadioGroup
         achievementSwitch.setOnCheckedChangeListener((group, checkedId) -> {
-            resetRadioButtonStyles(storyButton,gamesButton);
+            resetRadioButtonStyles(storyButton, gamesButton);
 
             if (checkedId == R.id.story) {
                 setRadioButtonStyle(storyButton, true);
-                loadAllAchievements(); // Load all achievements// Load achievements for specific story
+                loadStoryAchievements();
+                showStoryTitle(); // Load achievements for Story
             } else if (checkedId == R.id.games) {
                 setRadioButtonStyle(gamesButton, true);
-                loadGameAchievements(); // Load achievements for games
+                loadGameAchievements();
+                showGameTitle(); // Load achievements for Games
             }
         });
 
         // Load initial achievements
-        loadAllAchievements(); // Default to loading all achievements
+        loadStoryAchievements(); // Default to loading story achievements
 
         return rootView;
+    }
+
+    private void showStoryTitle() {
+        // Make the story title visible and game title gone
+        storytitle.setVisibility(View.VISIBLE);
+        gametitle.setVisibility(View.GONE);
+        // Change the background color to a specific color for Story view
+        homepage.setBackgroundColor(getResources().getColor(R.color.purplelight));
+    }
+
+    private void showGameTitle() {
+        // Make the game title visible and story title gone
+        gametitle.setVisibility(View.VISIBLE);
+        storytitle.setVisibility(View.GONE);
+        homepage.setBackgroundColor(getResources().getColor(R.color.redlight));
     }
 
     private void setRadioButtonStyle(RadioButton radioButton, boolean isSelected) {
@@ -104,23 +132,11 @@ public class FragmentAchievement extends Fragment {
         }
     }
 
-    private void loadAllAchievements() {
-        Log.d("FragmentAchievement", "Loading all achievements...");
-        Executors.newSingleThreadExecutor().execute(() -> {
-            List<StoryAchievementModel> localAchievements = appDatabase.storyAchievementDao().getAchievementsForStory();
-            Log.d("FragmentAchievement", "Fetched " + localAchievements.size() + " achievements from DB");
-
-            requireActivity().runOnUiThread(() -> {
-                updateAchievements(localAchievements);
-            });
-        });
-    }
-
     private void loadStoryAchievements() {
-        Log.d("FragmentAchievement", "Loading achievements for story...");
+        Log.d("FragmentAchievement", "Loading achievements for Story...");
         Executors.newSingleThreadExecutor().execute(() -> {
             List<StoryAchievementModel> storyAchievements = appDatabase.storyAchievementDao().getAchievementsForStory();
-            Log.d("FragmentAchievement", "Fetched " + storyAchievements.size() + " achievements for story.");
+            Log.d("FragmentAchievement", "Fetched " + storyAchievements.size() + " achievements for Story.");
 
             requireActivity().runOnUiThread(() -> {
                 updateAchievements(storyAchievements);
@@ -129,10 +145,10 @@ public class FragmentAchievement extends Fragment {
     }
 
     private void loadGameAchievements() {
-        Log.d("FragmentAchievement", "Loading achievements for games...");
+        Log.d("FragmentAchievement", "Loading achievements for Games...");
         Executors.newSingleThreadExecutor().execute(() -> {
-            List<StoryAchievementModel> gameAchievements = appDatabase.storyAchievementDao().getAchievementsForStory();
-            Log.d("FragmentAchievement", "Fetched " + gameAchievements.size() + " achievements for games.");
+            List<StoryAchievementModel> gameAchievements = appDatabase.storyAchievementDao().getAchievementsForGames();
+            Log.d("FragmentAchievement", "Fetched " + gameAchievements.size() + " achievements for Games.");
 
             requireActivity().runOnUiThread(() -> {
                 updateAchievements(gameAchievements);
@@ -142,12 +158,17 @@ public class FragmentAchievement extends Fragment {
 
     private void updateAchievements(List<StoryAchievementModel> achievements) {
         storyList.clear();
-        if (!achievements.isEmpty()) {
+
+        if (achievements.isEmpty()) {
+            // If no achievements are found for Games, show emptyMessage and hide RecyclerView
+            recyclepstory.setVisibility(View.GONE); // Hide RecyclerView
+            emptyMessage.setVisibility(View.VISIBLE); // Show empty message
+        } else {
+            // If achievements are found, show RecyclerView and hide emptyMessage
             storyList.addAll(achievements);
             storyAdapter.notifyDataSetChanged(); // Update RecyclerView
-            Log.d("FragmentAchievement", "Added achievements to list. RecyclerView updated.");
-        } else {
-            Log.d("FragmentAchievement", "No achievements found.");
+            recyclepstory.setVisibility(View.VISIBLE); // Show RecyclerView
+            emptyMessage.setVisibility(View.GONE); // Hide empty message
         }
     }
 
@@ -156,3 +177,4 @@ public class FragmentAchievement extends Fragment {
         startActivity(intent);
     }
 }
+

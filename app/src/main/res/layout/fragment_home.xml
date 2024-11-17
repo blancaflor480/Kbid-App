@@ -399,7 +399,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Music"
+                        android:text="Video"
                         android:fontFamily="@font/gothamroundedbold"
                         android:textSize="25sp"
                         android:textColor="@color/black"
@@ -408,7 +408,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Bible songs help kids learn about God’s love through music."
+                        android:text="Bible video help kids learn about God’s love through video."
                         android:fontFamily="@font/gothamroundedmedium"
                         android:textSize="12sp"
                         android:textColor="@color/black"

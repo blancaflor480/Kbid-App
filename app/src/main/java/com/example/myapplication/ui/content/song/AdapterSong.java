@@ -128,7 +128,7 @@ public class AdapterSong extends RecyclerView.Adapter<AdapterSong.MyHolder> {
         EditText titleInput = dialogView.findViewById(R.id.etTitle);
         EditText descriptionInput = dialogView.findViewById(R.id.etDescription);
         Button btnUploadImage = dialogView.findViewById(R.id.btnUploadImage);
-        Button btnUploadSong = dialogView.findViewById(R.id.btnUploadSong);
+        Button btnUploadVideo = dialogView.findViewById(R.id.btnUploadVideo);
 
         titleInput.setText(content.getTitle());
         descriptionInput.setText(content.getDescription());

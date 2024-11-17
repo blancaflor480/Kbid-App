@@ -15,17 +15,17 @@ public interface MusicDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(ModelMusic music); // Insert method for ModelMusic objects
 
-    @Query("SELECT * FROM song WHERE timestamp >= :currentDate ORDER BY timestamp ASC")
+    @Query("SELECT * FROM video WHERE timestamp >= :currentDate ORDER BY timestamp ASC")
     List<ModelMusic> getUpcomingBibleMusic(String currentDate); // Query to get upcoming music
 
-    @Query("SELECT * FROM song")
+    @Query("SELECT * FROM video")
     List<ModelMusic> getAllBibleMusic(); // Query to get all music
 
-    @Query("SELECT * FROM song WHERE id = :songId LIMIT 1")
+    @Query("SELECT * FROM video WHERE id = :songId LIMIT 1")
     ModelMusic getStoryById(String songId); // Query to get a specific music by its ID
 
     // Annotate deleteAll() with a DELETE query to clear the table
-    @Query("DELETE FROM song")
+    @Query("DELETE FROM video")
     void deleteAll();
 
 }

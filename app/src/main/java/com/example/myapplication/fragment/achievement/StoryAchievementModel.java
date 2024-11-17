@@ -25,7 +25,8 @@ public class StoryAchievementModel {
     private int id;
     private String title;
     private String type;
-    private String storyId; // Foreign key
+    private String storyId;
+    //private Boolean unlock;// Foreign key
 
     public StoryAchievementModel(String title, String type, String storyId) {
         this.title = title;
@@ -66,5 +67,7 @@ public class StoryAchievementModel {
     public void setStoryId(String storyId) {
         this.storyId = storyId;
     }
+
+
 
 }

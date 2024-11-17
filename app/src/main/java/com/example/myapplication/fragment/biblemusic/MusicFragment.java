@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -53,7 +54,7 @@ public class MusicFragment extends AppCompatActivity {
         arrowback.setOnClickListener(v -> onBackPressed());
 
         recyclerView = findViewById(R.id.recyclep);
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         comingSoonTextView = findViewById(R.id.comingsoon);
         noConnectionAnimation = findViewById(R.id.noconnection);
@@ -97,7 +98,7 @@ public class MusicFragment extends AppCompatActivity {
     }
 
     private void fetchFromFirestore() {
-        db.collection("song")
+        db.collection("video")
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && task.getResult() != null) {
@@ -108,9 +109,10 @@ public class MusicFragment extends AppCompatActivity {
                             String description = document.getString("description");
                             String timestamp = String.valueOf(document.getTimestamp("timestamp"));
                             String imageUrl = document.getString("imageUrl");
-                            String audioUrl = document.getString("audioUrl");
+                            String videoUrl = document.getString("videoUrl");
 
-                            ModelMusic music = new ModelMusic(firebaseId, title, audioUrl, description, imageUrl, timestamp);
+
+                            ModelMusic music = new ModelMusic(firebaseId, title, videoUrl, description, imageUrl, timestamp);
                             fetchedMusic.add(music);
                         }
 

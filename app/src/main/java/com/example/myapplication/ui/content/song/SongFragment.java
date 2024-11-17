@@ -43,8 +43,8 @@ import java.util.List;
 
 public class SongFragment extends Fragment {
     private static final int PICK_IMAGE_REQUEST = 1;
-    private static final int PICK_AUDIO_REQUEST = 2;
-    private Uri imageUri, audioUri;
+    private static final int PICK_VIDEO_REQUEST = 2;
+    private Uri imageUri, videoUri;
     private StorageReference storageRef;
     private TextView notFoundTextView;
     private RecyclerView recyclerView;
@@ -74,13 +74,13 @@ public class SongFragment extends Fragment {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 switch (position) {
                     case 0:
-                        getAllSong();
+                        getAllVideo();
                         break;
                     case 1:
-                        getNewSong();
+                        getNewVideo();
                         break;
                     case 2:
-                        getOldSong();
+                        getOldVideo();
                         break;
                 }
             }
@@ -117,21 +117,21 @@ public class SongFragment extends Fragment {
         return view;
     }
 
-    private void getAllSong() {
-        loadContentFromCollection("song", null, null);
+    private void getAllVideo() {
+        loadContentFromCollection("video", null, null);
     }
 
-    private void getNewSong() {
+    private void getNewVideo() {
         Calendar firstDayOfMonth = Calendar.getInstance();
         firstDayOfMonth.set(Calendar.DAY_OF_MONTH, 1);
 
         Calendar lastDayOfMonth = Calendar.getInstance();
         lastDayOfMonth.set(Calendar.DAY_OF_MONTH, lastDayOfMonth.getActualMaximum(Calendar.DAY_OF_MONTH));
 
-        loadContentFromCollection("song", firstDayOfMonth.getTime(), lastDayOfMonth.getTime());
+        loadContentFromCollection("video", firstDayOfMonth.getTime(), lastDayOfMonth.getTime());
     }
 
-    private void getOldSong() {
+    private void getOldVideo() {
         Calendar firstDayOfLastMonth = Calendar.getInstance();
         firstDayOfLastMonth.add(Calendar.MONTH, -1);
         firstDayOfLastMonth.set(Calendar.DAY_OF_MONTH, 1);
@@ -140,7 +140,7 @@ public class SongFragment extends Fragment {
         lastDayOfLastMonth.add(Calendar.MONTH, -1);
         lastDayOfLastMonth.set(Calendar.DAY_OF_MONTH, lastDayOfLastMonth.getActualMaximum(Calendar.DAY_OF_MONTH));
 
-        loadContentFromCollection("song", firstDayOfLastMonth.getTime(), lastDayOfLastMonth.getTime());
+        loadContentFromCollection("video", firstDayOfLastMonth.getTime(), lastDayOfLastMonth.getTime());
     }
 
     private void loadContentFromCollection(String collectionName, Date startDate, Date endDate) {
@@ -171,16 +171,17 @@ public class SongFragment extends Fragment {
         EditText etDescription = addView.findViewById(R.id.etDescription);
         ivImagePreview = addView.findViewById(R.id.ivImagePreview);
         Button btnUploadImage = addView.findViewById(R.id.btnUploadImage);
-        Button btnUploadSong = addView.findViewById(R.id.btnUploadSong);
+        Button btnUploadVideo = addView.findViewById(R.id.btnUploadVideo);
 
         btnUploadImage.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
             startActivityForResult(intent, PICK_IMAGE_REQUEST);
         });
 
-        btnUploadSong.setOnClickListener(v -> {
-            Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
-            startActivityForResult(intent, PICK_AUDIO_REQUEST);
+        btnUploadVideo.setOnClickListener(v -> {
+            // Update the intent to pick video files instead of audio files
+            Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(intent, PICK_VIDEO_REQUEST);
         });
 
         new AlertDialog.Builder(getContext())
@@ -189,10 +190,10 @@ public class SongFragment extends Fragment {
                     String title = etTitle.getText().toString();
                     String description = etDescription.getText().toString();
 
-                    if (audioUri != null && imageUri != null) {
-                        uploadContentToFirebase(imageUri, audioUri, title, description);
+                    if (videoUri != null && imageUri != null) {
+                        uploadContentToFirebase(imageUri, videoUri, title, description);
                     } else {
-                        Snackbar.make(getView(), "Please upload both image and audio.", Snackbar.LENGTH_SHORT).show();
+                        Snackbar.make(getView(), "Please upload both image and video.", Snackbar.LENGTH_SHORT).show();
                     }
                 })
                 .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
@@ -205,39 +206,39 @@ public class SongFragment extends Fragment {
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
             imageUri = data.getData();
             ivImagePreview.setImageURI(imageUri);
-        } else if (requestCode == PICK_AUDIO_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
-            audioUri = data.getData();
-            Snackbar.make(getView(), "Audio file selected.", Snackbar.LENGTH_SHORT).show();
+        } else if (requestCode == PICK_VIDEO_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
+            videoUri = data.getData();
+            Snackbar.make(getView(), "Video file selected.", Snackbar.LENGTH_SHORT).show();
         }
     }
 
-    private void uploadContentToFirebase(Uri imageUri, Uri audioUri, String title, String description) {
-        StorageReference imageRef = storageRef.child("Content/song/images/" + System.currentTimeMillis() + ".jpg");
-        StorageReference audioRef = storageRef.child("Content/song/audio/" + System.currentTimeMillis() + ".mp3");
+    private void uploadContentToFirebase(Uri imageUri, Uri videoUri, String title, String description) {
+        StorageReference imageRef = storageRef.child("Content/video/images/" + System.currentTimeMillis() + ".jpg");
+        StorageReference videoRef = storageRef.child("Content/video/videos/" + System.currentTimeMillis() + ".mp4");
 
         imageRef.putFile(imageUri)
                 .addOnSuccessListener(taskSnapshot -> imageRef.getDownloadUrl().addOnSuccessListener(imageDownloadUri ->
-                        audioRef.putFile(audioUri)
-                                .addOnSuccessListener(taskSnapshot1 -> audioRef.getDownloadUrl().addOnSuccessListener(audioDownloadUri ->
-                                        saveSongToFirestore(imageDownloadUri.toString(), audioDownloadUri.toString(), title, description))))
+                        videoRef.putFile(videoUri)
+                                .addOnSuccessListener(taskSnapshot1 -> videoRef.getDownloadUrl().addOnSuccessListener(videoDownloadUri ->
+                                        saveVideoToFirestore(imageDownloadUri.toString(), videoDownloadUri.toString(), title, description))))
                 )
                 .addOnFailureListener(e -> Snackbar.make(getView(), "File upload failed.", Snackbar.LENGTH_SHORT).show());
     }
 
-    private void saveSongToFirestore(String imageUrl, String audioUrl, String title, String description) {
+    private void saveVideoToFirestore(String imageUrl, String videoUrl, String title, String description) {
         Date timestamp = new Date();
-        ModelSong song = new ModelSong(title, "Song", audioUrl, description, firebaseAuth.getCurrentUser().getEmail(), imageUrl, null, timestamp);
+        ModelSong video = new ModelSong(title, "Video", videoUrl, description, firebaseAuth.getCurrentUser().getEmail(), imageUrl, null, timestamp);
 
-        db.collection("song").add(song)
+        db.collection("video").add(video)
                 .addOnSuccessListener(documentReference -> {
-                    song.setId(documentReference.getId());
-                    db.collection("song").document(documentReference.getId()).set(song)
+                    video.setId(documentReference.getId());
+                    db.collection("video").document(documentReference.getId()).set(video)
                             .addOnSuccessListener(aVoid -> {
-                                Snackbar.make(getView(), "Song added.", Snackbar.LENGTH_SHORT).show();
-                                getAllSong();
+                                Snackbar.make(getView(), "Video added.", Snackbar.LENGTH_SHORT).show();
+                                getAllVideo();
                             });
                 })
-                .addOnFailureListener(e -> Snackbar.make(getView(), "Failed to add song.", Snackbar.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> Snackbar.make(getView(), "Failed to add video.", Snackbar.LENGTH_SHORT).show());
     }
 
     private void filterContent(String query) {

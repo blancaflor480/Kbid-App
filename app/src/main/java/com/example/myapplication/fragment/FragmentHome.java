@@ -35,9 +35,11 @@ import com.example.myapplication.R;
 import com.example.myapplication.database.AppDatabase;
 import com.example.myapplication.database.userdb.User;
 import com.example.myapplication.database.userdb.UserDao;
+import com.example.myapplication.fragment.biblegames.GameDescriptionFourPics;
 import com.example.myapplication.fragment.biblegames.GamesFragment;
 import com.example.myapplication.fragment.biblemusic.MusicFragment;
 import com.example.myapplication.fragment.biblestories.BibleFragment;
+import com.example.myapplication.fragment.devotional.DevotionalKids;
 import com.example.myapplication.fragment.notification.ModelNotification;
 import com.example.myapplication.fragment.notification.NotificationAdapter;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -60,7 +62,7 @@ import android.media.MediaPlayer;
 
 public class FragmentHome extends Fragment {
     TextView userNameTextView;
-    CardView clickStories, clickGames, clickSong;
+    CardView clickStories, clickGames, clickSong, clickDevoional;
     VideoView videoView;
     ImageView imageView, imageright, userAvatarImageView, sungif,rainbowgif,star1,star2,star3,star4;
     ImageButton notif, editprofile;
@@ -133,6 +135,7 @@ public class FragmentHome extends Fragment {
         clickStories = view.findViewById(R.id.clickStories);
         clickGames = view.findViewById(R.id.clickGames);
         clickSong = view.findViewById(R.id.clickSong);
+        clickDevoional = view.findViewById(R.id.clickDevoional);
 
 
         clickStories.setOnClickListener(v -> {
@@ -148,6 +151,11 @@ public class FragmentHome extends Fragment {
         clickSong.setOnClickListener(v -> {
             playClickSound(); // Play sound effect
             navigateToBiblesongActivity();
+        });
+
+        clickDevoional.setOnClickListener(v -> {
+            playClickSound(); // Play sound effect
+            navigateToBibledevotionalActivity();
         });
 
         // Set up notification button click listener
@@ -399,12 +407,17 @@ public class FragmentHome extends Fragment {
     }
 
     private void navigateToBiblegamesActivity() {
-        Intent intent = new Intent(getActivity(), GamesFragment.class);
+        Intent intent = new Intent(getActivity(), GameDescriptionFourPics.class);
         startActivity(intent);
         Log.d("FragmentHome", "Navigating to Biblegames");
     }
     private void navigateToBiblesongActivity() {
         Intent intent = new Intent(getActivity(), MusicFragment.class);
+        startActivity(intent);
+        Log.d("FragmentHome", "Navigating to Biblegames");
+    }
+    private void navigateToBibledevotionalActivity() {
+        Intent intent = new Intent(getActivity(), DevotionalKids.class);
         startActivity(intent);
         Log.d("FragmentHome", "Navigating to Biblegames");
     }

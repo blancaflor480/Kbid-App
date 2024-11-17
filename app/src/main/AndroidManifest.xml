@@ -4,8 +4,8 @@
     package="com.example.myapplication">
 
     <uses-permission android:name="android.permission.VIBRATE"/>
-    <!--<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>-->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -42,6 +42,11 @@
        <activity android:name=".fragment.biblestories.favoritelist.favoritelist" />
       <activity android:name=".fragment.biblemusic.MusicFragment"/>
 <activity android:name=".fragment.achievement.LeaderBoard"/>
+<activity android:name=".fragment.devotional.DevotionalKids"
+    android:windowSoftInputMode="adjustResize"/>
+        <activity android:name=".fragment.biblemusic.VideoPlayerActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
         <activity android:name=".AvatarSelectionActivity" />
 
@@ -64,5 +69,6 @@
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
     </application>
+
 
 </manifest>
