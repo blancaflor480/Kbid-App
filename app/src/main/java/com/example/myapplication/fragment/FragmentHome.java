@@ -419,6 +419,5 @@ public class FragmentHome extends Fragment {
     private void navigateToBibledevotionalActivity() {
         Intent intent = new Intent(getActivity(), DevotionalKids.class);
         startActivity(intent);
-        Log.d("FragmentHome", "Navigating to Biblegames");
     }
 }

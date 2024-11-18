@@ -27,10 +27,6 @@
                     android:icon="@drawable/stories"
                     android:title="@string/menu_stories"/>
                 <item
-                    android:id="@+id/nav_song"
-                    android:icon="@drawable/music"
-                    android:title="@string/menu_song"/>
-                <item
                     android:id="@+id/nav_video"
                     android:icon="@drawable/video"
                     android:title="@string/menu_video"/>
@@ -38,6 +34,11 @@
                     android:id="@+id/nav_games"
                     android:icon="@drawable/games"
                     android:title="@string/menu_game"/>
+                <item
+                    android:id="@+id/nav_devotional"
+                    android:icon="@drawable/chatdevotional"
+                    android:title="@string/menu_devotional"/>
+
 
             </menu>
         </item>

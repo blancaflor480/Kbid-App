@@ -37,9 +37,15 @@
         tools:layout="@layout/fragment_games_fourpics" />
 
     <fragment
-        android:id="@+id/nav_song"
+        android:id="@+id/nav_video"
         android:name="com.example.myapplication.ui.content.song.SongFragment"
-        android:label="@string/menu_song"
+        android:label="@string/menu_video"
+        tools:layout="@layout/fragment_song_admin" />
+
+    <fragment
+        android:id="@+id/nav_devotional"
+        android:name="com.example.myapplication.ui.content.devotional.KidsDevotionalFragment"
+        android:label="@string/menu_devotional"
         tools:layout="@layout/fragment_song_admin" />
 
 
