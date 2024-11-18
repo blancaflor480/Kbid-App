@@ -22,16 +22,19 @@ public class DevotionalModel {
     private String memoryverse;
     private String reflectionanswer;
     private String imageUrl;
+    private String email;
+    private String controlId;
 
     @TypeConverters(Converters.class)  // Use the custom converter for Timestamp
     private Timestamp timestamp;
     private String formattedTimestamp;
 
     // No-argument constructor required for Firebase deserialization and Room
-    public DevotionalModel() {}
+    public DevotionalModel() {
+    }
 
     // Constructor with all arguments
-    public DevotionalModel(@NonNull String id, String title, String verse, String memoryverse, String reflectionanswer, String imageUrl, Timestamp timestamp) {
+    public DevotionalModel(@NonNull String id, String title, String verse, String memoryverse, String reflectionanswer, String imageUrl, Timestamp timestamp,String email,String controlId ) {
         this.id = id;
         this.title = title;
         this.verse = verse;
@@ -39,6 +42,8 @@ public class DevotionalModel {
         this.reflectionanswer = reflectionanswer;
         this.imageUrl = imageUrl;
         this.timestamp = timestamp;
+        this.email = email;
+        this.controlId = controlId;
     }
 
     // Getters and setters
@@ -104,6 +109,22 @@ public class DevotionalModel {
 
     public void setTimestamp(Timestamp timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public String getControlId() {
+        return controlId;
+    }
+
+    public void setControlId(String controlId) {
+        this.controlId = controlId;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
 }

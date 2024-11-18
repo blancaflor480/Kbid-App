@@ -136,12 +136,12 @@ public class ChildAgeActivity extends AppCompatActivity {
 
             // Update validation message and enable button if the age is 12 or under
             if (age <= 12) {
-                validationAge.setText("Your Age: " + age + " Child");
+                validationAge.setText("Your Age: " + age);
                 buttonContinue.setEnabled(true);
                 buttonContinue.setBackgroundResource(R.drawable.btn_getstarted);
                 buttonContinue.setTextColor(Color.WHITE);
             } else {
-                validationAge.setText("Your Age: " + age + " Teen - You must be 12 or younger to proceed");
+                validationAge.setText("Your Age: " + age);
                 buttonContinue.setEnabled(false);
                 buttonContinue.setBackground(ContextCompat.getDrawable(this, R.drawable.btn_disbaled));
                 buttonContinue.setTextColor(getResources().getColor(R.color.black));
