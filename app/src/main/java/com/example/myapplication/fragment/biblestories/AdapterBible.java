@@ -2,7 +2,6 @@ package com.example.myapplication.fragment.biblestories;
 
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,8 +27,12 @@ public class AdapterBible extends RecyclerView.Adapter<AdapterBible.MyHolder> {
         this.bibleVerseList = bibleVerseList;
     }
 
+    /**
+     * Update the list of stories and refresh the RecyclerView.
+     */
     public void updateStories(List<ModelBible> newStories) {
-        this.bibleVerseList = newStories;
+        this.bibleVerseList.clear(); // Clear the existing list
+        this.bibleVerseList.addAll(newStories); // Add new data
         notifyDataSetChanged(); // Notify the adapter that the data has changed
     }
 
@@ -44,63 +47,50 @@ public class AdapterBible extends RecyclerView.Adapter<AdapterBible.MyHolder> {
     public void onBindViewHolder(@NonNull MyHolder holder, int position) {
         ModelBible bibleVerse = bibleVerseList.get(position);
 
-        // Debug: Log the ID and isCompleted status
         String isCompleted = bibleVerse.getIsCompleted();
-        Log.d("BibleFragment", "Binding story ID: " + bibleVerse.getId() + ", isCompleted: " + isCompleted);
 
-        // Always load the image into profiletv
-        String imageUrl = bibleVerse.getImageUrl();
-        if (imageUrl != null && !imageUrl.isEmpty()) {
-            Log.d("BibleFragment", "Loading image for story ID: " + bibleVerse.getId() + ", URL: " + imageUrl);
-
-            // Clear any previous Glide load
-            Glide.with(context).clear(holder.profiletv);
-
-            // Load the image asynchronously using Glide
-            Glide.with(context)
-                    .load(imageUrl)
-                    .placeholder(R.drawable.image) // Default placeholder while loading
-                    .error(R.drawable.image)       // Fallback error image
-                    .into(holder.profiletv);
-        } else {
-            Log.d("BibleFragment", "No image URL for story ID: " + bibleVerse.getId());
-            holder.profiletv.setImageResource(R.drawable.image); // Set default image if URL is empty
-        }
-
-        // Handle lock state
+        // Set visibility and transparency based on the lock state
         if ("locked".equalsIgnoreCase(isCompleted)) {
             holder.lockImage.setVisibility(View.VISIBLE); // Show lock image
-            holder.profiletv.setAlpha(0.1f); // Make profiletv semi-transparent
-            Log.d("BibleFragment", "Story is locked. Lock image displayed and profiletv transparency set for story ID: " + bibleVerse.getId());
+            holder.profiletv.setAlpha(0.3f); // Dim the image
+            holder.itemView.setOnClickListener(null); // Disable clicks on locked items
         } else {
             holder.lockImage.setVisibility(View.GONE); // Hide lock image
-            holder.profiletv.setAlpha(1.0f); // Make profiletv fully visible
-            Log.d("BibleFragment", "Story is unlocked. Lock image hidden and profiletv fully visible for story ID: " + bibleVerse.getId());
+            holder.profiletv.setAlpha(1.0f); // Fully visible
+            holder.itemView.setOnClickListener(v -> {
+                // Start the BiblePlay activity with the selected item data
+                Intent intent = new Intent(context, BiblePlay.class);
+                intent.putExtra("id", bibleVerse.getId());
+                intent.putExtra("title", bibleVerse.getTitle());
+                intent.putExtra("verse", bibleVerse.getVerse());
+                intent.putExtra("description", bibleVerse.getDescription());
+                intent.putExtra("imageUrl", bibleVerse.getImageUrl());
+                intent.putExtra("timestamp", bibleVerse.getTimestamp());
+                intent.putExtra("audioUrl", bibleVerse.getAudioUrl());
+                context.startActivity(intent);
+            });
         }
 
         // Set Title and Verse
         holder.title.setText(bibleVerse.getTitle());
         holder.verse.setText(bibleVerse.getVerse());
 
-        // Item Click Listener
-        holder.itemView.setOnClickListener(v -> {
-            Log.d("BibleFragment", "Story ID " + bibleVerse.getId() + " clicked.");
-            Intent intent = new Intent(context, BiblePlay.class);
-            intent.putExtra("id", bibleVerse.getId());
-            intent.putExtra("title", bibleVerse.getTitle());
-            intent.putExtra("verse", bibleVerse.getVerse());
-            intent.putExtra("description", bibleVerse.getDescription());
-            intent.putExtra("imageUrl", bibleVerse.getImageUrl());
-            intent.putExtra("timestamp", bibleVerse.getTimestamp());
-            intent.putExtra("audioUrl", bibleVerse.getAudioUrl());
-            context.startActivity(intent);
-        });
+        // Load the image using Glide
+        Glide.with(context)
+                .load(bibleVerse.getImageUrl())
+                .placeholder(R.drawable.image)
+                .error(R.drawable.image)
+                .into(holder.profiletv);
     }
 
-
-
-
-
+    /**
+     * Method to update the lock state and refresh the adapter.
+     * Call this method when a story is unlocked.
+     */
+    public void updateLockState(int position, String newStatus) {
+        bibleVerseList.get(position).setIsCompleted(newStatus); // Update the status
+        notifyItemChanged(position); // Refresh the specific item
+    }
 
 
     @Override
@@ -108,6 +98,9 @@ public class AdapterBible extends RecyclerView.Adapter<AdapterBible.MyHolder> {
         return bibleVerseList.size();
     }
 
+    /**
+     * ViewHolder class for RecyclerView items.
+     */
     class MyHolder extends RecyclerView.ViewHolder {
         TextView title, verse;
         ImageView profiletv, lockImage;

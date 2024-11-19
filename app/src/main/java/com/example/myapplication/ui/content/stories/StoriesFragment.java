@@ -30,6 +30,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -304,27 +305,50 @@ public class StoriesFragment extends Fragment {
     // Method to upload story to Firestore
     private void uploadStoryToFirestore(String imageUrl, String title, String verse, String description, String isCompleted, String audioUrl) {
         Date currentDate = new Date(); // Get the current date and time
-        ModelStories story = new ModelStories(title, verse, description, imageUrl, null, isCompleted, currentDate, audioUrl); // Pass null for ID initially
 
-        db.collection("stories").add(story)
-                .addOnSuccessListener(documentReference -> {
-                    // Set the document ID in the story model
-                    story.setId(documentReference.getId()); // Get the document ID
+        // Fetch the current highest count from Firestore
+        db.collection("stories")
+                .orderBy("count", Query.Direction.DESCENDING)
+                .limit(1)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    int nextCount = 1; // Default starting count
 
-                    // Update the Firestore document with the model containing the ID
-                    db.collection("stories").document(documentReference.getId()).set(story)
-                            .addOnSuccessListener(aVoid -> {
-                                Snackbar.make(getView(), "Story added.", Snackbar.LENGTH_SHORT).show();
-                                getAllStories();
+                    // If there are stories, get the highest count and increment it
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        DocumentSnapshot highestCountDoc = queryDocumentSnapshots.getDocuments().get(0);
+                        nextCount = highestCountDoc.getLong("count").intValue() + 1;
+                    }
+
+                    // Create the story model with the incremented count
+                    ModelStories story = new ModelStories(title, verse, description, imageUrl, null, isCompleted, currentDate, audioUrl);
+                    story.setCount(nextCount);
+
+                    // Add the story to Firestore
+                    db.collection("stories").add(story)
+                            .addOnSuccessListener(documentReference -> {
+                                // Set the document ID in the story model
+                                story.setId(documentReference.getId());
+
+                                // Update the Firestore document with the model containing the ID
+                                db.collection("stories").document(documentReference.getId()).set(story)
+                                        .addOnSuccessListener(aVoid -> {
+                                            Snackbar.make(getView(), "Story added.", Snackbar.LENGTH_SHORT).show();
+                                            getAllStories(); // Refresh the list of stories
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            Snackbar.make(getView(), "Failed to update story with ID.", Snackbar.LENGTH_SHORT).show();
+                                        });
                             })
                             .addOnFailureListener(e -> {
                                 Snackbar.make(getView(), "Failed to add story.", Snackbar.LENGTH_SHORT).show();
                             });
                 })
                 .addOnFailureListener(e -> {
-                    Snackbar.make(getView(), "Failed to add story.", Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(getView(), "Failed to fetch current count.", Snackbar.LENGTH_SHORT).show();
                 });
     }
+
 
 
 }

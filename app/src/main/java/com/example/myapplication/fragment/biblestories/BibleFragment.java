@@ -33,8 +33,10 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import android.media.MediaPlayer;
 
@@ -152,45 +154,48 @@ public class BibleFragment extends AppCompatActivity {
     private void refreshBibleStories() {
         swipeRefreshLayout.setRefreshing(true);
 
-        if (isOnline()) {
-            fetchFromFirestore();
-        } else {
-            Executors.newSingleThreadExecutor().execute(() -> {
-                List<ModelBible> localStories = appDatabase.bibleDao().getAllBibleStories();
+        Executors.newSingleThreadExecutor().execute(() -> {
+            // Always fetch stories from SQLite first
+            List<ModelBible> localStories = appDatabase.bibleDao().getAllBibleStoriesSortedByTimestamp();
 
-                runOnUiThread(() -> {
-                    if (!localStories.isEmpty()) {
-                        if (adapterBible == null) {
-                            adapterBible = new AdapterBible(BibleFragment.this, localStories);
-                            recyclerView.setAdapter(adapterBible);
-                        } else {
-                            adapterBible.updateStories(localStories);
-                        }
+            runOnUiThread(() -> {
+                if (!localStories.isEmpty()) {
+                    // Display local stories in RecyclerView
+                    bibleStories.clear();
+                    bibleStories.addAll(localStories);
 
-                        recyclerView.setVisibility(View.VISIBLE);
-                        storiesSwitch.setVisibility(View.VISIBLE);
-                        playlist.setVisibility(View.VISIBLE);
-                        arrowback.setVisibility(View.VISIBLE);
-
-                        noConnectionAnimation.setVisibility(View.GONE);
-                        noConnectionMessage.setVisibility(View.GONE);
-                        restartButton.setVisibility(View.GONE);
+                    if (adapterBible == null) {
+                        adapterBible = new AdapterBible(BibleFragment.this, bibleStories);
+                        recyclerView.setAdapter(adapterBible);
                     } else {
-                        noConnectionAnimation.setVisibility(View.VISIBLE);
-                        noConnectionMessage.setVisibility(View.VISIBLE);
-                        restartButton.setVisibility(View.VISIBLE);
-
-                        recyclerView.setVisibility(View.GONE);
-                        storiesSwitch.setVisibility(View.GONE);
-                        playlist.setVisibility(View.GONE);
-                        arrowback.setVisibility(View.GONE);
-                        comingSoonTextView.setVisibility(View.GONE);
+                        adapterBible.updateStories(bibleStories);
                     }
-                });
-                runOnUiThread(() -> swipeRefreshLayout.setRefreshing(false));
+
+                    // Ensure UI visibility
+                    recyclerView.setVisibility(View.VISIBLE);
+                    storiesSwitch.setVisibility(View.VISIBLE);
+                    playlist.setVisibility(View.VISIBLE);
+                    arrowback.setVisibility(View.VISIBLE);
+                    comingSoonTextView.setVisibility(View.GONE);
+
+                    noConnectionAnimation.setVisibility(View.GONE);
+                    noConnectionMessage.setVisibility(View.GONE);
+                    restartButton.setVisibility(View.GONE);
+                } else {
+                    // Show "No Data" UI if SQLite is empty
+                    showNoConnectionUI();
+                }
+
+                // Trigger Firestore fetch to update data
+                if (isOnline()) {
+                    fetchFromFirestore();
+                }
+
+                swipeRefreshLayout.setRefreshing(false);
             });
-        }
+        });
     }
+
 
 
 
@@ -217,56 +222,121 @@ public class BibleFragment extends AppCompatActivity {
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && task.getResult() != null) {
-                        bibleStories.clear();
-                        for (DocumentSnapshot document : task.getResult()) {
-                            String id = document.getId();
-                            String title = document.getString("title");
-                            String description = document.getString("description");
-                            String verse = document.getString("verse");
-                            Timestamp timestamp = document.getTimestamp("timestamp");
-                            String imageUrl = document.getString("imageUrl");
-                            String audioUrl = document.getString("audioUrl");
-                            String isCompleted = document.getString("isCompleted");
+                        Executors.newSingleThreadExecutor().execute(() -> {
+                            // List to hold new stories to be added to SQLite
+                            List<ModelBible> newStories = new ArrayList<>();
 
-                            // Log to verify if isCompleted value is correct
-                            Log.d("FirestoreFetch", "isCompleted: " + isCompleted);
+                            for (DocumentSnapshot document : task.getResult()) {
+                                String id = document.getId();
+                                String title = document.getString("title");
+                                String description = document.getString("description");
+                                String verse = document.getString("verse");
+                                Timestamp timestamp = document.getTimestamp("timestamp");
+                                String imageUrl = document.getString("imageUrl");
+                                String audioUrl = document.getString("audioUrl");
 
-                            String formattedTimestamp = null;
-                            if (timestamp != null) {
-                                formattedTimestamp = Converters.fromTimestampToString(timestamp.toDate().getTime());
+                                // Safely retrieve the count value
+                                int count = 0; // Default value
+                                if (document.contains("count") && document.get("count") != null) {
+                                    try {
+                                        count = document.getLong("count").intValue();
+                                    } catch (Exception e) {
+                                        Log.e("FirestoreFetch", "Error parsing count for document ID: " + id, e);
+                                    }
+                                }
+
+                                // Convert Firestore timestamp to a long for SQLite compatibility
+                                long timestampMillis = timestamp != null ? timestamp.toDate().getTime() : 0;
+
+                                // Check if the story already exists in SQLite
+                                ModelBible localStory = appDatabase.bibleDao().getStoryById(id);
+
+                                // Retain the `isCompleted` status from SQLite if the story exists
+                                String isCompleted = (localStory != null) ? localStory.getIsCompleted() : document.getString("isCompleted");
+
+                                // Create a new ModelBible object
+                                ModelBible story = new ModelBible(
+                                        id,
+                                        title,
+                                        description,
+                                        verse,
+                                        String.valueOf(timestampMillis), // Store timestamp as String
+                                        imageUrl,
+                                        audioUrl,
+                                        isCompleted,
+                                        count
+                                );
+
+                                // Add only new stories to the list
+                                if (localStory == null) {
+                                    newStories.add(story);
+                                }
                             }
 
-                            // Create the story object with the correct isCompleted value
-                            ModelBible story = new ModelBible(id, title, description, verse, formattedTimestamp, imageUrl, audioUrl, isCompleted);
-                            bibleStories.add(story);
+                            // Insert new stories into SQLite in a batch
+                            if (!newStories.isEmpty()) {
+                                for (ModelBible newStory : newStories) {
+                                    appDatabase.bibleDao().insert(newStory);
+                                }
+                            }
 
-                            // Insert the story into SQLite and create an achievement entry
-                            Executors.newSingleThreadExecutor().execute(() -> {
-                                appDatabase.bibleDao().insert(story);
-                                StoryAchievementModel achievement = new StoryAchievementModel(
-                                        title, "Story Achievement", id, true);
-                                appDatabase.storyAchievementDao().insert(achievement);
+                            // Fetch the updated list of stories from SQLite
+                            List<ModelBible> updatedStories = appDatabase.bibleDao().getAllBibleStories();
+
+                            // Debugging: Log the fetched stories
+                            Log.d("SQLiteFetch", "Fetched " + updatedStories.size() + " stories from SQLite.");
+                            for (ModelBible story : updatedStories) {
+                                Log.d("SQLiteFetch", "Story ID: " + story.getId() + ", Title: " + story.getTitle() + ", isCompleted: " + story.getIsCompleted());
+                            }
+
+                            // Update the UI on the main thread
+                            runOnUiThread(() -> {
+                                if (updatedStories.isEmpty()) {
+                                    Log.e("RefreshError", "Updated stories list is empty after fetching from SQLite.");
+                                    // Show a fallback UI if no stories are available
+                                    showNoConnectionUI();
+                                } else {
+                                    // Update the list and notify the adapter
+                                    bibleStories.clear();
+                                    bibleStories.addAll(updatedStories);
+
+                                    if (adapterBible == null) {
+                                        adapterBible = new AdapterBible(BibleFragment.this, bibleStories);
+                                        recyclerView.setAdapter(adapterBible);
+                                    } else {
+                                        adapterBible.updateStories(bibleStories);
+                                    }
+
+                                    swipeRefreshLayout.setRefreshing(false);
+                                    Log.d("RefreshSuccess", "Bible stories successfully updated in the RecyclerView.");
+                                }
                             });
-                        }
+                        });
+                    } else {
+                        // Handle Firestore failure
+                        Log.e("FirestoreFetch", "Failed to fetch stories from Firestore.");
+                        swipeRefreshLayout.setRefreshing(false);
+                        Executors.newSingleThreadExecutor().execute(() -> {
+                            List<ModelBible> localStories = appDatabase.bibleDao().getAllBibleStories();
+                            runOnUiThread(() -> {
+                                if (localStories.isEmpty()) {
+                                    showNoConnectionUI();
+                                } else {
+                                    bibleStories.clear();
+                                    bibleStories.addAll(localStories);
 
-                        // Update RecyclerView
-                        if (adapterBible == null) {
-                            adapterBible = new AdapterBible(BibleFragment.this, bibleStories);
-                            recyclerView.setAdapter(adapterBible);
-                        } else {
-                            adapterBible.notifyDataSetChanged();
-                        }
+                                    if (adapterBible == null) {
+                                        adapterBible = new AdapterBible(BibleFragment.this, bibleStories);
+                                        recyclerView.setAdapter(adapterBible);
+                                    } else {
+                                        adapterBible.updateStories(bibleStories);
+                                    }
+                                    swipeRefreshLayout.setRefreshing(false);
+                                    Log.d("SQLiteFallback", "Displayed stories from SQLite after Firestore failure.");
+                                }
+                            });
+                        });
                     }
-                    swipeRefreshLayout.setRefreshing(false);
-                })
-                .addOnFailureListener(e -> {
-                    swipeRefreshLayout.setRefreshing(false);
-                    Executors.newSingleThreadExecutor().execute(() -> {
-                        List<ModelBible> localStories = appDatabase.bibleDao().getAllBibleStories();
-                        if (localStories.isEmpty()) {
-                            runOnUiThread(this::showNoConnectionUI);
-                        }
-                    });
                 });
     }
 
@@ -306,12 +376,22 @@ public class BibleFragment extends AppCompatActivity {
 
     private void loadAllStories() {
         Executors.newSingleThreadExecutor().execute(() -> {
-            // Fetch all stories from the database sorted by timestamp in descending order
+            // Fetch all stories sorted by timestamp
             List<ModelBible> allStories = appDatabase.bibleDao().getAllBibleStoriesSortedByTimestamp();
 
-            // Debugging: Log all stories and their isCompleted values
+            // Assign sequential count values starting from 1
+            int count = 1;
             for (ModelBible story : allStories) {
-                Log.d("LoadAllStories", "Story ID: " + story.getId() + ", Timestamp: " + story.getTimestamp() + ", isCompleted: " + story.getIsCompleted());
+                story.setCount(count);
+                count++;
+            }
+
+            // Debugging: Log the updated count values
+            for (ModelBible story : allStories) {
+                Log.d("LoadAllStories", "Story ID: " + story.getId() +
+                        ", Timestamp: " + story.getTimestamp() +
+                        ", isCompleted: " + story.getIsCompleted() +
+                        ", Count: " + story.getCount());
             }
 
             // Update the UI on the main thread
@@ -334,8 +414,6 @@ public class BibleFragment extends AppCompatActivity {
             });
         });
     }
-
-
 
 
     private void loadUpcomingStories() {

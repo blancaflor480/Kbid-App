@@ -9,6 +9,7 @@ public class ModelStories {
     private String description;
     private String isCompleted;
     private String email;
+    private int count;
     private String imageUrl;
     private String id; // This should match the Firestore document ID
     private Date timestamp;
@@ -20,11 +21,12 @@ public class ModelStories {
     }
 
     // Constructor with arguments
-    public ModelStories(String title, String type, String verse, String email, String imageUrl, String id, Date timestamp,  String description, String isCompleted, String audioUrl) {
+    public ModelStories(String title, String type, String verse, String email, int count, String imageUrl, String id, Date timestamp,  String description, String isCompleted, String audioUrl) {
         this.title = title;
         this.type = type;
         this.verse = verse;
         this.email = email;
+        this.count = count;
         this.imageUrl = imageUrl;
         this.id = id;
         this.timestamp = timestamp;
@@ -116,5 +118,13 @@ public class ModelStories {
 
     public void setIsCompleted(String isCompleted) {
         this.isCompleted = isCompleted;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
     }
 }

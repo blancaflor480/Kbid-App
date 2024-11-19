@@ -103,13 +103,17 @@ public class BiblePlay extends AppCompatActivity {
                         mediaPlayer.prepare();
                         mediaPlayer.start();
 
-                        // Start audio-based subtitle synchronization
+                        // Start subtitle synchronization
                         startAudioSynchronization();
 
+                        // Listener to unlock the next story when the audio completes
                         mediaPlayer.setOnCompletionListener(mp -> {
                             stopAudioSynchronization();
                             playButton.setVisibility(View.VISIBLE);
                             pauseButton.setVisibility(View.GONE);
+
+                            // Unlock the next story
+                            unlockNextStory(getCurrentStoryId());
                         });
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -117,7 +121,7 @@ public class BiblePlay extends AppCompatActivity {
                     }
                 } else {
                     mediaPlayer.start();
-                    startAudioSynchronization(); // Resume synchronization when media is resumed
+                    startAudioSynchronization();
                 }
 
                 playButton.setVisibility(View.GONE);
@@ -125,7 +129,7 @@ public class BiblePlay extends AppCompatActivity {
             } else {
                 if (mediaPlayer != null && mediaPlayer.isPlaying()) {
                     mediaPlayer.pause();
-                    stopAudioSynchronization(); // Pause synchronization when media is paused
+                    stopAudioSynchronization();
                 }
 
                 playButton.setVisibility(View.VISIBLE);
@@ -135,6 +139,64 @@ public class BiblePlay extends AppCompatActivity {
             isPlaying = play;
         }
     }
+
+
+    private void unlockNextStory(String currentStoryId) {
+        // Access the database
+        AppDatabase db = AppDatabase.getDatabase(this);
+        BibleDao bibleDao = db.bibleDao();
+
+        // Use an executor to perform the database operations in the background
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            Log.d("UnlockNextStory", "Fetching current story with ID: " + currentStoryId);
+
+            // Fetch the current story by ID
+            ModelBible currentStory = bibleDao.getStoryById(currentStoryId);
+            if (currentStory != null) {
+                Log.d("UnlockNextStory", "Current story fetched: " + currentStory.getId() +
+                        ", Count: " + currentStory.getCount() +
+                        ", isCompleted: " + currentStory.getIsCompleted());
+
+                // Mark the current story as "completed"
+                currentStory.setIsCompleted("completed");
+                bibleDao.update(currentStory);
+                Log.d("UnlockNextStory", "Current story marked as completed: " + currentStory.getId());
+
+                // Fetch the next story based on the count column
+                int nextCount = currentStory.getCount() + 1; // Increment the count to find the next story
+                ModelBible nextStory = bibleDao.getStoryByCount(nextCount);
+
+                if (nextStory != null) {
+                    Log.d("UnlockNextStory", "Next story fetched: " + nextStory.getId() +
+                            ", Count: " + nextStory.getCount() +
+                            ", isCompleted: " + nextStory.getIsCompleted());
+
+                    if ("locked".equalsIgnoreCase(nextStory.getIsCompleted())) {
+                        // Unlock the next story
+                        nextStory.setIsCompleted("unlocked");
+                        bibleDao.update(nextStory);
+                        Log.d("UnlockNextStory", "Next story unlocked: " + nextStory.getId());
+
+                        // Notify the user
+                        runOnUiThread(() -> Toast.makeText(BiblePlay.this, "Next story unlocked!", Toast.LENGTH_SHORT).show());
+                    } else {
+                        Log.d("UnlockNextStory", "Next story is already unlocked or completed: " + nextStory.getId());
+                    }
+                } else {
+                    Log.d("UnlockNextStory", "No story found with count: " + nextCount);
+                }
+            } else {
+                Log.e("UnlockNextStory", "Current story not found with ID: " + currentStoryId);
+            }
+
+            // Notify the user about the current story update
+            runOnUiThread(() -> Toast.makeText(BiblePlay.this, "Current story marked as completed!", Toast.LENGTH_SHORT).show());
+        });
+    }
+
+
+
 
     @Override
     protected void onResume() {
