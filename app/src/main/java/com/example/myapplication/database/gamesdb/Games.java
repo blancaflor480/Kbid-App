@@ -25,6 +25,10 @@ public class Games {
     private String imageUrl2;
     private String imageUrl3;
     private String imageUrl4;
+    private String localImagePath1; // Local file path for image 1
+    private String localImagePath2; // Local file path for image 2
+    private String localImagePath3; // Local file path for image 3
+    private String localImagePath4; // Local file path for image 4
     private String timestamp;
 
     // No-argument constructor
@@ -116,6 +120,37 @@ public class Games {
 
     public void setImageUrl4(String imageUrl4) {
         this.imageUrl4 = imageUrl4;
+    }
+    public String getLocalImagePath1() {
+        return localImagePath1;
+    }
+
+    public void setLocalImagePath1(String localImagePath1) {
+        this.localImagePath1 = localImagePath1;
+    }
+
+    public String getLocalImagePath2() {
+        return localImagePath2;
+    }
+
+    public void setLocalImagePath2(String localImagePath2) {
+        this.localImagePath2 = localImagePath2;
+    }
+
+    public String getLocalImagePath3() {
+        return localImagePath3;
+    }
+
+    public void setLocalImagePath3(String localImagePath3) {
+        this.localImagePath3 = localImagePath3;
+    }
+
+    public String getLocalImagePath4() {
+        return localImagePath4;
+    }
+
+    public void setLocalImagePath4(String localImagePath4) {
+        this.localImagePath4 = localImagePath4;
     }
 
     public String getTimestamp() {

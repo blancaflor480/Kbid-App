@@ -10,12 +10,6 @@
     android:padding="12dp"
     >
 
-            <LinearLayout
-                android:id="@+id/layer1"
-                android:layout_width="match_parent"
-                android:orientation="horizontal"
-                android:background="@color/white"
-                android:layout_height="301dp">
 
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
@@ -27,8 +21,8 @@
                         android:id="@+id/lock"
                         android:layout_width="match_parent"
                         android:layout_height="230dp"
-                        android:scaleType="centerCrop"
-                        android:src="@raw/lock"
+                        android:scaleType="centerInside"
+                        android:src="@raw/lockportrait"
                         android:alpha="0.8"
                         android:visibility="gone"
                         />
@@ -80,7 +74,7 @@
                 </androidx.cardview.widget.CardView>
 
 
-            </LinearLayout>
+
 
 
 </RelativeLayout>

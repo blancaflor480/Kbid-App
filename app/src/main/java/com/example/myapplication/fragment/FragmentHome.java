@@ -53,8 +53,13 @@ import com.bumptech.glide.request.transition.Transition;
 import com.bumptech.glide.request.target.Target;
 
 import java.text.BreakIterator;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -93,7 +98,7 @@ public class FragmentHome extends Fragment {
         star3 = view.findViewById(R.id.stars3);
         star4 = view.findViewById(R.id.stars4);
 
-
+        clickDevoional = view.findViewById(R.id.clickDevoional);
 
         // imageright = view.findViewById(R.id.cloudgifright);
         userNameTextView = view.findViewById(R.id.name);
@@ -111,6 +116,7 @@ public class FragmentHome extends Fragment {
 
         // Load user data
         loadUserData();
+        checkAgeEligibility();
 
         // Glide GIF loading
         Glide.with(this)
@@ -400,6 +406,70 @@ public class FragmentHome extends Fragment {
             Toast.makeText(requireContext(), "Google Sign-In failed", Toast.LENGTH_SHORT).show();
         }
     }
+
+    private void checkAgeEligibility() {
+        AsyncTask.execute(() -> {
+            // Fetch user data from the database
+            User user = userDao.getFirstUser();
+            if (user != null) {
+                String childBirthday = user.getChildBirthday(); // Assuming it's in MM-DD-YYYY format
+                if (childBirthday != null) {
+                    int userAge = calculateAgeFromBirthday(childBirthday);
+
+                    // Debug log
+                    Log.d("AgeEligibility", "Child's birthday: " + childBirthday + ", Calculated age: " + userAge);
+
+                    requireActivity().runOnUiThread(() -> {
+                        // Show or hide based on age eligibility
+                        if (userAge >= 10 && userAge <= 12) {
+                            clickDevoional.setVisibility(View.VISIBLE);
+                        } else {
+                            clickDevoional.setVisibility(View.GONE);
+                        }
+                    });
+                } else {
+                    Log.e("AgeEligibility", "Child's birthday is null");
+                }
+            } else {
+                Log.e("AgeEligibility", "No user found in the database");
+            }
+        });
+    }
+
+    private int calculateAgeFromBirthday(String birthday) {
+        try {
+            // Parse the birthday string in "MMMM-d-yyyy" format (e.g., "April-7-2012")
+            SimpleDateFormat sdf = new SimpleDateFormat("MMMM-d-yyyy", Locale.getDefault());
+            Date birthDate = sdf.parse(birthday);
+
+            // Set birth date in Calendar
+            Calendar birthCalendar = Calendar.getInstance();
+            birthCalendar.setTime(birthDate);
+
+            // Get today's date
+            Calendar today = Calendar.getInstance();
+
+            // Calculate age
+            int age = today.get(Calendar.YEAR) - birthCalendar.get(Calendar.YEAR);
+
+            // Adjust for the current day and month
+            if (today.get(Calendar.MONTH) < birthCalendar.get(Calendar.MONTH) ||
+                    (today.get(Calendar.MONTH) == birthCalendar.get(Calendar.MONTH) &&
+                            today.get(Calendar.DAY_OF_MONTH) < birthCalendar.get(Calendar.DAY_OF_MONTH))) {
+                age--;
+            }
+
+            return age;
+        } catch (ParseException e) {
+            e.printStackTrace();
+            Log.e("AgeEligibility", "Invalid date format: " + birthday);
+            return -1; // Return -1 for invalid birthday format
+        }
+    }
+
+
+
+
     private void navigateToBibleActivity() {
         Intent intent = new Intent(getActivity(), BibleFragment.class);
         startActivity(intent);
@@ -416,8 +486,20 @@ public class FragmentHome extends Fragment {
         startActivity(intent);
         Log.d("FragmentHome", "Navigating to Biblegames");
     }
+
     private void navigateToBibledevotionalActivity() {
-        Intent intent = new Intent(getActivity(), DevotionalKids.class);
-        startActivity(intent);
+        AsyncTask.execute(() -> {
+            User user = userDao.getFirstUser();
+            if (user != null) {
+                String email = user.getEmail(); // Get email
+                String controlId = user.getControlid(); // Get control ID
+
+                // Pass data using Intent
+                Intent intent = new Intent(getActivity(), DevotionalKids.class);
+                intent.putExtra("email", email); // Add email as an extra
+                intent.putExtra("controlId", controlId); // Add control ID as an extra
+                startActivity(intent);
+            }
+        });
     }
 }

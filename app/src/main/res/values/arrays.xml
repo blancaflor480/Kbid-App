@@ -15,4 +15,10 @@
         <item>New</item>
         <item>Old</item>
     </string-array>
+
+    <string-array name="option_status">
+        <item>locked</item>
+        <item>Unlocked</item>
+    </string-array>
+
 </resources>

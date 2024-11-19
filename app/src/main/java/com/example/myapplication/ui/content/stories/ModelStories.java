@@ -7,6 +7,7 @@ public class ModelStories {
     private String type;
     private String verse;
     private String description;
+    private String isCompleted;
     private String email;
     private String imageUrl;
     private String id; // This should match the Firestore document ID
@@ -19,7 +20,7 @@ public class ModelStories {
     }
 
     // Constructor with arguments
-    public ModelStories(String title, String type, String verse, String email, String imageUrl, String id, Date timestamp, String description, String audioUrl) {
+    public ModelStories(String title, String type, String verse, String email, String imageUrl, String id, Date timestamp,  String description, String isCompleted, String audioUrl) {
         this.title = title;
         this.type = type;
         this.verse = verse;
@@ -28,16 +29,18 @@ public class ModelStories {
         this.id = id;
         this.timestamp = timestamp;
         this.description = description;
+        this.isCompleted = isCompleted;
         this.audioUrl = audioUrl;
     }
 
     // Constructor for when the ID is needed
-    public ModelStories(String title, String verse, String description, String imageUrl, String id, Date timestamp, String audioUrl) {
+    public ModelStories(String title, String verse, String description, String imageUrl, String id, String isCompleted, Date timestamp, String audioUrl) {
         this.title = title;
         this.verse = verse;
         this.description = description;
         this.imageUrl = imageUrl;
         this.id = id; // Set the ID here
+        this.isCompleted = isCompleted;
         this.timestamp = timestamp;
         this.audioUrl = audioUrl;
     }
@@ -107,4 +110,11 @@ public class ModelStories {
         this.audioUrl = audioUrl;
     }
 
+    public String getIsCompleted() {
+        return isCompleted;
+    }
+
+    public void setIsCompleted(String isCompleted) {
+        this.isCompleted = isCompleted;
+    }
 }

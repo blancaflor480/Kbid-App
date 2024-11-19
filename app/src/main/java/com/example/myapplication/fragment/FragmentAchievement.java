@@ -136,6 +136,14 @@ public class FragmentAchievement extends Fragment {
         Log.d("FragmentAchievement", "Loading achievements for Story...");
         Executors.newSingleThreadExecutor().execute(() -> {
             List<StoryAchievementModel> storyAchievements = appDatabase.storyAchievementDao().getAchievementsForStory();
+
+            // Update the achievement statuses based on story completion
+            for (StoryAchievementModel achievement : storyAchievements) {
+                // Check if the associated story is completed
+                boolean isCompleted = appDatabase.bibleDao().isStoryCompleted(achievement.getStoryId());
+                achievement.setUnlock(isCompleted);  // Set the achievement status to unlocked if story is completed
+            }
+
             Log.d("FragmentAchievement", "Fetched " + storyAchievements.size() + " achievements for Story.");
 
             requireActivity().runOnUiThread(() -> {
@@ -143,6 +151,9 @@ public class FragmentAchievement extends Fragment {
             });
         });
     }
+
+
+
 
     private void loadGameAchievements() {
         Log.d("FragmentAchievement", "Loading achievements for Games...");
@@ -160,17 +171,25 @@ public class FragmentAchievement extends Fragment {
         storyList.clear();
 
         if (achievements.isEmpty()) {
-            // If no achievements are found for Games, show emptyMessage and hide RecyclerView
-            recyclepstory.setVisibility(View.GONE); // Hide RecyclerView
-            emptyMessage.setVisibility(View.VISIBLE); // Show empty message
+            recyclepstory.setVisibility(View.GONE);
+            emptyMessage.setVisibility(View.VISIBLE);
         } else {
-            // If achievements are found, show RecyclerView and hide emptyMessage
+            for (StoryAchievementModel achievement : achievements) {
+                // Change appearance based on unlocked status
+                if (achievement.getUnlock()) {
+                    achievement.setUnlock(Boolean.valueOf("Unlocked"));
+                } else {
+                    achievement.setUnlock(Boolean.valueOf("Locked"));
+                }
+            }
+
             storyList.addAll(achievements);
-            storyAdapter.notifyDataSetChanged(); // Update RecyclerView
-            recyclepstory.setVisibility(View.VISIBLE); // Show RecyclerView
-            emptyMessage.setVisibility(View.GONE); // Hide empty message
+            storyAdapter.notifyDataSetChanged();
+            recyclepstory.setVisibility(View.VISIBLE);
+            emptyMessage.setVisibility(View.GONE);
         }
     }
+
 
     private void Navigateleaderboard() {
         Intent intent = new Intent(getActivity(), LeaderBoard.class);

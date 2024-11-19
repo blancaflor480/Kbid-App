@@ -1,9 +1,8 @@
 package com.example.myapplication.fragment.biblestories.playlist;
 
+import android.content.Intent;
 import android.database.sqlite.SQLiteConstraintException;
 import android.os.Bundle;
-import android.speech.tts.TextToSpeech;
-import android.speech.tts.UtteranceProgressListener;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
@@ -11,10 +10,18 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.media.MediaPlayer;
+import android.net.Uri;
+import android.os.Handler;
+import java.util.ArrayList;
+import android.speech.RecognitionListener;
+import android.speech.RecognizerIntent;
 
+import android.speech.SpeechRecognizer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import androidx.appcompat.app.AppCompatActivity;
+
 
 import com.bumptech.glide.Glide;
 import com.example.myapplication.R;
@@ -33,13 +40,13 @@ public class BiblePlay extends AppCompatActivity {
 
     private TextView titleView, verseView, storyView;
     private ImageView thumbnail, arrowback;
-    private TextToSpeech textToSpeech;
-    private String[] sentences;
-    private int currentSentenceIndex = 0;
-    private boolean isPlaying = false; // Track play/pause state
-    private boolean isRepeatEnabled = false; // Track repeat state
-    private ImageButton playButton, pauseButton, repeatButton, restartButton, nextButton, previousButton;
-    private int lastSpokenSentenceIndex = -1;
+    private boolean isPlaying = false;
+    private boolean isRepeatEnabled = false;
+    private ImageButton playButton, pauseButton, repeatButton, restartButton;
+    private MediaPlayer mediaPlayer;
+    private String audioUrl;
+    private SpeechRecognizer speechRecognizer;
+    private Handler handler;
     private LinearLayout addplaylist;
 
 
@@ -52,81 +59,17 @@ public class BiblePlay extends AppCompatActivity {
         titleView = findViewById(R.id.title);
         verseView = findViewById(R.id.verse);
         repeatButton = findViewById(R.id.buttonrepeat);
-        restartButton = findViewById(R.id.buttonrestart); // Reference to the restart button
+        restartButton = findViewById(R.id.buttonrestart);
         storyView = findViewById(R.id.textstory);
         thumbnail = findViewById(R.id.thumbnail);
         arrowback = findViewById(R.id.arrowback);
-        playButton = findViewById(R.id.buttonplay); // Get reference to the play button
-        pauseButton = findViewById(R.id.buttonpause); // Get reference to the pause button
-        nextButton = findViewById(R.id.buttonnext); // Reference to the next button
-        previousButton = findViewById(R.id.buttonprevious); // Reference to the previous button
+        playButton = findViewById(R.id.buttonplay);
+        pauseButton = findViewById(R.id.buttonpause);
         addplaylist = findViewById(R.id.addplaylist);
-
-
-// Add this inside onCreate() after initializing addplaylist
-        addplaylist.setOnClickListener(v -> addStoryToFavorites());
-
-
-
-        // Initialize TextToSpeech
-        textToSpeech = new TextToSpeech(this, status -> {
-            if (status == TextToSpeech.SUCCESS) {
-                int result = textToSpeech.setLanguage(Locale.US);
-                textToSpeech.setSpeechRate(0.75f); // Set speech rate to 75% for slower narration
-                textToSpeech.setPitch(1.2f); // Adjust pitch for expressiveness
-
-                // Set UtteranceProgressListener
-                textToSpeech.setOnUtteranceProgressListener(new UtteranceProgressListener() {
-                    @Override
-                    public void onStart(String utteranceId) {
-                        runOnUiThread(() -> {
-                            playButton.setEnabled(true); // Enable play button during narration
-                            pauseButton.setEnabled(true); // Enable pause button during narration
-                        });
-                    }
-
-
-
-
-                    @Override
-                    public void onDone(String utteranceId) {
-                        runOnUiThread(() -> {
-                            currentSentenceIndex++;
-                            if (currentSentenceIndex < sentences.length) {
-                                fadeOutText(storyView, () -> readNextSentence()); // Read the next sentence
-                            } else {
-                                if (isRepeatEnabled) {
-                                    // Repeat the story from the beginning
-                                    currentSentenceIndex = 0;
-                                    readNextSentence();
-                                } else {
-                                    // End of narration handling
-                                    isPlaying = false; // Reset playing state
-                                    playButton.setVisibility(View.VISIBLE); // Show play button
-                                    pauseButton.setVisibility(View.GONE); // Hide pause button
-                                    currentSentenceIndex = 0;
-                                    lastSpokenSentenceIndex = -1; // Reset for next time
-                                    playButton.setEnabled(true);
-                                    loadNextStory(); // Automatically load the next story
-// Enable play button again
-                                }
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onError(String utteranceId) {
-                        runOnUiThread(() -> playButton.setEnabled(true)); // Enable play button on error
-                    }
-                });
-            }
-        });
-
         // Get data from intent
-        String id = getIntent().getStringExtra("id");
         String title = getIntent().getStringExtra("title");
         String verse = getIntent().getStringExtra("verse");
-        String description = getIntent().getStringExtra("description");
+        audioUrl = getIntent().getStringExtra("audioUrl");
         String imageUrl = getIntent().getStringExtra("imageUrl");
 
         // Set data to views
@@ -134,34 +77,70 @@ public class BiblePlay extends AppCompatActivity {
         verseView.setText(verse);
         setThumbnail(imageUrl);
 
-        // Initialize the story text with only the first sentence
-        sentences = description.split("\\. "); // Split text into sentences
-        if (sentences.length > 0) {
-            storyView.setText(sentences[0]); // Set only the first sentence initially
-        }
-
-        // Set click listeners for play, pause, repeat, restart, next, and previous buttons
+        // Set click listeners
         arrowback.setOnClickListener(v -> onBackPressed());
         playButton.setOnClickListener(v -> togglePlayPause(true));
         pauseButton.setOnClickListener(v -> togglePlayPause(false));
         repeatButton.setOnClickListener(v -> toggleRepeatMode());
-        restartButton.setOnClickListener(v -> restartStory()); // Set the restart button click listener
-        nextButton.setOnClickListener(v -> goToNextSentence()); // Next button listener
-        previousButton.setOnClickListener(v -> goToPreviousSentence()); // Previous button listener
+        restartButton.setOnClickListener(v -> restartStory());
 
         // Initially, show play button and hide pause button
         playButton.setVisibility(View.VISIBLE);
         pauseButton.setVisibility(View.GONE);
-        repeatButton.setBackgroundTintList(getResources().getColorStateList(R.color.greenlightning)); // Set initial color
+        repeatButton.setBackgroundTintList(getResources().getColorStateList(R.color.greenlightning));
+// Add this inside onCreate() after initializing addplaylist
+        addplaylist.setOnClickListener(v -> addStoryToFavorites());
+        handler = new Handler();
     }
 
+    private void togglePlayPause(boolean play) {
+        if (audioUrl != null && !audioUrl.isEmpty()) {
+            if (play) {
+                if (mediaPlayer == null) {
+                    mediaPlayer = new MediaPlayer();
+                    try {
+                        mediaPlayer.setDataSource(this, Uri.parse(audioUrl));
+                        mediaPlayer.prepare();
+                        mediaPlayer.start();
+
+                        // Start audio-based subtitle synchronization
+                        startAudioSynchronization();
+
+                        mediaPlayer.setOnCompletionListener(mp -> {
+                            stopAudioSynchronization();
+                            playButton.setVisibility(View.VISIBLE);
+                            pauseButton.setVisibility(View.GONE);
+                        });
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Toast.makeText(this, "Error playing audio", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    mediaPlayer.start();
+                    startAudioSynchronization(); // Resume synchronization when media is resumed
+                }
+
+                playButton.setVisibility(View.GONE);
+                pauseButton.setVisibility(View.VISIBLE);
+            } else {
+                if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+                    mediaPlayer.pause();
+                    stopAudioSynchronization(); // Pause synchronization when media is paused
+                }
+
+                playButton.setVisibility(View.VISIBLE);
+                pauseButton.setVisibility(View.GONE);
+            }
+
+            isPlaying = play;
+        }
+    }
 
     @Override
     protected void onResume() {
         super.onResume();
         checkIfStoryIsFavorite();
     }
-
     private void checkIfStoryIsFavorite() {
         String storyId = getCurrentStoryId(); // Get the current story ID as a string
         AppDatabase db = AppDatabase.getDatabase(this);
@@ -260,145 +239,78 @@ public class BiblePlay extends AppCompatActivity {
         FirebaseUser currentUser = auth.getCurrentUser();
         return currentUser != null ? currentUser.getUid() : null;
     }
+    private void startAudioSynchronization() {
+        // Stop any ongoing recognition before starting a new one
+        stopAudioSynchronization();
 
-////
+        // Using a handler to periodically fetch the current position and simulate subtitle sync
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+                    int currentPosition = mediaPlayer.getCurrentPosition();
+                    updateStoryText(currentPosition);
+                    handler.postDelayed(this, 1000); // Update every 1 second
+                }
+            }
+        }, 1000);
+    }
 
+    private void updateStoryText(int currentPosition) {
+        // Logic to update the storyView text based on the current position of the audio
+        // This is a placeholder implementation and should be updated with actual subtitle logic
+        storyView.setText("Playing at: " + currentPosition + " ms");
+    }
+
+    private void stopAudioSynchronization() {
+        if (handler != null) {
+            handler.removeCallbacksAndMessages(null);
+        }
+    }
+
+    private void restartStory() {
+        if (mediaPlayer != null) {
+            mediaPlayer.seekTo(0);
+            togglePlayPause(true); // Restart audio
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+        stopAudioSynchronization();
+        super.onDestroy();
+    }
 
     private void setThumbnail(String imageUrl) {
         if (imageUrl != null && !imageUrl.isEmpty()) {
             Glide.with(this)
                     .load(imageUrl)
-                    .placeholder(R.drawable.image) // Default image while loading
-                    .error(R.drawable.image) // Default image in case of error
+                    .placeholder(R.drawable.image)
+                    .error(R.drawable.image)
                     .into(thumbnail);
         } else {
             thumbnail.setImageResource(R.drawable.image);
         }
     }
 
-    private void togglePlayPause(boolean play) {
-        if (play) {
-            // Resume narration from the last spoken sentence
-            if (lastSpokenSentenceIndex >= 0 && lastSpokenSentenceIndex < sentences.length) {
-                currentSentenceIndex = lastSpokenSentenceIndex;
-                readNextSentence();
-            } else {
-                if (currentSentenceIndex < sentences.length) {
-                    readNextSentence();
-                } else {
-                    currentSentenceIndex = 0;
-                    readNextSentence();
-                }
-            }
-            playButton.setVisibility(View.GONE);
-            pauseButton.setVisibility(View.VISIBLE);
-        } else {
-            // Pause the narration
-            textToSpeech.stop(); // Stop speech temporarily
-            lastSpokenSentenceIndex = currentSentenceIndex; // Store the last spoken sentence index
-            playButton.setVisibility(View.VISIBLE);
-            pauseButton.setVisibility(View.GONE);
-        }
-        isPlaying = play;
-    }
-
     private void toggleRepeatMode() {
-        isRepeatEnabled = !isRepeatEnabled; // Toggle the repeat state
+        isRepeatEnabled = !isRepeatEnabled;
 
         if (isRepeatEnabled) {
-            // Change the background color to green when repeat is enabled
             repeatButton.setBackgroundTintList(getResources().getColorStateList(R.color.gray));
+            Toast.makeText(this, "Repeat mode enabled", Toast.LENGTH_SHORT).show();
         } else {
-            // Change the background color back to gray when repeat is disabled
             repeatButton.setBackgroundTintList(getResources().getColorStateList(R.color.greenlightning));
+            Toast.makeText(this, "Repeat mode disabled", Toast.LENGTH_SHORT).show();
+        }
+
+        if (mediaPlayer != null) {
+            mediaPlayer.setLooping(isRepeatEnabled);
         }
     }
 
-    private void restartStory() {
-        // Reset the story to the beginning
-        currentSentenceIndex = 0;
-        lastSpokenSentenceIndex = -1; // Reset the last spoken index
-        storyView.setText(sentences[0]); // Display the first sentence
-        togglePlayPause(true); // Start playing from the beginning
-    }
-
-    private void goToNextSentence() {
-        if (currentSentenceIndex < sentences.length - 1) {
-            currentSentenceIndex++;
-            storyView.setText(sentences[currentSentenceIndex]);
-            textToSpeech.speak(sentences[currentSentenceIndex], TextToSpeech.QUEUE_FLUSH, null, "SentenceID");
-            fadeInText(storyView);
-        }
-    }
-
-    private void goToPreviousSentence() {
-        if (currentSentenceIndex > 0) {
-            currentSentenceIndex--;
-            storyView.setText(sentences[currentSentenceIndex]);
-            textToSpeech.speak(sentences[currentSentenceIndex], TextToSpeech.QUEUE_FLUSH, null, "SentenceID");
-            fadeInText(storyView);
-        }
-    }
-
-    private void readNextSentence() {
-        if (currentSentenceIndex < sentences.length) {
-            String currentSentence = sentences[currentSentenceIndex];
-            storyView.setText(currentSentence);
-            textToSpeech.speak(currentSentence, TextToSpeech.QUEUE_FLUSH, null, "SentenceID");
-            fadeInText(storyView);
-            playButton.setVisibility(View.GONE);
-            pauseButton.setVisibility(View.VISIBLE);
-        } else {
-            // End of narration handling
-            isPlaying = false;
-            playButton.setVisibility(View.VISIBLE);
-            pauseButton.setVisibility(View.GONE);
-            currentSentenceIndex = 0;
-            playButton.setEnabled(true);
-        }
-    }
-
-
-    private void loadNextStory() {
-        // Assuming you have a way to get the current story ID, you should define it
-        String currentStoryId = getCurrentStoryId(); // Implement this method to retrieve the current story ID
-
-        BibleDatabaseHelper dbHelper = new BibleDatabaseHelper(this);
-        ModelBible nextStory = dbHelper.getNextStory(Integer.parseInt(currentStoryId));
-
-        if (nextStory != null) {
-            // Update UI with the new story details
-            titleView.setText(nextStory.getTitle());
-            verseView.setText(nextStory.getVerse());
-            sentences = nextStory.getDescription().split("\\. ");
-            storyView.setText(sentences[0]);
-            currentSentenceIndex = 0; // Reset index for the new story
-            readNextSentence(); // Start reading the next story
-        } else {
-            // No more stories
-            // Optionally, handle the end of stories (e.g., show a message)
-        }
-    }
-
-
-
-
-    private void fadeInText(TextView textView) {
-        textView.setAlpha(0f);
-        textView.animate().alpha(1f).setDuration(1000);
-    }
-
-    private void fadeOutText(TextView textView, Runnable endAction) {
-        textView.animate().alpha(0f).setDuration(1000).withEndAction(endAction);
-    }
-
-    @Override
-    protected void onDestroy() {
-        if (textToSpeech != null) {
-            textToSpeech.stop();
-            textToSpeech.shutdown();
-        }
-        lastSpokenSentenceIndex = -1;
-        super.onDestroy();
-    }
 }

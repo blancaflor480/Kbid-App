@@ -43,11 +43,13 @@
                 android:padding="5dp" />
 
             <ImageView
+                android:id="@+id/unlockachivements"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_marginRight="5dp"
                 android:layout_marginTop="10dp"
                 android:background="@raw/lock_achievement"
+                android:visibility="gone"
                 />
         </LinearLayout>
  </LinearLayout>

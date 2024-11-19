@@ -37,6 +37,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 public class LoginUser extends AppCompatActivity {
 
     private EditText inputEmail, inputPassword;
+    private TextView forgottedpassword;
     private Button buttonCreate;
     private MaterialButton buttonSignin;
     private RelativeLayout googlesignIn;
@@ -58,6 +59,7 @@ public class LoginUser extends AppCompatActivity {
 
         inputEmail = findViewById(R.id.inputEmail);
         inputPassword = findViewById(R.id.inputPassword);
+        forgottedpassword = findViewById(R.id.forgottedpassword);
         buttonSignin = findViewById(R.id.buttonSignin);
         googlesignIn = findViewById(R.id.googlesignIn);
         buttonCreate = findViewById(R.id.buttonCreate);
@@ -67,6 +69,7 @@ public class LoginUser extends AppCompatActivity {
         googlesignIn.setOnClickListener(v -> signInWithGoogle());
 
         buttonSignin.setOnClickListener(v -> loginUser());
+        forgottedpassword.setOnClickListener(v -> startActivity(new Intent(LoginUser.this, ForgetPassword.class)));
         buttonCreate.setOnClickListener(v -> startActivity(new Intent(LoginUser.this, SignupUser.class)));
     }
 

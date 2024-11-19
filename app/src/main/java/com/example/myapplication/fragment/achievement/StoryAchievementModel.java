@@ -26,12 +26,13 @@ public class StoryAchievementModel {
     private String title;
     private String type;
     private String storyId;
-    //private Boolean unlock;// Foreign key
+    private Boolean unlock;// Foreign key
 
-    public StoryAchievementModel(String title, String type, String storyId) {
+    public StoryAchievementModel(String title, String type, String storyId, Boolean unlock) {
         this.title = title;
         this.type = type;
         this.storyId = storyId;
+        this.unlock = unlock;
     }
 
 
@@ -68,6 +69,10 @@ public class StoryAchievementModel {
         this.storyId = storyId;
     }
 
-
-
+    public Boolean getUnlock() {
+        return unlock;
+    }
+    public void setUnlock(Boolean unlock) {
+        this.unlock = unlock;
+    }
 }

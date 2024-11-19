@@ -20,7 +20,7 @@ import com.example.myapplication.fragment.biblegames.fourpiconeword.FourPicOnewo
 
 public class GameDescriptionFourPics extends AppCompatActivity {
     ImageView arrowback;
-    ImageButton howtoplay;
+    AppCompatButton howtoplay;
     TextView play, level;
     int userId = 1;
     MediaPlayer clickSound; // MediaPlayer for sound effects

@@ -45,6 +45,12 @@
             android:layout_height="wrap_content"
             android:hint="Verse Bible" />
 
+        <Spinner
+            android:id="@+id/spinnerUnlock"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+             />
+
         <EditText
             android:id="@+id/etDescription"
             android:layout_width="match_parent"

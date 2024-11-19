@@ -22,12 +22,14 @@ public class ModelBible {
     private String timestamp;  // Change this to String for formatted date
     private String imageUrl; // New field for image URL
     private String audioUrl;
+    private String isCompleted;  // Fixed the typo here
+
     // No-argument constructor required by Firebase Firestore
     public ModelBible() {
     }
 
     // Constructor to initialize the ModelBible object
-    public ModelBible(@NonNull String id, String title, String description, String verse, String timestamp, String imageUrl, String audioUrl) {
+    public ModelBible(@NonNull String id, String title, String description, String verse, String timestamp, String imageUrl, String audioUrl, String isCompleted ) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -35,6 +37,7 @@ public class ModelBible {
         this.timestamp = timestamp; // Updated to String
         this.imageUrl = imageUrl;
         this.audioUrl = audioUrl;
+        this.isCompleted = isCompleted;  // Fixed the typo here
     }
 
     @NonNull
@@ -93,4 +96,11 @@ public class ModelBible {
         this.audioUrl = audioUrl;
     }
 
+    public String getIsCompleted() {  // Fixed method name
+        return isCompleted;
+    }
+
+    public void setIsCompleted(String isCompleted) {  // Fixed method name
+        this.isCompleted = isCompleted;
+    }
 }

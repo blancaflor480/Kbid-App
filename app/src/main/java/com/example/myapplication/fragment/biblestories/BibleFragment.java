@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -147,45 +148,34 @@ public class BibleFragment extends AppCompatActivity {
             clickSound = null;
         }
     }
-    // Function to refresh Bible stories manually only on swipe or restart button click
+
     private void refreshBibleStories() {
         swipeRefreshLayout.setRefreshing(true);
 
         if (isOnline()) {
-            // Hide "No Connection" UI components
-            noConnectionAnimation.setVisibility(View.GONE);
-            noConnectionMessage.setVisibility(View.GONE);
-            restartButton.setVisibility(View.GONE);
-
-            // Show RecyclerView and other content
-            recyclerView.setVisibility(View.VISIBLE);
-            storiesSwitch.setVisibility(View.VISIBLE);
-            playlist.setVisibility(View.VISIBLE);
-            arrowback.setVisibility(View.VISIBLE);
-
             fetchFromFirestore();
         } else {
-            // Check if there's any data in local storage
             Executors.newSingleThreadExecutor().execute(() -> {
                 List<ModelBible> localStories = appDatabase.bibleDao().getAllBibleStories();
-                if (!localStories.isEmpty()) {
-                    runOnUiThread(() -> {
-                        adapterBible = new AdapterBible(BibleFragment.this, localStories);
-                        recyclerView.setAdapter(adapterBible);
+
+                runOnUiThread(() -> {
+                    if (!localStories.isEmpty()) {
+                        if (adapterBible == null) {
+                            adapterBible = new AdapterBible(BibleFragment.this, localStories);
+                            recyclerView.setAdapter(adapterBible);
+                        } else {
+                            adapterBible.updateStories(localStories);
+                        }
 
                         recyclerView.setVisibility(View.VISIBLE);
                         storiesSwitch.setVisibility(View.VISIBLE);
                         playlist.setVisibility(View.VISIBLE);
                         arrowback.setVisibility(View.VISIBLE);
 
-                        // Hide "No Connection" UI because we have local data
                         noConnectionAnimation.setVisibility(View.GONE);
                         noConnectionMessage.setVisibility(View.GONE);
                         restartButton.setVisibility(View.GONE);
-                    });
-                } else {
-                    // Show "No Connection" UI if no local data is available
-                    runOnUiThread(() -> {
+                    } else {
                         noConnectionAnimation.setVisibility(View.VISIBLE);
                         noConnectionMessage.setVisibility(View.VISIBLE);
                         restartButton.setVisibility(View.VISIBLE);
@@ -195,13 +185,13 @@ public class BibleFragment extends AppCompatActivity {
                         playlist.setVisibility(View.GONE);
                         arrowback.setVisibility(View.GONE);
                         comingSoonTextView.setVisibility(View.GONE);
-                    });
-                }
-
+                    }
+                });
                 runOnUiThread(() -> swipeRefreshLayout.setRefreshing(false));
             });
         }
     }
+
 
 
     private void loadBibleStories() {
@@ -236,27 +226,30 @@ public class BibleFragment extends AppCompatActivity {
                             Timestamp timestamp = document.getTimestamp("timestamp");
                             String imageUrl = document.getString("imageUrl");
                             String audioUrl = document.getString("audioUrl");
+                            String isCompleted = document.getString("isCompleted");
+
+                            // Log to verify if isCompleted value is correct
+                            Log.d("FirestoreFetch", "isCompleted: " + isCompleted);
 
                             String formattedTimestamp = null;
                             if (timestamp != null) {
                                 formattedTimestamp = Converters.fromTimestampToString(timestamp.toDate().getTime());
                             }
 
-                            ModelBible story = new ModelBible(id, title, description, verse, formattedTimestamp, imageUrl, audioUrl);
+                            // Create the story object with the correct isCompleted value
+                            ModelBible story = new ModelBible(id, title, description, verse, formattedTimestamp, imageUrl, audioUrl, isCompleted);
                             bibleStories.add(story);
 
-                            // Insert story into SQLite and create an achievement entry
+                            // Insert the story into SQLite and create an achievement entry
                             Executors.newSingleThreadExecutor().execute(() -> {
-                                // Insert the story into the Bible table
                                 appDatabase.bibleDao().insert(story);
-
-                                // Create an achievement entry related to this story
                                 StoryAchievementModel achievement = new StoryAchievementModel(
-                                        title, "Story Achievement", id);
-                                appDatabase.storyAchievementDao().insert(achievement); // Ensure you have this method in the DAO
+                                        title, "Story Achievement", id, true);
+                                appDatabase.storyAchievementDao().insert(achievement);
                             });
                         }
 
+                        // Update RecyclerView
                         if (adapterBible == null) {
                             adapterBible = new AdapterBible(BibleFragment.this, bibleStories);
                             recyclerView.setAdapter(adapterBible);
@@ -276,7 +269,6 @@ public class BibleFragment extends AppCompatActivity {
                     });
                 });
     }
-
 
 
 
@@ -312,11 +304,17 @@ public class BibleFragment extends AppCompatActivity {
         comingSoonTextView.setVisibility(View.GONE);
     }
 
-
     private void loadAllStories() {
         Executors.newSingleThreadExecutor().execute(() -> {
-            List<ModelBible> allStories = appDatabase.bibleDao().getAllBibleStories();
+            // Fetch all stories from the database sorted by timestamp in descending order
+            List<ModelBible> allStories = appDatabase.bibleDao().getAllBibleStoriesSortedByTimestamp();
 
+            // Debugging: Log all stories and their isCompleted values
+            for (ModelBible story : allStories) {
+                Log.d("LoadAllStories", "Story ID: " + story.getId() + ", Timestamp: " + story.getTimestamp() + ", isCompleted: " + story.getIsCompleted());
+            }
+
+            // Update the UI on the main thread
             runOnUiThread(() -> {
                 if (allStories.isEmpty()) {
                     comingSoonTextView.setVisibility(View.VISIBLE);
@@ -324,12 +322,21 @@ public class BibleFragment extends AppCompatActivity {
                 } else {
                     comingSoonTextView.setVisibility(View.GONE);
                     recyclerView.setVisibility(View.VISIBLE);
-                    adapterBible = new AdapterBible(BibleFragment.this, allStories);
-                    recyclerView.setAdapter(adapterBible);
+
+                    // Initialize or update the adapter
+                    if (adapterBible == null) {
+                        adapterBible = new AdapterBible(BibleFragment.this, allStories);
+                        recyclerView.setAdapter(adapterBible);
+                    } else {
+                        adapterBible.updateStories(allStories); // Update adapter data
+                    }
                 }
             });
         });
     }
+
+
+
 
     private void loadUpcomingStories() {
         Executors.newSingleThreadExecutor().execute(() -> {

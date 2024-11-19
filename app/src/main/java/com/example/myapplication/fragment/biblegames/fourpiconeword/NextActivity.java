@@ -11,14 +11,15 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
 
 import com.example.myapplication.R;
 import com.example.myapplication.fragment.biblegames.GamesFragment;
 
 public class NextActivity extends AppCompatActivity {
 
-    ImageView arrowback;
-    Button nextButton;
+
+    AppCompatButton nextButton;
     int userId = 1;
     private LinearLayout answerBoxesLayout;
 
@@ -43,11 +44,11 @@ public class NextActivity extends AppCompatActivity {
 
 
         // Initialize arrowback ImageView
-        arrowback = findViewById(R.id.arrowback);
+
         nextButton = findViewById(R.id.nextButton);
 
         // Set the click listener for arrowback
-        arrowback.setOnClickListener(v -> onBackPressed());
+
         // Set the click listener for the nextButton
         // Handle back navigation
         nextButton.setOnClickListener(v -> {
