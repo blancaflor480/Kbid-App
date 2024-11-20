@@ -1,5 +1,7 @@
 package com.example.myapplication.fragment.devotional;
 
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -12,7 +14,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import android.app.AlarmManager;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
@@ -21,6 +23,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
 import com.example.myapplication.Notification.NotificationHelper;
+import com.example.myapplication.Notification.NotificationReceiver;
 import com.example.myapplication.R;
 import com.example.myapplication.SignupUser;
 import com.example.myapplication.database.AppDatabase;
@@ -77,7 +80,7 @@ public class DevotionalKids extends AppCompatActivity {
         String email = getIntent().getStringExtra("email");
         // Fetch devotional if not provided
         if (devotionalId == null) {
-            fetchFirstDevotionalId();
+            fetchTodayDevotional();
         } else {
             loadDevotional(devotionalId, controlId, email);
         }
@@ -85,6 +88,8 @@ public class DevotionalKids extends AppCompatActivity {
         updateCardColors();
         speechToTextButton.setOnClickListener(v -> startSpeechToText());
 
+        // Set up the alarm for 6 AM daily
+        scheduleDailyNotification();
         // Setup SwipeRefreshLayout listener
         swipeRefreshLayout.setOnRefreshListener(() -> loadDevotional(devotionalId, controlId, email));
 
@@ -114,6 +119,39 @@ public class DevotionalKids extends AppCompatActivity {
                 Log.e("TextToSpeech", "Initialization failed");
             }
         });
+    }
+
+    private void scheduleDailyNotification() {
+        // Get Calendar instance for 6 AM
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 6);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+
+        // If the time has already passed for today, schedule for tomorrow
+        if (calendar.getTimeInMillis() < System.currentTimeMillis()) {
+            calendar.add(Calendar.DAY_OF_YEAR, 1);
+        }
+
+        // Create an intent to send the notification
+        Intent intent = new Intent(this, NotificationReceiver.class);
+
+        // Use FLAG_IMMUTABLE since the PendingIntent doesn't need to be modified
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+        // Get the AlarmManager system service
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+        // Set a repeating alarm for every day at 6 AM
+        if (alarmManager != null) {
+            alarmManager.setRepeating(
+                    AlarmManager.RTC_WAKEUP,
+                    calendar.getTimeInMillis(),
+                    AlarmManager.INTERVAL_DAY, // Repeat daily
+                    pendingIntent);
+        } else {
+            Log.e("DevotionalKids", "AlarmManager is null");
+        }
     }
 
     private void updateCardColors() {
@@ -215,10 +253,21 @@ public class DevotionalKids extends AppCompatActivity {
     }
 
     // Fetch first devotional ID
-    private void fetchFirstDevotionalId() {
+    private void fetchTodayDevotional() {
+        // Get the current date
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+
+        Date todayStart = calendar.getTime();
+
+        // Query to fetch devotional entries sorted by timestamp
         db.collection("devotional")
+                .whereGreaterThanOrEqualTo("timestamp", todayStart) // Get devotionals after today's start
                 .orderBy("timestamp", Query.Direction.ASCENDING)
-                .limit(1)
+                .limit(1) // Get the closest devotional for today
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
                     if (!querySnapshot.isEmpty()) {
@@ -227,14 +276,15 @@ public class DevotionalKids extends AppCompatActivity {
                         String email = getIntent().getStringExtra("email");
                         loadDevotional(devotionalId, controlId, email);
                     } else {
-                        Toast.makeText(this, "No devotionals found in the database.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "No devotionals available for today.", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .addOnFailureListener(e -> {
-                    Log.e("DevotionalKids", "Error fetching devotional ID", e);
-                    Toast.makeText(this, "Failed to fetch devotional ID. Please check your connection.", Toast.LENGTH_SHORT).show();
+                    Log.e("DevotionalKids", "Error fetching today's devotional", e);
+                    Toast.makeText(this, "Failed to fetch devotional for today. Please check your connection.", Toast.LENGTH_SHORT).show();
                 });
     }
+
 
     // Load devotional data from Firestore
     private void loadDevotional(String id, String controlId, String email) {
@@ -259,6 +309,7 @@ public class DevotionalKids extends AppCompatActivity {
 
                             // Check if reflection is already submitted
                             checkReflectionStatus(controlId, email, id); // Check if reflection exists for this devotional
+
                         }
                     } else {
                         Toast.makeText(DevotionalKids.this, "No such document found.", Toast.LENGTH_SHORT).show();
@@ -270,6 +321,7 @@ public class DevotionalKids extends AppCompatActivity {
                     swipeRefreshLayout.setRefreshing(false);
                 });
     }
+
 
     // Update UI with devotional data
     private void updateUIWithDevotional(DevotionalModel devotional) {
@@ -312,6 +364,11 @@ public class DevotionalKids extends AppCompatActivity {
 
                         // Set the existing reflection in the EditText
                         answerreflection.setText(existingReflection);
+                    }
+                    else {
+                        // Enable reflection input if not yet submitted
+                        answerreflection.setEnabled(true);
+                        submit.setEnabled(true);
                     }
                 })
                 .addOnFailureListener(e -> {
@@ -425,9 +482,6 @@ public class DevotionalKids extends AppCompatActivity {
         dialog.show();
     }
 
-
-
-
     private void disableSubmitButton() {
         submit.setEnabled(false);
         submit.setText("Submitted");
@@ -470,8 +524,6 @@ public class DevotionalKids extends AppCompatActivity {
 
         dialog.show();
     }
-
-
     @Override
     protected void onDestroy() {
         if (textToSpeech != null) {
