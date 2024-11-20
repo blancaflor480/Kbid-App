@@ -16,7 +16,7 @@ public interface StoryAchievementDao {
     void insert(StoryAchievementModel achievement);
 
     // Query to get all achievements for Story
-    @Query("SELECT * FROM achievements WHERE type = 'Story Achievement'")
+    @Query("SELECT * FROM achievements WHERE type = 'Story Achievement' ORDER BY count ASC")
     List<StoryAchievementModel> getAchievementsForStory();
 
     // Query to get all achievements for Games

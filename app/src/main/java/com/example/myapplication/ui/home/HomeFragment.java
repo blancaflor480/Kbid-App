@@ -98,7 +98,7 @@ public class HomeFragment extends Fragment {
                                 .error(R.drawable.user) // Default image in case of error
                                 .into(profileImageView);
 
-                        if (role != null && (role.equalsIgnoreCase("SuperAdmin") || role.equalsIgnoreCase("Admin"))) {
+                        if (role != null && (role.equalsIgnoreCase("SuperAdmin") || role.equalsIgnoreCase("Teacher"))) {
                             // Proceed with the activity as the user has the appropriate role
                         } else {
                             Toast.makeText(getActivity(), "Access denied", Toast.LENGTH_SHORT).show();

@@ -47,7 +47,7 @@ public class DevotionalKids extends AppCompatActivity {
     TextView memoryverse, verse;
     AppCompatButton submit;
     EditText answerreflection;
-    ImageView devotionalThumbnail;
+    ImageView devotionalThumbnail,arrowback;
     SwipeRefreshLayout swipeRefreshLayout;
 
     private FirebaseFirestore db;
@@ -66,6 +66,8 @@ public class DevotionalKids extends AppCompatActivity {
         appDatabase = AppDatabase.getDatabase(this);
 
         // Link views
+        arrowback = findViewById(R.id.arrowback);
+        arrowback.setOnClickListener(v -> onBackPressed());
         memoryverse = findViewById(R.id.memoryverse);
         verse = findViewById(R.id.verse);
         devotionalThumbnail = findViewById(R.id.devotionalThumbnail);

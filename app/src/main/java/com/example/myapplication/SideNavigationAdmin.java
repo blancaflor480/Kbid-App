@@ -87,43 +87,43 @@ public class SideNavigationAdmin extends AppCompatActivity implements Navigation
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
             String uid = currentUser.getUid();
-            db.collection("admin").document(uid).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (document.exists()) {
-                            String email = document.getString("email");
-                            String firstName = document.getString("firstname");
-                            String lastName = document.getString("lastname");
-                            String imageUrl = document.getString("imageUrl");
+            db.collection("admin").document(uid).get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        String role = document.getString("role"); // Fetch the role
+                        String email = document.getString("email");
+                        String firstName = document.getString("firstname");
+                        String lastName = document.getString("lastname");
+                        String imageUrl = document.getString("imageUrl");
 
-                            String fullName = (firstName != null ? firstName : "") + " " + (lastName != null ? lastName : "");
+                        String fullName = (firstName != null ? firstName : "") + " " + (lastName != null ? lastName : "");
 
-                            View headerView = navigationView.getHeaderView(0);
-                            TextView userNameTextView = headerView.findViewById(R.id.userName);
-                            TextView userEmailTextView = headerView.findViewById(R.id.userEmail);
-                            CircleImageView userImageView = headerView.findViewById(R.id.imageView);
-                            userNameTextView.setText(fullName.trim());
-                            userEmailTextView.setText(email != null ? email : "No Email");
+                        View headerView = navigationView.getHeaderView(0);
+                        TextView userNameTextView = headerView.findViewById(R.id.userName);
+                        TextView userEmailTextView = headerView.findViewById(R.id.userEmail);
+                        CircleImageView userImageView = headerView.findViewById(R.id.imageView);
+                        userNameTextView.setText(fullName.trim());
+                        userEmailTextView.setText(email != null ? email : "No Email");
 
-                            // Load the profile image using Glide or show a default image
-                            if (imageUrl != null && !imageUrl.isEmpty()) {
-                                Glide.with(SideNavigationAdmin.this)
-                                        .load(imageUrl)
-                                        .placeholder(R.mipmap.ic_launcher_round) // Placeholder image
-                                        .error(R.mipmap.ic_launcher_round) // Default image in case of error
-                                        .into(userImageView);
-                            } else {
-                                // Show default image if no imageUrl is available
-                                userImageView.setImageResource(R.mipmap.ic_launcher_round);
-                            }
+                        // Load the profile image using Glide or show a default image
+                        if (imageUrl != null && !imageUrl.isEmpty()) {
+                            Glide.with(SideNavigationAdmin.this)
+                                    .load(imageUrl)
+                                    .placeholder(R.mipmap.ic_launcher_round) // Placeholder image
+                                    .error(R.mipmap.ic_launcher_round) // Default image in case of error
+                                    .into(userImageView);
                         } else {
-                            Toast.makeText(SideNavigationAdmin.this, "User data not found", Toast.LENGTH_SHORT).show();
+                            userImageView.setImageResource(R.mipmap.ic_launcher_round);
                         }
+
+                        // Customize navigation items based on the role
+                        customizeMenuForRole(navigationView.getMenu(), role);
                     } else {
-                        Toast.makeText(SideNavigationAdmin.this, "Failed to fetch user data", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(SideNavigationAdmin.this, "User data not found", Toast.LENGTH_SHORT).show();
                     }
+                } else {
+                    Toast.makeText(SideNavigationAdmin.this, "Failed to fetch user data", Toast.LENGTH_SHORT).show();
                 }
             });
         } else {
@@ -131,6 +131,23 @@ public class SideNavigationAdmin extends AppCompatActivity implements Navigation
             redirectToLogin();
         }
     }
+
+    private void customizeMenuForRole(Menu menu, String role) {
+        if ("Teacher".equalsIgnoreCase(role)) {
+            // Hide User and Admin menu items
+            menu.findItem(R.id.nav_user).setVisible(false);
+            menu.findItem(R.id.nav_admin).setVisible(false);
+        } else if ("SuperAdmin".equalsIgnoreCase(role)) {
+            // Show all menu items
+            menu.findItem(R.id.nav_user).setVisible(true);
+            menu.findItem(R.id.nav_admin).setVisible(true);
+        } else {
+            // Default case: Hide sensitive options
+            menu.findItem(R.id.nav_user).setVisible(false);
+            menu.findItem(R.id.nav_admin).setVisible(false);
+        }
+    }
+
 
 
 

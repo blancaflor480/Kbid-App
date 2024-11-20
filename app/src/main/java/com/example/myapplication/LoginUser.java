@@ -212,7 +212,7 @@ public class LoginUser extends AppCompatActivity {
                                             DocumentSnapshot adminDocument = adminTask.getResult();
                                             if (adminDocument.exists()) {
                                                 String role = adminDocument.getString("role");
-                                                if (role != null && (role.equals("Admin") || role.equals("SuperAdmin"))) {
+                                                if (role != null && (role.equals("Teacher") || role.equals("SuperAdmin"))) {
                                                     navigateToAdminDashboard();
                                                 } else {
                                                     showNoAccessMessage();

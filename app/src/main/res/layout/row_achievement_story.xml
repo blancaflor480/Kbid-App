@@ -51,6 +51,15 @@
                 android:background="@raw/lock_achievement"
                 android:visibility="gone"
                 />
+            <ImageView
+                android:id="@+id/starrewardachivements"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginTop="10dp"
+                android:background="@raw/starreward"
+                android:visibility="gone"
+                />
         </LinearLayout>
  </LinearLayout>
 

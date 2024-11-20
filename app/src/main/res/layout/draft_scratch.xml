@@ -1,340 +1,228 @@
+<?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#D4EEFF"
-    android:padding="10dp"
-    >
-    <androidx.cardview.widget.CardView
-        android:id="@+id/headertop"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardCornerRadius="30dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:cardBackgroundColor="#BAE3FF"
-        >
+    android:layout_height="wrap_content"
+    android:padding="30dp"
+    android:background="@drawable/confirmation_bg">
 
 
-        <LinearLayout
-            android:id="@+id/header"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center|top"
-            android:layout_marginTop="25dp"
-            android:orientation="horizontal"
-            android:weightSum="3">
 
-            <ImageView
-                android:id="@+id/arrowback"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="15dp"
-                android:layout_marginEnd="70dp"
-                android:layout_weight="1"
-                android:src="@drawable/left_arrowstory"
-                android:background="@drawable/shape_arrowstory"
-                android:layout_gravity="start" />
-
-            <!-- FrameLayout to overlap the level text and star image -->
-            <FrameLayout
-                android:id="@+id/startlevel_frame"
-                android:layout_width="120dp"
-                android:layout_height="120dp"
-                android:layout_weight="1"
-                android:layout_gravity="center">
-
-                <ImageView
-                    android:id="@+id/startlevel"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:padding="15dp"
-                    android:background="@raw/staryellow" />
-
-                <TextView
-                    android:id="@+id/level"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="1"
-                    android:layout_marginBottom="10dp"
-                    android:fontFamily="@font/gothamroundedbold"
-                    android:textStyle="bold"
-                    android:textSize="20sp"
-                    android:textColor="#5BA7FF"
-                    android:layout_gravity="center" />
-                <TextView
-                    android:id="@+id/titlelevel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Level"
-                    android:fontFamily="@font/gothamroundedbold"
-                    android:textSize="15sp"
-                    android:layout_marginTop="20dp"
-                    android:textColor="@color/white"
-                    android:layout_gravity="center" />
-            </FrameLayout>
-
-            <ImageView
-                android:id="@+id/sounds"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="15dp"
-                android:layout_weight="1"
-                android:src="@drawable/sounds"
-                android:layout_marginStart="60dp"
-                android:background="@drawable/shape_volume"
-                android:layout_gravity="end" />
-
-        </LinearLayout>
-
-
-        <GridLayout
-            android:id="@+id/imageGrid"
-            android:layout_below="@+id/header1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:rowCount="2"
-            android:columnCount="2"
-            android:layout_marginTop="180dp"
-            android:padding="5dp">
-
-            <androidx.cardview.widget.CardView
-                android:layout_width="0dp"
-                android:layout_height="130dp"
-                android:layout_columnWeight="1"
-                android:layout_rowWeight="1"
-                android:layout_margin="5dp"
-                app:cardCornerRadius="10dp"
-                app:cardBackgroundColor="@android:color/transparent">
-
-                <ImageView
-                    android:id="@+id/image1"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:src="@drawable/image"
-                    android:scaleType="centerCrop" />
-            </androidx.cardview.widget.CardView>
-
-            <androidx.cardview.widget.CardView
-                android:layout_width="0dp"
-                android:layout_height="130dp"
-                android:layout_columnWeight="1"
-                android:layout_rowWeight="1"
-                android:layout_margin="5dp"
-                app:cardCornerRadius="10dp"
-                app:cardBackgroundColor="@android:color/transparent">
-
-                <ImageView
-                    android:id="@+id/image2"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:src="@drawable/image"
-                    android:scaleType="centerCrop" />
-            </androidx.cardview.widget.CardView>
-
-            <androidx.cardview.widget.CardView
-                android:layout_width="0dp"
-                android:layout_height="130dp"
-                android:layout_columnWeight="1"
-                android:layout_rowWeight="1"
-                android:layout_margin="5dp"
-                app:cardCornerRadius="10dp"
-                app:cardBackgroundColor="@android:color/transparent">
-
-                <ImageView
-                    android:id="@+id/image3"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:src="@drawable/image"
-                    android:scaleType="centerCrop" />
-            </androidx.cardview.widget.CardView>
-
-            <androidx.cardview.widget.CardView
-                android:layout_width="0dp"
-                android:layout_height="130dp"
-                android:layout_columnWeight="1"
-                android:layout_rowWeight="1"
-                android:layout_margin="5dp"
-                app:cardCornerRadius="10dp"
-                app:cardBackgroundColor="@android:color/transparent">
-
-                <ImageView
-                    android:id="@+id/image4"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:src="@drawable/image"
-                    android:scaleType="centerCrop" />
-            </androidx.cardview.widget.CardView>
-        </GridLayout>
-        <!-- Answer boxes and keyboard -->
-
-    </androidx.cardview.widget.CardView>
-    <!-- Answer Boxes -->
-    <androidx.cardview.widget.CardView
-       android:id="@+id/answerBox1"
-        android:layout_width="match_parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/headertop"
-        android:orientation="vertical"
-        app:cardCornerRadius="15dp"
-        android:layout_marginTop="15dp"
-        app:cardBackgroundColor="@color/yelloworange"
-        app:contentPadding="12dp"
-        >
-
-        <LinearLayout
-            android:id="@+id/answerBoxes"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_gravity="center">
-
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
-    <!-- Keyboard Grid -->
     <LinearLayout
-        app:layout_constraintTop_toTopOf="@id/answerBox1"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:id="@+id/enteranswer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="20dp"
         >
+        <ImageButton
+            android:id="@+id/close"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/close"
+            />
 
-        <GridLayout
-            android:id="@+id/keyboardGrid"
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginBottom="20dp"
+        android:layout_marginStart="20dp"
+        >
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="5dp"
-            android:rowCount="2"
-            android:columnCount="5"
-            android:layout_gravity="center">
+            android:text="Profile"
+            android:textColor="@color/black"
+            android:textSize="25sp"
+            android:fontFamily="@font/dinroundedpro_bold" />
 
-            <!-- Row 1 -->
-            <Button
-                android:id="@+id/keyboardButton1"
-                android:layout_width="50dp"
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/profileFrame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="50dp">
+
+        <ImageView
+            android:id="@+id/avatar"
+            android:layout_width="150dp"
+            android:layout_height="155dp"
+            android:background="@drawable/circle_avatarbg"
+            android:scaleType="centerCrop"
+            android:src="@drawable/lion" />
+
+        <View
+            android:id="@+id/changeavatar"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:background="@drawable/editcircle"
+            android:layout_marginTop="90dp"
+            android:layout_marginStart="100dp" />
+
+        <ImageButton
+            android:id="@+id/changepf"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/change"
+            android:scaleType="centerInside"
+            android:layout_marginTop="100dp"
+            android:layout_marginStart="110dp" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@id/profileFrame"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/Editname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Name"
+            android:textColor="@color/black"
+            android:textSize="25sp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="5dp"
+            android:fontFamily="@font/dinroundedpro_bold" />
+        <TextView
+            android:id="@+id/controlnumber"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ID:"
+            android:layout_gravity="center"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="12dp"
+            android:fontFamily="@font/dinroundedpro_bold" />
+        <!-- Corrected here -->
+
+
+
+        <!--<EditText
+            android:id="@+id/Editname"
+            android:layout_width="match_parent"
+            android:layout_height="65dp"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/rounded_input_name"
+            android:ems="10"
+            android:fontFamily="@font/dinroundedpro_light"
+            android:inputType="text"
+            android:padding="15dp"
+            android:hint="Name"
+            android:textColorHint="@color/darkmin"
+            android:textColor="@color/darkmin"
+            android:textSize="18sp"
+            android:layout_marginBottom="20dp" />  -->
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Birthday"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:layout_marginBottom="10dp"
+            android:fontFamily="@font/dinroundedpro_bold" />
+
+        <EditText
+            android:id="@+id/Editage"
+            android:layout_width="match_parent"
+            android:layout_height="65dp"
+            android:background="@drawable/rounded_input_name"
+            android:ems="10"
+            android:fontFamily="@font/dinroundedpro_light"
+            android:inputType="text"
+            android:padding="15dp"
+            android:hint="January 01, 2010"
+            android:layout_marginBottom="20dp"
+            android:textColorHint="@color/darkmin"
+            android:textColor="@color/darkmin"
+            android:textSize="18sp"
+            android:focusable="false"
+            android:clickable="false"/>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="10dp"
+            android:gravity="center_vertical">
+
+            <View
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:background="@raw/google" />
+
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:text=""
-                android:padding="13dp"
+                android:text="oogle"
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                android:fontFamily="@font/dinroundedpro_bold"
+                android:layout_marginStart="1dp"/>
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="65dp"
+            android:background="@drawable/rounded_input_name">
+
+            <EditText
+                android:id="@+id/google"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignParentStart="true"
+                android:layout_toStartOf="@+id/connect"
+                android:background="@android:color/transparent"
+                android:ems="10"
+                android:fontFamily="@font/dinroundedpro_light"
+                android:hint="Google"
+                android:padding="15dp"
+                android:textColor="@color/darkmin"
+                android:textColorHint="@color/darkmin"
                 android:textSize="18sp"
-                android:backgroundTint="@color/white"
-                android:textColor="@color/black" />
+                android:focusable="false"
+                android:clickable="false" />
 
-            <Button
-                android:id="@+id/keyboardButton2"
-                android:layout_width="50dp"
-                android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:text=""
-                android:padding="13dp"
-                android:textSize="18sp"
-                android:backgroundTint="@color/white"
-                android:textColor="@color/black" />
-            <Button
-                android:id="@+id/keyboardButton3"
-                android:layout_width="50dp"
-                android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:text=""
-                android:padding="13dp"
-                android:textSize="18sp"
-                android:backgroundTint="@color/white"
-                android:textColor="@color/black" />
-            <Button
-                android:id="@+id/keyboardButton4"
-                android:layout_width="50dp"
-                android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:text=""
-                android:padding="13dp"
-                android:textSize="18sp"
-                android:backgroundTint="@color/white"
-                android:textColor="@color/black" />
-
-            <ImageButton
-                android:id="@+id/deleteButton"
-                android:layout_width="50dp"
-                android:layout_height="wrap_content"
-                android:background="@drawable/rounded_answer"
-                android:padding="13dp"
-                android:layout_marginTop="10dp"
-                android:backgroundTint="@color/lightred"
-                android:scaleType="centerCrop"
-                android:layout_margin="5dp"
-                android:clickable="true"
-                android:src="@drawable/delete_outline"
-                />
-
-            <Button
-                android:id="@+id/keyboardButton5"
-                android:layout_width="50dp"
-                android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:text=""
-                android:padding="13dp"
-                android:textSize="18sp"
-                android:backgroundTint="@color/white"
-                android:textColor="@color/black" />
-            <Button
-                android:id="@+id/keyboardButton6"
-                android:layout_width="50dp"
-                android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:text=""
-                android:padding="13dp"
-                android:textSize="18sp"
-                android:backgroundTint="@color/white"
-                android:textColor="@color/black" />
-            <Button
-                android:id="@+id/keyboardButton7"
-                android:layout_width="50dp"
-                android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:text=""
-                android:padding="13dp"
-                android:textSize="18sp"
-                android:backgroundTint="@color/white"
-                android:textColor="@color/black" />
-            <Button
-                android:id="@+id/keyboardButton8"
-                android:layout_width="50dp"
-                android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:text=""
-                android:padding="13dp"
-                android:textSize="18sp"
-                android:backgroundTint="@color/white"
-                android:textColor="@color/black" />
-
-            <ImageButton
-                android:id="@+id/shuffle"
-                android:layout_width="50dp"
-                android:layout_height="wrap_content"
-                android:background="@drawable/rounded_answer"
-                android:padding="13dp"
-                android:layout_marginTop="10dp"
-                android:backgroundTint="@color/green"
-                android:scaleType="centerCrop"
-                android:clickable="true"
-                android:layout_margin="5dp"
-                android:src="@drawable/shuffle"
-                />
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/connect"
+                android:layout_width="90dp"
+                android:layout_height="40dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:text="connect"
+                android:visibility="gone"
+                android:textSize="12sp"
+                android:layout_marginEnd="20dp"
+                android:fontFamily="@font/dinroundedpro_bold"
+                android:background="@drawable/btnplaybackground"/>
+        </RelativeLayout>
 
 
-
-
-
-            <!-- Repeat for other keyboard buttons... -->
-        </GridLayout>
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/save"
+            android:layout_width="match_parent"
+            android:layout_height="65dp"
+            android:layout_marginTop="16dp"
+            android:text="Save"
+            android:textColor="@android:color/white"
+            android:fontFamily="@font/dinroundedpro_bold"
+            android:textSize="18sp"
+            android:background="@drawable/btnplaybackground"/>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+

@@ -32,11 +32,13 @@ public class StoryAdapterAchievement extends RecyclerView.Adapter<StoryAdapterAc
         StoryAchievementModel story = storyList.get(position);
         holder.titleTextView.setText(story.getTitle());
 
-        // Update lock icon visibility based on isCompleted flag (using String comparison)
+        // Update lock and star reward icons based on the isCompleted flag
         if ("completed".equalsIgnoreCase(story.getIsCompleted())) {
-            holder.lockImageView.setVisibility(View.GONE);  // Hide lock icon when the story is completed/unlocked
+            holder.unlockAchievementsImageView.setVisibility(View.GONE); // Hide lock icon
+            holder.starRewardAchievementsImageView.setVisibility(View.VISIBLE); // Show star reward icon
         } else {
-            holder.lockImageView.setVisibility(View.VISIBLE); // Show lock icon when the story is not completed (locked)
+            holder.unlockAchievementsImageView.setVisibility(View.VISIBLE); // Show lock icon
+            holder.starRewardAchievementsImageView.setVisibility(View.GONE); // Hide star reward icon
         }
     }
 
@@ -45,14 +47,17 @@ public class StoryAdapterAchievement extends RecyclerView.Adapter<StoryAdapterAc
         return storyList.size();
     }
 
+    // ViewHolder for holding the UI components
     static class StoryViewHolder extends RecyclerView.ViewHolder {
         TextView titleTextView;
-        ImageView lockImageView;
+        ImageView unlockAchievementsImageView;  // Lock icon
+        ImageView starRewardAchievementsImageView; // Star reward icon
 
         public StoryViewHolder(@NonNull View itemView) {
             super(itemView);
             titleTextView = itemView.findViewById(R.id.titlep); // Replace with your actual TextView ID
-            lockImageView = itemView.findViewById(R.id.unlockachivements);  // This is your lock icon
+            unlockAchievementsImageView = itemView.findViewById(R.id.unlockachivements);  // This is your lock icon
+            starRewardAchievementsImageView = itemView.findViewById(R.id.starrewardachivements); // This is your star reward icon
         }
     }
 }

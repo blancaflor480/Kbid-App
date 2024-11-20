@@ -132,6 +132,7 @@ public class FragmentAchievement extends Fragment {
     private void loadStoryAchievements() {
         Log.d("FragmentAchievement", "Loading achievements for Story...");
         Executors.newSingleThreadExecutor().execute(() -> {
+            // Fetch the sorted achievements from the database
             List<StoryAchievementModel> storyAchievements = appDatabase.storyAchievementDao().getAchievementsForStory();
 
             // Update the achievement statuses based on story completion
@@ -145,13 +146,17 @@ public class FragmentAchievement extends Fragment {
                 }
             }
 
+            // Log the number of fetched achievements for debugging
             Log.d("FragmentAchievement", "Fetched " + storyAchievements.size() + " achievements for Story.");
 
+            // Update the UI on the main thread with the sorted achievements
             requireActivity().runOnUiThread(() -> {
                 updateAchievements(storyAchievements);
             });
         });
     }
+
+
 
     private void loadGameAchievements() {
         Log.d("FragmentAchievement", "Loading achievements for Games...");

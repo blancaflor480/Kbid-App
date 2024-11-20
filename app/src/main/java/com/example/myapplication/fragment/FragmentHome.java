@@ -160,9 +160,21 @@ public class FragmentHome extends Fragment {
         });
 
         clickDevoional.setOnClickListener(v -> {
-            playClickSound(); // Play sound effect
-            navigateToBibledevotionalActivity();
+            AsyncTask.execute(() -> {
+                User user = userDao.getFirstUser();
+                requireActivity().runOnUiThread(() -> {
+                    if (user != null && user.getControlid() != null && !user.getControlid().isEmpty()) {
+                        playClickSound(); // Play sound effect
+                        navigateToBibledevotionalActivity(); // Navigate if controlid exists
+                    } else {
+                        // Set button visibility to GONE if controlid is not available
+                        clickDevoional.setVisibility(View.GONE);
+                        Toast.makeText(getContext(), "Devotional is not available for this user.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            });
         });
+
 
         // Set up notification button click listener
         notif.setOnClickListener(v -> {
@@ -421,7 +433,7 @@ public class FragmentHome extends Fragment {
 
                     requireActivity().runOnUiThread(() -> {
                         // Show or hide based on age eligibility
-                        if (userAge >= 10 && userAge <= 12) {
+                        if (userAge >= 8 && userAge <= 12) {
                             clickDevoional.setVisibility(View.VISIBLE);
                         } else {
                             clickDevoional.setVisibility(View.GONE);

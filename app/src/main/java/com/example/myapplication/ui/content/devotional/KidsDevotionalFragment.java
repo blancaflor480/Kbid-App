@@ -95,7 +95,7 @@ public class KidsDevotionalFragment extends Fragment {
                 loadAllmemoryverse(); // Load achievements for All Memory Verse
             } else if (checkedId == R.id.viewreflection) {
                 setRadioButtonStyle(viewReflection, true);
-                loadviewreflection(); // Load achievements for View Reflection
+                loadViewReflection(); // Load achievements for View Reflection
             }
         });
 
@@ -175,33 +175,37 @@ public class KidsDevotionalFragment extends Fragment {
         });
     }
 
-    private void loadviewreflection() {
+    private void loadViewReflection() {
         CollectionReference reflectionRef = db.collection("kidsReflection");
-        reflectionRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                if (error != null) {
-                    notFoundTextView.setVisibility(View.VISIBLE);
-                    recyclerView.setVisibility(View.GONE);
-                    return;
+        reflectionRef.addSnapshotListener((value, error) -> {
+            if (error != null) {
+                notFoundTextView.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.GONE);
+                return;
+            }
+
+            if (value == null || value.isEmpty()) {
+                notFoundTextView.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.GONE);
+            } else {
+                notFoundTextView.setVisibility(View.GONE);
+                recyclerView.setVisibility(View.VISIBLE);
+
+                List<ModelReflection> reflectionList = new ArrayList<>(); // Use the correct type
+                for (QueryDocumentSnapshot document : value) {
+                    ModelReflection reflection = document.toObject(ModelReflection.class);
+                    reflectionList.add(reflection);
                 }
-                if (value == null || value.isEmpty()) {
-                    notFoundTextView.setVisibility(View.VISIBLE);
-                    recyclerView.setVisibility(View.GONE);
-                } else {
-                    notFoundTextView.setVisibility(View.GONE);
-                    recyclerView.setVisibility(View.VISIBLE);
-                    contentList.clear();
-                    for (QueryDocumentSnapshot document : value) {
-                        ModelDevotional reflection = document.toObject(ModelDevotional.class);
-                        contentList.add(reflection);
-                    }
-                    adapterDevotional = new AdapterDevotional(getActivity(), contentList);
-                    recyclerView.setAdapter(adapterDevotional);
-                }
+
+                // Initialize AdapterReflection with the correct data type
+                AdapterReflection adapterReflection = new AdapterReflection(getActivity(), reflectionList);
+                recyclerView.setAdapter(adapterReflection);
             }
         });
     }
+
+
+
 
     private void filterContent(String query) {
         List<ModelDevotional> filteredList = new ArrayList<>();
