@@ -1,10 +1,5 @@
 package com.example.myapplication.fragment.achievement;
 
-import android.content.ContentValues;
-import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
-
-import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
@@ -26,15 +21,16 @@ public class StoryAchievementModel {
     private String title;
     private String type;
     private String storyId;
-    private Boolean unlock;// Foreign key
+    private String isCompleted;
+    private int count; // Foreign key
 
-    public StoryAchievementModel(String title, String type, String storyId, Boolean unlock) {
+    public StoryAchievementModel(String title, String type, String isCompleted, int count, String storyId) {
         this.title = title;
         this.type = type;
         this.storyId = storyId;
-        this.unlock = unlock;
+        this.isCompleted = isCompleted;
+        this.count = count;
     }
-
 
     // Getters and setters
     public int getId() {
@@ -69,10 +65,20 @@ public class StoryAchievementModel {
         this.storyId = storyId;
     }
 
-    public Boolean getUnlock() {
-        return unlock;
+    // Corrected getter method for 'isCompleted'
+    public String getIsCompleted() {
+        return isCompleted;
     }
-    public void setUnlock(Boolean unlock) {
-        this.unlock = unlock;
+
+    public void setIsCompleted(String isCompleted) {
+        this.isCompleted = isCompleted;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
     }
 }

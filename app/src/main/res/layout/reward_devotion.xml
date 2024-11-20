@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="480dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardBackgroundColor="#FFFFFF"
+    app:cardCornerRadius="20dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="16dp">
+
+        <ImageView
+            android:id="@+id/gifhands"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            android:src="@raw/prayersign"
+            android:layout_gravity="center"
+            android:scaleType="centerCrop" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Congrats"
+            android:textSize="25sp"
+            android:fontFamily="@font/gothamroundedbold"
+            android:textColor="#e6b12f"
+             />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="You've earned the Memory \nVerse medal"
+            android:textSize="15sp"
+            android:fontFamily="@font/gothamroundedbold"
+            android:textAlignment="center"
+            android:textColor="@color/black"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="15dp"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/continuebutton"
+            android:layout_width="150dp"
+            android:layout_height="50dp"
+            android:background="@drawable/shadow3dbutton"
+            android:text="Continue"
+            android:fontFamily="@font/gothamroundedbold"
+            />
+
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

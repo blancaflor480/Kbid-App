@@ -217,7 +217,6 @@ public class KidsDevotionalFragment extends Fragment {
     private void showAddContentDialog() {
         View addView = getLayoutInflater().inflate(R.layout.dialog_add_memoryverse, null);
 
-        // Handle story-specific input fields
         EditText etTitle = addView.findViewById(R.id.title);
         EditText etVerse = addView.findViewById(R.id.verse);
         EditText etMemoryverse = addView.findViewById(R.id.memoryverse);
@@ -230,27 +229,33 @@ public class KidsDevotionalFragment extends Fragment {
             startActivityForResult(intent, PICK_IMAGE_REQUEST);
         });
 
-        etDate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showDatePicker(etDate);
-            }
-        });
+        etDate.setOnClickListener(v -> showDatePicker(etDate));
 
-        // Create and show the dialog
         new AlertDialog.Builder(getContext())
                 .setView(addView)
                 .setPositiveButton("Add", (dialog, which) -> {
                     String title = etTitle.getText().toString();
                     String verse = etVerse.getText().toString();
                     String memoryVerse = etMemoryverse.getText().toString();
+                    String dateStr = etDate.getText().toString();
 
-                    if (imageUri != null) {
-                        // Upload image
-                        uploadImageToFirebase(imageUri, title, verse, memoryVerse);
-                    } else {
-                        uploadStoryToFirestore(null, title, verse, memoryVerse);
+                    if (title.isEmpty() || verse.isEmpty() || memoryVerse.isEmpty() || dateStr.isEmpty()) {
+                        Snackbar.make(getView(), "All fields are required.", Snackbar.LENGTH_SHORT).show();
+                        return;
                     }
+
+                    // Convert dateStr to a Date object for timestamp
+                    SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+                    Date timestamp;
+                    try {
+                        timestamp = sdf.parse(dateStr); // Convert the date string to Date
+                    } catch (Exception e) {
+                        Snackbar.make(getView(), "Invalid date format.", Snackbar.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // Validate the selected date before uploading
+                    checkDateAndUpload(timestamp, title, verse, memoryVerse);
                 })
                 .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
                 .show();
@@ -258,24 +263,44 @@ public class KidsDevotionalFragment extends Fragment {
 
     private void showDatePicker(EditText etDate) {
         final Calendar calendar = Calendar.getInstance();
-        DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                calendar.set(Calendar.YEAR, year);
-                calendar.set(Calendar.MONTH, month);
-                calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                updateLabel(etDate, calendar);
-            }
+        DatePickerDialog.OnDateSetListener date = (view, year, month, dayOfMonth) -> {
+            calendar.set(Calendar.YEAR, year);
+            calendar.set(Calendar.MONTH, month);
+            calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+            updateLabel(etDate, calendar);
         };
 
         new DatePickerDialog(getContext(), date, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)).show();
     }
 
-    private void updateLabel(EditText etBirthday, Calendar calendar) {
+    private void updateLabel(EditText etDate, Calendar calendar) {
         String myFormat = "MM/dd/yyyy";
         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
-        etBirthday.setText(sdf.format(calendar.getTime()));
+        etDate.setText(sdf.format(calendar.getTime()));
+    }
+
+    // Check if a devotional already exists for the given date
+    private void checkDateAndUpload(Date timestamp, String title, String verse, String memoryVerse) {
+        db.collection("devotional")
+                .whereEqualTo("timestamp", timestamp)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        // A devotional already exists for this date
+                        Snackbar.make(getView(), "A devotional already exists for this date.", Snackbar.LENGTH_SHORT).show();
+                    } else {
+                        // No devotional exists for this date; proceed with upload
+                        if (imageUri != null) {
+                            uploadImageToFirebase(imageUri, title, verse, memoryVerse, timestamp);
+                        } else {
+                            uploadStoryToFirestore(null, title, verse, memoryVerse, timestamp);
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Snackbar.make(getView(), "Failed to check date availability.", Snackbar.LENGTH_SHORT).show();
+                });
     }
 
     @Override
@@ -287,40 +312,36 @@ public class KidsDevotionalFragment extends Fragment {
         }
     }
 
-    private void uploadImageToFirebase(Uri imageUri, String title, String verse, String memoryVerse) {
+    private void uploadImageToFirebase(Uri imageUri, String title, String verse, String memoryVerse, Date timestamp) {
         StorageReference imageRef = storageRef.child("Content/devotional/images/" + System.currentTimeMillis() + ".jpg");
 
         imageRef.putFile(imageUri)
                 .addOnSuccessListener(taskSnapshot -> imageRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
                     String imageUrl = downloadUri.toString();
-                    uploadStoryToFirestore(imageUrl, title, verse, memoryVerse);
+                    uploadStoryToFirestore(imageUrl, title, verse, memoryVerse, timestamp);
                 }))
                 .addOnFailureListener(e -> {
                     Snackbar.make(getView(), "Image upload failed.", Snackbar.LENGTH_SHORT).show();
                 });
     }
 
-    // Method to upload story to Firestore
-    private void uploadStoryToFirestore(String imageUrl, String title, String verse, String memoryVerse) {
-        Date currentDate = new Date(); // Get the current date and time
-        ModelDevotional devotional = new ModelDevotional(null, title, verse, memoryVerse, imageUrl, currentDate); // Pass null for ID initially
+    private void uploadStoryToFirestore(String imageUrl, String title, String verse, String memoryVerse, Date timestamp) {
+        ModelDevotional devotional = new ModelDevotional(null, title, verse, memoryVerse, imageUrl, timestamp);
 
         db.collection("devotional").add(devotional)
                 .addOnSuccessListener(documentReference -> {
-                    // Set the document ID in the devotional model
                     devotional.setId(documentReference.getId());
-
-                    // Update the Firestore document with the model containing the ID
                     db.collection("devotional").document(documentReference.getId()).set(devotional)
                             .addOnSuccessListener(aVoid -> {
                                 Snackbar.make(getView(), "Devotional added.", Snackbar.LENGTH_SHORT).show();
                             })
                             .addOnFailureListener(e -> {
-                                Snackbar.make(getView(), "Failed to add devotional.", Snackbar.LENGTH_SHORT).show();
+                                Snackbar.make(getView(), "Failed to update devotional with ID.", Snackbar.LENGTH_SHORT).show();
                             });
                 })
                 .addOnFailureListener(e -> {
                     Snackbar.make(getView(), "Failed to add devotional.", Snackbar.LENGTH_SHORT).show();
                 });
     }
+
 }

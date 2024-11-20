@@ -35,7 +35,7 @@ public class FragmentAchievement extends Fragment {
     private ImageView underMaintenance;
     private ViewPager2 homepage;
     private ImageButton leaderboard;
-    private TextView storytitle, gametitle, emptyMessage; // Added emptyMessage here
+    private TextView storytitle, gametitle, emptyMessage;
     private RadioGroup achievementSwitch;
     private RecyclerView recyclepstory;
     private StoryAdapterAchievement storyAdapter;
@@ -67,7 +67,7 @@ public class FragmentAchievement extends Fragment {
         // Initialize the TextViews for storytitle, gametitle, and emptyMessage
         storytitle = rootView.findViewById(R.id.storytitle);
         gametitle = rootView.findViewById(R.id.gametitle);
-        emptyMessage = rootView.findViewById(R.id.emptyMessage); // Initialize emptyMessage here
+        emptyMessage = rootView.findViewById(R.id.emptyMessage);
         homepage = rootView.findViewById(R.id.homepage);
 
         // Set initial style for RadioButtons
@@ -100,15 +100,12 @@ public class FragmentAchievement extends Fragment {
     }
 
     private void showStoryTitle() {
-        // Make the story title visible and game title gone
         storytitle.setVisibility(View.VISIBLE);
         gametitle.setVisibility(View.GONE);
-        // Change the background color to a specific color for Story view
         homepage.setBackgroundColor(getResources().getColor(R.color.purplelight));
     }
 
     private void showGameTitle() {
-        // Make the game title visible and story title gone
         gametitle.setVisibility(View.VISIBLE);
         storytitle.setVisibility(View.GONE);
         homepage.setBackgroundColor(getResources().getColor(R.color.redlight));
@@ -141,7 +138,11 @@ public class FragmentAchievement extends Fragment {
             for (StoryAchievementModel achievement : storyAchievements) {
                 // Check if the associated story is completed
                 boolean isCompleted = appDatabase.bibleDao().isStoryCompleted(achievement.getStoryId());
-                achievement.setUnlock(isCompleted);  // Set the achievement status to unlocked if story is completed
+                if (isCompleted) {
+                    achievement.setIsCompleted("completed");  // Set the achievement status to "completed"
+                } else {
+                    achievement.setIsCompleted("locked");  // Set the achievement status to "locked"
+                }
             }
 
             Log.d("FragmentAchievement", "Fetched " + storyAchievements.size() + " achievements for Story.");
@@ -151,9 +152,6 @@ public class FragmentAchievement extends Fragment {
             });
         });
     }
-
-
-
 
     private void loadGameAchievements() {
         Log.d("FragmentAchievement", "Loading achievements for Games...");
@@ -175,11 +173,11 @@ public class FragmentAchievement extends Fragment {
             emptyMessage.setVisibility(View.VISIBLE);
         } else {
             for (StoryAchievementModel achievement : achievements) {
-                // Change appearance based on unlocked status
-                if (achievement.getUnlock()) {
-                    achievement.setUnlock(Boolean.valueOf("Unlocked"));
+                // Change appearance based on completed status
+                if ("completed".equalsIgnoreCase(achievement.getIsCompleted())) {
+                    achievement.setIsCompleted("completed");  // If the achievement is completed
                 } else {
-                    achievement.setUnlock(Boolean.valueOf("Locked"));
+                    achievement.setIsCompleted("locked");  // If the achievement is locked
                 }
             }
 
@@ -190,10 +188,8 @@ public class FragmentAchievement extends Fragment {
         }
     }
 
-
     private void Navigateleaderboard() {
         Intent intent = new Intent(getActivity(), LeaderBoard.class);
         startActivity(intent);
     }
 }
-

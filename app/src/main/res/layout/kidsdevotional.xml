@@ -38,7 +38,7 @@
                     android:layout_height="match_parent"
                     android:scaleType="centerCrop"
                     android:alpha="0.5"
-                    android:src="@raw/stories" />
+                     />
             </FrameLayout>
 
 
@@ -155,7 +155,7 @@
                                 android:gravity="center"
                                 android:text="Mon"
                                 android:fontFamily="@font/gothamroundedbold"
-                                android:textColor="@color/white"
+                                android:textColor="@color/black"
                                 android:textSize="13sp" />
                         </androidx.cardview.widget.CardView>
 

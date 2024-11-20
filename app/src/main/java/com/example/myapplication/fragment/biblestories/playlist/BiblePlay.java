@@ -1,5 +1,6 @@
 package com.example.myapplication.fragment.biblestories.playlist;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.database.sqlite.SQLiteConstraintException;
 import android.os.Bundle;
@@ -21,6 +22,7 @@ import android.speech.SpeechRecognizer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
 
 
 import com.bumptech.glide.Glide;
@@ -179,7 +181,10 @@ public class BiblePlay extends AppCompatActivity {
                         Log.d("UnlockNextStory", "Next story unlocked: " + nextStory.getId());
 
                         // Notify the user
-                        runOnUiThread(() -> Toast.makeText(BiblePlay.this, "Next story unlocked!", Toast.LENGTH_SHORT).show());
+                        runOnUiThread(() -> {
+                            Toast.makeText(BiblePlay.this, "Next story unlocked!", Toast.LENGTH_SHORT).show();
+                            showFinishReadingDialog(); // Show the dialog when next story is unlocked
+                        });
                     } else {
                         Log.d("UnlockNextStory", "Next story is already unlocked or completed: " + nextStory.getId());
                     }
@@ -196,6 +201,22 @@ public class BiblePlay extends AppCompatActivity {
     }
 
 
+
+    private void showFinishReadingDialog() {
+        // Create a dialog to show the finish_reading layout
+        Dialog finishReadingDialog = new Dialog(this);
+        finishReadingDialog.setContentView(R.layout.finish_reading);
+        finishReadingDialog.setCancelable(false); // Prevent the dialog from being dismissed by clicking outside
+
+        // Set up the "Done" button to dismiss the dialog
+        AppCompatButton doneButton = finishReadingDialog.findViewById(R.id.button_done);
+        if (doneButton != null) {
+            doneButton.setOnClickListener(v -> finishReadingDialog.dismiss());
+        }
+
+        // Show the dialog
+        finishReadingDialog.show();
+    }
 
 
     @Override

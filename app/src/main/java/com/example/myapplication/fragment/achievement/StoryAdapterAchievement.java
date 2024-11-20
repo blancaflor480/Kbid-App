@@ -1,4 +1,5 @@
 package com.example.myapplication.fragment.achievement;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,10 +9,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.myapplication.R;
-import com.example.myapplication.fragment.achievement.StoryAchievementModel;
 import java.util.List;
 
-public class StoryAdapterAchievement extends RecyclerView.Adapter<StoryAdapterAchievement.StoryViewHolder>{
+public class StoryAdapterAchievement extends RecyclerView.Adapter<StoryAdapterAchievement.StoryViewHolder> {
     private List<StoryAchievementModel> storyList;
     private Context context;
 
@@ -25,7 +25,6 @@ public class StoryAdapterAchievement extends RecyclerView.Adapter<StoryAdapterAc
     public StoryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_achievement_story, parent, false);
         return new StoryViewHolder(view);
-
     }
 
     @Override
@@ -33,11 +32,11 @@ public class StoryAdapterAchievement extends RecyclerView.Adapter<StoryAdapterAc
         StoryAchievementModel story = storyList.get(position);
         holder.titleTextView.setText(story.getTitle());
 
-        // Update lock icon visibility based on isUnlocked flag
-        if (story.getUnlock()) {
-            holder.lockImageView.setVisibility(View.GONE);  // Hide lock icon when unlocked
+        // Update lock icon visibility based on isCompleted flag (using String comparison)
+        if ("completed".equalsIgnoreCase(story.getIsCompleted())) {
+            holder.lockImageView.setVisibility(View.GONE);  // Hide lock icon when the story is completed/unlocked
         } else {
-            holder.lockImageView.setVisibility(View.VISIBLE); // Show lock icon when not unlocked
+            holder.lockImageView.setVisibility(View.VISIBLE); // Show lock icon when the story is not completed (locked)
         }
     }
 
@@ -45,6 +44,7 @@ public class StoryAdapterAchievement extends RecyclerView.Adapter<StoryAdapterAc
     public int getItemCount() {
         return storyList.size();
     }
+
     static class StoryViewHolder extends RecyclerView.ViewHolder {
         TextView titleTextView;
         ImageView lockImageView;
