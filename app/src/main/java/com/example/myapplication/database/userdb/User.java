@@ -3,6 +3,10 @@ package com.example.myapplication.database.userdb;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 @Entity(tableName = "user")
 public class User {
 
@@ -105,6 +109,21 @@ public class User {
     public void setControlid(String controlid) {
         this.controlid = controlid;
     }
+
+    // Convert the object to a map
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("uid", this.uid); // Firebase UID
+        map.put("email", this.email); // User email
+        map.put("childName", this.childName); // Assuming your User model has a field for child name
+        map.put("controlid", this.controlid); // Assuming your User model has a control ID field
+        map.put("avatarName", this.avatarName); // Assuming your User model has a control ID field
+
+        return map;
+    }
+
+
+
 
 
 }

@@ -120,6 +120,7 @@
             android:orientation="vertical"
             android:padding="20dp">
             <androidx.cardview.widget.CardView
+                android:id="@+id/editprof"
                 android:layout_width="match_parent"
                 android:layout_height="70dp"
                 app:cardCornerRadius="15dp"
@@ -201,7 +202,7 @@
                         android:layout_marginTop="20dp"
                         android:contentDescription="Edit Profile Icon" />
 
-                    </LinearLayout>
+                </LinearLayout>
             </androidx.cardview.widget.CardView>
 
         </LinearLayout>

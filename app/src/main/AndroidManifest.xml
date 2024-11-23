@@ -53,6 +53,7 @@
             android:screenOrientation="landscape"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
+        <activity android:name=".fragment.useraccount.account" />
         <activity android:name=".AvatarSelectionActivity" />
         <activity android:name=".ForgetPassword" />
         <activity android:name=".AvatarActivity" />

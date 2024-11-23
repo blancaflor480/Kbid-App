@@ -42,6 +42,7 @@ import com.example.myapplication.fragment.biblestories.BibleFragment;
 import com.example.myapplication.fragment.devotional.DevotionalKids;
 import com.example.myapplication.fragment.notification.ModelNotification;
 import com.example.myapplication.fragment.notification.NotificationAdapter;
+import com.example.myapplication.fragment.useraccount.account;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -108,7 +109,12 @@ public class FragmentHome extends Fragment {
         editprofile = view.findViewById(R.id.editprofile);
 
         // Show the dialog when clicking on changeinfo
-        editprofile.setOnClickListener(v -> showEditProfileDialog());
+        //editprofile.setOnClickListener(v -> showEditProfileDialog());
+
+        editprofile.setOnClickListener(v -> {
+            playClickSound(); // Play sound effect
+            navigateToProfileActivity();
+        });
 
         // Initialize database and DAO
         db = AppDatabase.getDatabase(getContext());
@@ -289,7 +295,7 @@ public class FragmentHome extends Fragment {
         });
     }
 
-    private void showEditProfileDialog() {
+    /*private void showEditProfileDialog() {
         // Initialize GoogleSignInOptions and GoogleSignInClient
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
@@ -374,7 +380,7 @@ public class FragmentHome extends Fragment {
         });
 
         dialog.show();
-    }
+    }*/
 
     // Handle Google Sign-In result
     @Override
@@ -479,7 +485,11 @@ public class FragmentHome extends Fragment {
         }
     }
 
-
+    private void navigateToProfileActivity() {
+        Intent intent = new Intent(getActivity(), account.class);
+        startActivity(intent);
+        Log.d("FragmentHome", "Navigating to BibleActivity");
+    }
 
 
     private void navigateToBibleActivity() {

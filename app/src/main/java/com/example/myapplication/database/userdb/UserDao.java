@@ -19,7 +19,8 @@ public interface UserDao {
 
    // @Query("SELECT level FROM user WHERE id = 1 LIMIT 1")
     //int getUserLevel();
-
+   @Query("SELECT * FROM user WHERE email = :email LIMIT 1")
+   User getUserByEmail(String email);
     //@Query("SELECT COUNT(*) FROM user WHERE id = 1")
     //int countUserWithIdOne();
 }

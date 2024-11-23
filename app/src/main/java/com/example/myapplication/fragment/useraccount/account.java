@@ -1,0 +1,294 @@
+package com.example.myapplication.fragment.useraccount;
+
+import static android.app.PendingIntent.getActivity;
+import static androidx.core.content.ContentProviderCompat.requireContext;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+import android.util.Log;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
+import androidx.cardview.widget.CardView;
+
+import com.bumptech.glide.Glide;
+import com.example.myapplication.AvatarSelectionActivity;
+import com.example.myapplication.R;
+import com.example.myapplication.database.AppDatabase;
+import com.example.myapplication.database.userdb.User;
+import com.example.myapplication.database.userdb.UserDao;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+public class account extends AppCompatActivity {
+    private AppDatabase db;
+    private UserDao userDao;
+    private GoogleSignInClient googleSignInClient;
+    private static final int RC_SIGN_IN = 9001;
+    private Executor executor;
+    private EditText editemail;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.view_account);
+
+        // Initialize database and DAO
+        db = AppDatabase.getDatabase(this);
+        userDao = db.userDao();
+        executor = Executors.newSingleThreadExecutor();
+        // Initialize views
+        ImageButton closeButton = findViewById(R.id.close);
+        closeButton.setOnClickListener(v -> onBackPressed());
+        ImageView avatarImageView = findViewById(R.id.avatar);
+        TextView editName = findViewById(R.id.Editname);
+        TextView controlNumber = findViewById(R.id.controlnumber);
+        CardView editprof = findViewById(R.id.editprof);
+        editprof.setOnClickListener(v -> showEditProfileDialog());
+
+        // Load user details
+        loadUserDetails(editName, controlNumber, avatarImageView);
+    }
+
+    private void loadUserDetails(TextView editName, TextView controlNumber, ImageView avatarImageView) {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            User user = userDao.getFirstUser();
+            runOnUiThread(() -> {
+                if (user != null) {
+                    // Set name or fallback
+                    editName.setText(user.getChildName() != null ? user.getChildName() : "No Name Provided");
+
+                    // Set control ID or fallback, and hide the control number if it's empty
+                    if (user.getControlid() == null || user.getControlid().isEmpty()) {
+                        controlNumber.setVisibility(View.GONE);  // Hide if no control ID
+                    } else {
+                        controlNumber.setText("ID: " + user.getControlid());
+                        controlNumber.setVisibility(View.VISIBLE);  // Show and set value if present
+                    }
+
+                    // Load avatar or placeholder
+                    if (user.getAvatarImage() != null) {
+                        Glide.with(this)
+                                .load(user.getAvatarImage())
+                                .placeholder(R.drawable.lion) // Default avatar resource
+                                .into(avatarImageView);
+                    } else {
+                        avatarImageView.setImageResource(R.drawable.lion); // Fallback
+                    }
+                } else {
+                    // No user found
+                    Toast.makeText(this, "User not found. Please add a user first.", Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
+    }
+
+    private void showEditProfileDialog() {
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+        googleSignInClient = GoogleSignIn.getClient(this, gso);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.edit_profile, null);
+        builder.setView(dialogView);
+
+        ImageView avatarImageView = dialogView.findViewById(R.id.avatar);
+        EditText editName = dialogView.findViewById(R.id.Editname);
+        EditText editAge = dialogView.findViewById(R.id.Editage);
+        editemail = dialogView.findViewById(R.id.google); // Email field
+        TextView controlNumber = dialogView.findViewById(R.id.controlnumber);
+        AppCompatButton connectButton = dialogView.findViewById(R.id.connect);
+        AppCompatButton saveButton = dialogView.findViewById(R.id.save);
+        ImageButton closeButton = dialogView.findViewById(R.id.close);
+        ImageButton changeProfileButton = dialogView.findViewById(R.id.changepf);
+
+        executor.execute(() -> {
+            User user = userDao.getFirstUser();
+            runOnUiThread(() -> {
+                if (user != null) {
+                    editName.setText(user.getChildName());
+                    editAge.setText(String.valueOf(user.getChildBirthday()));
+                    editemail.setText(user.getEmail());
+                    controlNumber.setText(user.getControlid());
+
+                    if (user.getEmail() == null || user.getEmail().isEmpty() || "Null".equalsIgnoreCase(user.getEmail())) {
+                        connectButton.setVisibility(View.VISIBLE);
+                    } else {
+                        connectButton.setVisibility(View.GONE);
+                    }
+
+                    Glide.with(this)
+                            .load(user.getAvatarResourceId())
+                            .into(avatarImageView);
+                }
+            });
+        });
+
+        changeProfileButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, AvatarSelectionActivity.class);
+            startActivityForResult(intent, 1);
+        });
+
+        connectButton.setOnClickListener(v -> {
+            Intent signInIntent = googleSignInClient.getSignInIntent();
+            startActivityForResult(signInIntent, RC_SIGN_IN);
+        });
+
+        AlertDialog dialog = builder.create();
+        closeButton.setOnClickListener(v -> dialog.dismiss());
+
+        saveButton.setOnClickListener(v -> {
+            String newName = editName.getText().toString();
+            executor.execute(() -> {
+                User user = userDao.getFirstUser();
+                if (user != null) {
+                    user.setChildName(newName);
+                    userDao.updateUser(user);
+                    runOnUiThread(() -> {
+                        editName.setText(newName);
+                        Toast.makeText(this, "Profile updated!", Toast.LENGTH_SHORT).show();
+                    });
+                }
+            });
+
+            dialog.dismiss();
+        });
+
+        dialog.show();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == RC_SIGN_IN) {
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            handleSignInResult(task);
+        }
+    }
+
+    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
+        try {
+            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+            if (account != null) {
+                String email = account.getEmail();
+                editemail.setText(email);
+
+                // Get Firebase user UID
+                FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+                String uid = firebaseUser != null ? firebaseUser.getUid() : null;
+
+                // Save data to SQLite
+                saveUserDataToSQLite(uid, email);
+
+                // Check if email is already in Firebase Authentication
+                FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+                firebaseAuth.fetchSignInMethodsForEmail(email)
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                List<String> signInMethods = task.getResult().getSignInMethods();
+                                if (signInMethods == null || signInMethods.isEmpty()) {
+                                    // Email is not registered, bind email
+                                    bindEmailToApp(email, uid);
+                                } else {
+                                    // Email exists, no need to bind
+                                    Toast.makeText(this, "Email already bound!", Toast.LENGTH_SHORT).show();
+                                }
+                            } else {
+                                Toast.makeText(this, "Error checking sign-in methods: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+            }
+        } catch (ApiException e) {
+            Toast.makeText(this, "Google sign-in failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+    private void saveUserDataToSQLite(String uid, String email) {
+        // Execute this on a background thread
+        executor.execute(() -> {
+            User user = userDao.getFirstUser();
+            if (user != null) {
+                user.setUid(uid);   // Assuming your User model has a field for UID
+                user.setEmail(email);  // Assuming your User model has a field for email
+
+                // Update the user in SQLite
+                userDao.updateUser(user);
+
+                // Notify the user in the UI thread
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "User data saved to SQLite.", Toast.LENGTH_SHORT).show();
+                });
+            }
+        });
+    }
+
+
+
+    private void bindEmailToApp(String email, String uid) {
+        // Save email to SQLite and Firestore
+        executor.execute(() -> {
+            User user = userDao.getFirstUser();
+            if (user != null) {
+                // Update user with Firebase UID
+                user.setEmail(email);
+                user.setUid(uid);  // Ensure your User model has a Firebase UID field
+                userDao.updateUser(user);
+
+                // Notify the user in UI thread
+                runOnUiThread(() -> {
+                    editemail.setText(email);
+                    Toast.makeText(this, "Email bound successfully in SQLite.", Toast.LENGTH_SHORT).show();
+                });
+
+                // Log to confirm the data to be saved
+                Log.d("FirebaseBinding", "User to be saved to Firestore: " + user.toString());  // Check the object details
+
+                // Save the user data to Firestore
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                db.collection("user")
+                        .document(email)  // Use email as document ID or use Firebase UID
+                        .set(user.toMap())  // Ensure User class has a method `toMap()` to convert the object to a map
+                        .addOnSuccessListener(aVoid -> {
+                            // Log successful insertion
+                            Log.d("FirebaseBinding", "Data successfully saved to Firestore.");
+                            runOnUiThread(() -> {
+                                Toast.makeText(this, "Email bound successfully in Firestore.", Toast.LENGTH_SHORT).show();
+                            });
+                        })
+                        .addOnFailureListener(e -> {
+                            // Log failure reason
+                            Log.e("FirebaseBinding", "Failed to update Firestore: " + e.getMessage());
+                            runOnUiThread(() -> {
+                                Toast.makeText(this, "Failed to update Firestore: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            });
+                        });
+            } else {
+                // Log if no user found
+                Log.e("FirebaseBinding", "No user found to bind email.");
+            }
+        });
+    }
+
+
+}

@@ -14,67 +14,44 @@ import android.os.Vibrator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
+
+import com.example.myapplication.database.userdb.User;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.bumptech.glide.Glide;
 import com.example.myapplication.AvatarSelectionActivity;
 import com.example.myapplication.HomeActivity;
-import com.example.myapplication.database.AppDatabase;
-import com.example.myapplication.database.userdb.User;
-import com.example.myapplication.database.userdb.UserDao;
 import com.example.myapplication.R;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.api.ApiException;
+import com.example.myapplication.database.AppDatabase;
+import com.example.myapplication.database.userdb.UserDao;
 
-import android.view.View;
-import android.widget.EditText;
-import android.widget.Toast;
-
-import java.text.BreakIterator;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class FragmentSettings extends Fragment {
 
-    ImageView userAvatarImageView;
-    TextView clickStories, userNameTextView;
-    ToggleButton toggleSound, toggleProgress, toggleAnnounce;
-    EditText userAgeEditText,userNameEditText;
+    private ImageView userAvatarImageView;
+    private TextView userNameTextView;
+    private ToggleButton toggleSound;
+    private EditText userAgeEditText, userNameEditText;
+    private CardView ratingFeedbackCardView;
+    private View noAccountLayout;
     private ExecutorService executor;
-    private GoogleSignInClient googleSignInClient;
-    private static final int RC_SIGN_IN = 9001;
     private AppDatabase db;
     private UserDao userDao;
-    private Map<String, String> questionsAndAnswers;
-
-    // Reference to the no account layout
-    private View noAccountLayout;
-    private View AppCompatButton;
-    private BreakIterator googleEditText;
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
@@ -82,65 +59,24 @@ public class FragmentSettings extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
 
-
         // Initialize database and DAO
-        db = AppDatabase.getDatabase(getContext());
+        db = AppDatabase.getDatabase(requireContext());
         userDao = db.userDao();
 
-        // Find ToggleButtons
+        // Find and initialize UI components
         toggleSound = view.findViewById(R.id.togglesound);
-       // toggleAnnounce = view.findViewById(R.id.toggleannounce);
-
-        // Find the no account layout
         noAccountLayout = view.findViewById(R.id.noaccount);
+        ratingFeedbackCardView = view.findViewById(R.id.ratingfeedback);
 
-        // Set listeners for each toggle button
+        // Set listeners for UI components
         setUpToggleButton(toggleSound);
-        //setUpToggleButton(toggleAnnounce);
 
-        // Find the exit TextView
-        CardView exitTextView = view.findViewById(R.id.exit);
-        // Set click listener for exit TextView
-        exitTextView.setOnClickListener(v -> showExitConfirmationDialog());
+        ratingFeedbackCardView.setOnClickListener(v -> showRatingFeedbackDialog());
 
-       // ImageButton changeInfoView = view.findViewById(R.id.changeinfo); // Add reference to changeinfo
-       // changeInfoView.setOnClickListener(v -> showEditProfileDialog());
-
-
-        // Set up the sign-in button listener
-        Button signInButton = view.findViewById(R.id.signin);
-        signInButton.setOnClickListener(v -> showLoginDialog());
-        Button signUpButton = view.findViewById(R.id.signup);  // Find the button in your layout
-        signUpButton.setOnClickListener(v -> showSignUpDialog());  // Set click listener to show the sign-up dialog
-
-
-
-        // Load user data
-        loadUserData();
+        CardView exitButton = view.findViewById(R.id.exit);
+        exitButton.setOnClickListener(v -> showExitConfirmationDialog());
 
         return view;
-    }
-
-    private void loadUserData() {
-        AsyncTask.execute(() -> {
-            User user = userDao.getFirstUser(); // Get the first user from the database
-            requireActivity().runOnUiThread(() -> {
-                if (user != null) {
-                    // User exists, update UI
-                    // Check user's email status
-                    if ("No Bind".equals(user.getEmail())) {
-                        // If email is "No Bind", show no account layout
-                        noAccountLayout.setVisibility(View.VISIBLE);
-                    } else {
-                        // Hide no account layout for other email statuses
-                        noAccountLayout.setVisibility(View.GONE);
-                    }
-                } else {
-                    // No user exists, show no account layout
-                    noAccountLayout.setVisibility(View.VISIBLE);
-                }
-            });
-        });
     }
 
     private void setUpToggleButton(ToggleButton toggleButton) {
@@ -155,9 +91,8 @@ public class FragmentSettings extends Fragment {
             }
 
             // Access HomeActivity and control the music
-            HomeActivity activity = (HomeActivity) getActivity();
-            if (activity != null) {
-                activity.toggleMusic(isChecked); // Start music if on, pause if off
+            if (getActivity() instanceof HomeActivity) {
+                ((HomeActivity) getActivity()).toggleMusic(isChecked); // Start music if on, pause if off
             }
         });
     }
@@ -174,8 +109,6 @@ public class FragmentSettings extends Fragment {
         // Find the buttons in the custom layout
         Button btnYes = dialogView.findViewById(R.id.btnYes);
         Button btnNo = dialogView.findViewById(R.id.btnNo);
-        TextView dialogTitle = dialogView.findViewById(R.id.dialogTitle);
-        TextView dialogMessage = dialogView.findViewById(R.id.dialogMessage);
 
         // Create the dialog instance
         AlertDialog dialog = builder.create();
@@ -186,172 +119,125 @@ public class FragmentSettings extends Fragment {
             requireActivity().finish(); // Close the app
         });
 
-        btnNo.setOnClickListener(v -> {
-            dialog.dismiss(); // Dismiss the dialog
-        });
+        btnNo.setOnClickListener(v -> dialog.dismiss());
 
         dialog.show(); // Show the dialog
     }
 
-//Login
-    private void showLoginDialog() {
+    private String getCurrentUserEmail() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        return currentUser != null ? currentUser.getEmail() : null;
+    }
+
+    private void showRatingFeedbackDialog() {
+        // Create an AlertDialog.Builder
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
 
         // Inflate the custom layout
         LayoutInflater inflater = requireActivity().getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.dialog_loginuser, null);
+        View dialogView = inflater.inflate(R.layout.ratingfeedback, null);
+
+        // Set the custom layout to the dialog
         builder.setView(dialogView);
 
-        // Find views in the dialog
-        EditText emailEditText = dialogView.findViewById(R.id.email);
-        EditText passwordEditText = dialogView.findViewById(R.id.password);
-        Button loginButton = dialogView.findViewById(R.id.btnlogin);  // Assuming you have this button in your XML
+        // Get references to the views in the custom layout
         ImageButton closeButton = dialogView.findViewById(R.id.close);
+        AppCompatButton sendFeedbackButton = dialogView.findViewById(R.id.sendfeedback);
+        EditText commentEditText = dialogView.findViewById(R.id.comment);
 
-        // Create the dialog instance
+        // Rating stars ImageViews
+        ImageView rating1 = dialogView.findViewById(R.id.rating1);
+        ImageView rating2 = dialogView.findViewById(R.id.rating2);
+        ImageView rating3 = dialogView.findViewById(R.id.rating3);
+        ImageView rating4 = dialogView.findViewById(R.id.rating4);
+        ImageView rating5 = dialogView.findViewById(R.id.rating5);
+
+        // Variable to track selected rating (1-5)
+        int[] currentRating = {0}; // Using array to update within the lambda
+
+        // Set OnClickListeners for rating stars
+        rating1.setOnClickListener(v -> {
+            currentRating[0] = 1;
+            updateStars(rating1, rating2, rating3, rating4, rating5, 1);
+        });
+        rating2.setOnClickListener(v -> {
+            currentRating[0] = 2;
+            updateStars(rating1, rating2, rating3, rating4, rating5, 2);
+        });
+        rating3.setOnClickListener(v -> {
+            currentRating[0] = 3;
+            updateStars(rating1, rating2, rating3, rating4, rating5, 3);
+        });
+        rating4.setOnClickListener(v -> {
+            currentRating[0] = 4;
+            updateStars(rating1, rating2, rating3, rating4, rating5, 4);
+        });
+        rating5.setOnClickListener(v -> {
+            currentRating[0] = 5;
+            updateStars(rating1, rating2, rating3, rating4, rating5, 5);
+        });
+
+        // Create and show the dialog
         AlertDialog dialog = builder.create();
 
-        // Set click listeners
+        // Set click listener for the close button
         closeButton.setOnClickListener(v -> dialog.dismiss());
 
-        loginButton.setOnClickListener(v -> {
-            // Get email and password input
-            String email = emailEditText.getText().toString();
-            String password = passwordEditText.getText().toString();
 
-            // Check if inputs are valid
-            if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(getContext(), "Please enter both email and password", Toast.LENGTH_SHORT).show();
+        // Set click listener for the send feedback button
+        sendFeedbackButton.setOnClickListener(v -> {
+            String comment = commentEditText.getText().toString().trim();
+            String email = getCurrentUserEmail();  // Get the current user's email
+
+            // Check if the rating is greater than 0, and if email is not null
+            if (currentRating[0] > 0 && email != null) {
+                // Get the Firestore instance
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+                // Create a new feedback document
+                CollectionReference ratingFeedbackRef = db.collection("rating_feedback");
+                DocumentReference newFeedbackRef = ratingFeedbackRef.document(); // Auto-generates a new document ID
+
+                // Create a map with the feedback data
+                Map<String, Object> feedbackData = new HashMap<>();
+                feedbackData.put("rating", currentRating[0]);
+                feedbackData.put("comment", comment.isEmpty() ? "" : comment);  // If no comment, send an empty string
+                feedbackData.put("timestamp", FieldValue.serverTimestamp()); // Add timestamp
+                feedbackData.put("email", (email));  // Use the email fetched from SQLite
+
+                // Save the data to Firestore
+                newFeedbackRef.set(feedbackData)
+                        .addOnSuccessListener(aVoid -> {
+                            Toast.makeText(requireContext(), "Feedback submitted!", Toast.LENGTH_SHORT).show();
+                            dialog.dismiss(); // Optionally close the dialog after submission
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(requireContext(), "Error submitting feedback: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        });
             } else {
-                // Perform login
-                performLogin(email, password, dialog);
+                Toast.makeText(requireContext(), "Please select a rating!", Toast.LENGTH_SHORT).show();
             }
         });
 
-        // Show the dialog
+
         dialog.show();
     }
 
-    // Method to perform login
-    private void performLogin(String email, String password, AlertDialog dialog) {
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-        auth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        // User signed in successfully
-                        FirebaseUser user = auth.getCurrentUser();
-                        if (user != null) {
-                            // Check if email is verified
-                            if (user.isEmailVerified()) {
-                                // Proceed to the main app
-                                Toast.makeText(getContext(), "Login successful!", Toast.LENGTH_SHORT).show();
-                                // Optional: Redirect to main activity
-                                // startActivity(new Intent(getContext(), MainActivity.class));
-                            } else {
-                                // Email is not verified
-                                Toast.makeText(getContext(), "Please verify your email before logging in.", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    } else {
-                        // Sign-in failed
-                        Toast.makeText(getContext(), "Login failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
+    // Method to update the star images based on rating
+    private void updateStars(ImageView rating1, ImageView rating2, ImageView rating3, ImageView rating4, ImageView rating5, int rating) {
+        // Reset all stars to blank
+        rating1.setImageResource(R.drawable.rating_blank);
+        rating2.setImageResource(R.drawable.rating_blank);
+        rating3.setImageResource(R.drawable.rating_blank);
+        rating4.setImageResource(R.drawable.rating_blank);
+        rating5.setImageResource(R.drawable.rating_blank);
 
-    // Method to show sign up dialog
-    private void showSignUpDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-
-        // Inflate the custom sign-up layout
-        LayoutInflater inflater = requireActivity().getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.dialog_registeruser, null);
-        builder.setView(dialogView);
-
-        // Find views in the dialog
-        EditText emailEditText = dialogView.findViewById(R.id.email);
-        EditText passwordEditText = dialogView.findViewById(R.id.password);
-        EditText confirmPasswordEditText = dialogView.findViewById(R.id.confirmpassword);
-        Button signUpButton = dialogView.findViewById(R.id.btnsignup);
-        ImageButton closeButton = dialogView.findViewById(R.id.close);
-
-        // Create the dialog instance
-        AlertDialog dialog = builder.create();
-
-        // Set click listener for close button
-        closeButton.setOnClickListener(v -> dialog.dismiss());
-
-        // Set click listener for the sign-up button
-        signUpButton.setOnClickListener(v -> {
-            // Get user inputs
-            String email = emailEditText.getText().toString();
-            String password = passwordEditText.getText().toString();
-            String confirmPassword = confirmPasswordEditText.getText().toString();
-
-            // Validate inputs
-            if (email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
-                Toast.makeText(getContext(), "Please fill all fields", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            if (!password.equals(confirmPassword)) {
-                Toast.makeText(getContext(), "Passwords do not match", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            // Create the user with Firebase Authentication
-            FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            // Send email verification
-                            FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-                            firebaseUser.sendEmailVerification()
-                                    .addOnCompleteListener(emailTask -> {
-                                        if (emailTask.isSuccessful()) {
-                                            Toast.makeText(getContext(), "Verification email sent!", Toast.LENGTH_SHORT).show();
-
-                                            // Insert user into Firestore with the password after successful sign-up
-                                            addUserToFirestore(firebaseUser, password);
-
-                                        } else {
-                                            Toast.makeText(getContext(), "Failed to send verification email", Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
-                        } else {
-                            // Sign-up failed
-                            Toast.makeText(getContext(), "Sign up failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
-        });
-
-        // Show the dialog
-        dialog.show();
-    }
-
-    private void addUserToFirestore(FirebaseUser firebaseUser, String password) {
-        // Prepare user data
-        String email = firebaseUser.getEmail();
-        String uid = firebaseUser.getUid(); // Get the UID from Firebase Authentication
-
-        // Create a user object to insert in Firestore
-        Map<String, Object> user = new HashMap<>();
-        user.put("email", email);
-        user.put("password", password); // Add the password to Firestore
-        user.put("isEmailVerified", false); // Initially false, until the user verifies their email
-        user.put("role", "user"); // Set default role as "user"
-        user.put("uid", uid); // Insert the UID
-
-        // Insert user data into Firestore
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("user").document(uid) // Use the UID as the document ID
-                .set(user)
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(getContext(), "User registered successfully", Toast.LENGTH_SHORT).show();
-                    // Optional: Redirect user to login or home screen
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Failed to register user: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                });
+        // Set filled stars up to the selected rating
+        if (rating >= 1) rating1.setImageResource(R.drawable.rating);
+        if (rating >= 2) rating2.setImageResource(R.drawable.rating);
+        if (rating >= 3) rating3.setImageResource(R.drawable.rating);
+        if (rating >= 4) rating4.setImageResource(R.drawable.rating);
+        if (rating >= 5) rating5.setImageResource(R.drawable.rating);
     }
 
 }
