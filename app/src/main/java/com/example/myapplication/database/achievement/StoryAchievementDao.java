@@ -4,6 +4,7 @@ import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
+import androidx.room.Update;
 
 import com.example.myapplication.fragment.achievement.StoryAchievementModel;
 
@@ -26,4 +27,20 @@ public interface StoryAchievementDao {
     // Delete achievement by ID
     @Query("DELETE FROM achievements WHERE id = :achievementId")
     void deleteAchievement(int achievementId);
+
+    @Query("SELECT * FROM achievements WHERE storyId = :storyId LIMIT 1")
+    StoryAchievementModel getAchievementByStoryId(String storyId);
+
+    @Query("SELECT COUNT(*) > 0 FROM stories WHERE id = :storyId AND isCompleted = 'completed'")
+    boolean isStoryCompleted(String storyId); // Checks if a story is unlocked or not
+
+    @Query("SELECT * FROM achievements ORDER BY count ASC")
+    List<StoryAchievementModel> getAllAchievements();
+
+    @Query("SELECT COUNT(*) FROM achievements WHERE isCompleted = 'completed'")
+    int getCompletedStoryCount();
+   ;
+
+    @Update
+    void update(StoryAchievementModel achievement);
 }

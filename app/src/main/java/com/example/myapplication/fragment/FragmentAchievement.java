@@ -138,7 +138,7 @@ public class FragmentAchievement extends Fragment {
             // Update the achievement statuses based on story completion
             for (StoryAchievementModel achievement : storyAchievements) {
                 // Check if the associated story is completed
-                boolean isCompleted = appDatabase.bibleDao().isStoryCompleted(achievement.getStoryId());
+                boolean isCompleted = appDatabase.storyAchievementDao().isStoryCompleted(achievement.getStoryId());
                 if (isCompleted) {
                     achievement.setIsCompleted("completed");  // Set the achievement status to "completed"
                 } else {

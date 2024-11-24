@@ -29,7 +29,9 @@ import com.bumptech.glide.Glide;
 import com.example.myapplication.R;
 import com.example.myapplication.database.BibleDao;
 import com.example.myapplication.database.BibleDatabaseHelper;
+import com.example.myapplication.database.achievement.StoryAchievementDao;
 import com.example.myapplication.database.favorite.FavoriteDao;
+import com.example.myapplication.fragment.achievement.StoryAchievementModel;
 import com.example.myapplication.fragment.biblestories.ModelBible;
 import com.example.myapplication.fragment.biblestories.favoritelist.Modelfavoritelist;
 import com.example.myapplication.database.AppDatabase;
@@ -147,6 +149,7 @@ public class BiblePlay extends AppCompatActivity {
         // Access the database
         AppDatabase db = AppDatabase.getDatabase(this);
         BibleDao bibleDao = db.bibleDao();
+        StoryAchievementDao storyAchievementDao = db.storyAchievementDao(); // Assuming you have an AchievementDao interface
 
         // Use an executor to perform the database operations in the background
         ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -164,6 +167,16 @@ public class BiblePlay extends AppCompatActivity {
                 currentStory.setIsCompleted("completed");
                 bibleDao.update(currentStory);
                 Log.d("UnlockNextStory", "Current story marked as completed: " + currentStory.getId());
+
+                // Update the achievement for the completed story
+                StoryAchievementModel achievement = storyAchievementDao.getAchievementByStoryId(currentStoryId);
+                if (achievement != null) {
+                    achievement.setIsCompleted("completed");
+                    storyAchievementDao.update(achievement);
+                    Log.d("UnlockNextStory", "Achievement updated for story ID: " + currentStoryId);
+                } else {
+                    Log.d("UnlockNextStory", "No achievement found for story ID: " + currentStoryId);
+                }
 
                 // Fetch the next story based on the count column
                 int nextCount = currentStory.getCount() + 1; // Increment the count to find the next story
@@ -199,6 +212,7 @@ public class BiblePlay extends AppCompatActivity {
             runOnUiThread(() -> Toast.makeText(BiblePlay.this, "Current story marked as completed!", Toast.LENGTH_SHORT).show());
         });
     }
+
 
 
 

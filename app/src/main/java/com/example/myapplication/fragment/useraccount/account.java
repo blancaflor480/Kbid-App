@@ -18,13 +18,18 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.myapplication.AvatarSelectionActivity;
 import com.example.myapplication.R;
 import com.example.myapplication.database.AppDatabase;
+import com.example.myapplication.database.achievement.StoryAchievementDao;
 import com.example.myapplication.database.userdb.User;
 import com.example.myapplication.database.userdb.UserDao;
+import com.example.myapplication.fragment.achievement.StoryAchievementModel;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -35,6 +40,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Executor;
@@ -44,6 +50,7 @@ import java.util.concurrent.Executors;
 public class account extends AppCompatActivity {
     private AppDatabase db;
     private UserDao userDao;
+    private StoryAchievementDao storyAchievementDao;
     private GoogleSignInClient googleSignInClient;
     private static final int RC_SIGN_IN = 9001;
     private Executor executor;
@@ -56,6 +63,7 @@ public class account extends AppCompatActivity {
         // Initialize database and DAO
         db = AppDatabase.getDatabase(this);
         userDao = db.userDao();
+        storyAchievementDao = db.storyAchievementDao();
         executor = Executors.newSingleThreadExecutor();
         // Initialize views
         ImageButton closeButton = findViewById(R.id.close);
@@ -67,6 +75,7 @@ public class account extends AppCompatActivity {
         editprof.setOnClickListener(v -> showEditProfileDialog());
 
         // Load user details
+        setupBadgeRecyclerView();
         loadUserDetails(editName, controlNumber, avatarImageView);
     }
 
@@ -290,5 +299,84 @@ public class account extends AppCompatActivity {
         });
     }
 
+    private void setupBadgeRecyclerView() {
+        RecyclerView recyclerView = findViewById(R.id.recyclep);
 
+        // Set up a GridLayoutManager with 3 items per row
+        GridLayoutManager layoutManager = new GridLayoutManager(this, 3);
+        recyclerView.setLayoutManager(layoutManager);
+
+        // Prepare the badge list
+        List<Badge> badges = new ArrayList<>();
+
+        // Fetch achievements asynchronously
+        executor.execute(() -> {
+            try {
+                // Fetch achievements from the database
+                int completedStories = storyAchievementDao.getCompletedStoryCount();
+
+                // Map achievements to badges based on completed stories
+                badges.add(new Badge(
+                        getBadgeImageResource(1, completedStories >= 1),
+                        completedStories >= 1,
+                        true,
+                        false
+                ));
+                badges.add(new Badge(
+                        getBadgeImageResource(10, completedStories >= 10),
+                        completedStories >= 10,
+                        true,
+                        completedStories >= 10
+                ));
+                badges.add(new Badge(
+                        getBadgeImageResource(20, completedStories >= 20),
+                        completedStories >= 20,
+                        true,
+                        completedStories >= 20
+                ));
+                badges.add(new Badge(
+                        getBadgeImageResource(30, completedStories >= 30),
+                        completedStories >= 30,
+                        true,
+                        completedStories >= 30
+                ));
+                badges.add(new Badge(
+                        getBadgeImageResource(50, completedStories >= 50),
+                        completedStories >= 50,
+                        true,
+                        completedStories >= 50
+                ));
+
+                // Update UI on the main thread
+                runOnUiThread(() -> {
+                    BadgeAdapter adapter = new BadgeAdapter(this, badges);
+                    recyclerView.setAdapter(adapter);
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "Failed to load badges", Toast.LENGTH_SHORT).show();
+                });
+            }
+        });
+    }
+
+
+    private int getBadgeImageResource(int milestone, boolean isUnlocked) {
+        if (isUnlocked) {
+            switch (milestone) {
+                case 1:
+                    return R.drawable.unlockstory1; // Replace with the actual drawable
+                case 10:
+                    return R.drawable.unlockstory10; // Replace with the actual drawable
+                case 20:
+                    return R.drawable.unlockstory20; // Replace with the actual drawable
+                case 30:
+                    return R.drawable.unlockstory30; // Replace with the actual drawable
+                case 50:
+                    return R.drawable.unlockstory50; // Replace with the actual drawable
+            }
+        }
+        return R.raw.lock; // Default locked badge image
+    }
 }
