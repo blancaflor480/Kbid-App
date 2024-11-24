@@ -9,6 +9,7 @@ import android.graphics.drawable.RippleDrawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -22,8 +23,12 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LiveData;
 
+import com.bumptech.glide.request.target.SizeReadyCallback;
+import com.bumptech.glide.request.target.Target;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.myapplication.R;
 import com.example.myapplication.database.AppDatabase;
@@ -48,17 +53,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class FourPicOneword extends AppCompatActivity {
     private static final String TAG = "FourPicOneword";
-    private ImageView arrowback, ImageView;
+    private ImageView arrowback;
     private ProgressBar progressBar;
     private LinearLayout answerBoxesLayout;
     private TextView[] answerBoxes;
     private TextView progressText;
     private int currentAnswerIndex = 0;
-    private boolean isAnswerIncorrect = false;
     private Button[] keyboardButtons;
     private String correctAnswer;
     private GamesDao gamesDao;
     private int userId;
+    private boolean isAnswerIncorrect = false;
+
     private long startTime;
 
     @Override
@@ -69,11 +75,26 @@ public class FourPicOneword extends AppCompatActivity {
         // Initialize database
         AppDatabase db = AppDatabase.getDatabase(this);
         gamesDao = db.gamesDao();
-        DataFetcher dataFetcher = new DataFetcher(gamesDao);
+
+
+        DataFetcher dataFetcher = new DataFetcher(this, gamesDao);
+        dataFetcher.fetchGamesFromFirestore(new DataFetcher.DownloadProgressListener() {
+            @Override
+            public void onProgressUpdate(int progress, int total) {
+                progressBar.setProgress(progress);
+                progressText.setText(progress + "/" + total);
+            }
+
+            @Override
+            public void onDownloadComplete() {
+                progressBar.setVisibility(View.GONE);
+                progressText.setVisibility(View.GONE);
+                fetchGameData();
+            }
+        });
 
         // Retrieve the userId from Intent
         userId = getIntent().getIntExtra("USER_ID", -1);
-
 
         Log.d(TAG, "FourPicOneWord Activity started.");
 
@@ -99,13 +120,15 @@ public class FourPicOneword extends AppCompatActivity {
         };
 
         // Fetch games from Firestore and update SQLite
-        dataFetcher.fetchGamesFromFirestore();
+
 
         // Automatically start downloading all resources when activity starts
         startTime = System.currentTimeMillis(); // Initialize startTime
         fetchAndDownloadAllResources();
+
         // Observe the database changes after a delay to ensure data is inserted
         new Handler().postDelayed(this::fetchGameData, 2000); // Delay to allow Firestore fetch to complete
+
         // Set up listener for delete button
         ImageButton deleteButton = findViewById(R.id.deleteButton);
         deleteButton.setOnClickListener(v -> onDeleteButtonClick());
@@ -113,6 +136,9 @@ public class FourPicOneword extends AppCompatActivity {
         // Set up listener for shuffle button
         ImageButton shuffleButton = findViewById(R.id.shuffle);
         shuffleButton.setOnClickListener(v -> shuffleKeyboard());
+
+        setupAnswerBoxes();
+        adjustKeyboardPosition();
     }
 
     private void fetchGameData() {
@@ -124,17 +150,22 @@ public class FourPicOneword extends AppCompatActivity {
         AppDatabase db = AppDatabase.getDatabase(this);
         LiveData<List<FourPicsOneWord>> userLevels = db.fourPicsOneWordDao().getCurrentLevel(userId);
 
-        userLevels.observe(this, levels -> {
-            if (levels != null && !levels.isEmpty()) {
-                for (FourPicsOneWord levelData : levels) {
-                    int currentLevel = levelData.getCurrentLevel();
-                    fetchGamesForLevel(currentLevel);
+        // Make sure observe is done on the main thread
+        runOnUiThread(() -> {
+            userLevels.observe(FourPicOneword.this, levels -> {
+                if (levels != null && !levels.isEmpty()) {
+                    for (FourPicsOneWord levelData : levels) {
+                        int currentLevel = levelData.getCurrentLevel();
+                        fetchGamesForLevel(currentLevel);  // Fetch games and images for the level
+                    }
+                } else {
+                    Log.e(TAG, "No levels available for the current user in the database.");
                 }
-            } else {
-                Log.e(TAG, "No levels available for the current user in the database.");
-            }
+            });
         });
     }
+
+
 
     private void fetchGamesForLevel(int level) {
         AppDatabase db = AppDatabase.getDatabase(this);
@@ -144,9 +175,6 @@ public class FourPicOneword extends AppCompatActivity {
             if (gamesList != null && !gamesList.isEmpty()) {
                 Games game = gamesList.get(0);
                 correctAnswer = game.getAnswer();
-
-                // Log fetched answer for debugging
-                Log.d(TAG, "Fetched correctAnswer for level " + level + ": " + correctAnswer);
 
                 if (correctAnswer == null) {
                     Log.e(TAG, "Correct answer is null for level " + level);
@@ -166,12 +194,15 @@ public class FourPicOneword extends AppCompatActivity {
                 localPaths.add(game.getLocalImagePath3());
                 localPaths.add(game.getLocalImagePath4());
 
-                // Correct call to loadImages method
-                loadImages(imageUrls, localPaths);
+                if (allImagesLocal(localPaths)) {
+                    loadImages(localPaths, localPaths); // Load images from local storage
+                } else {
+                    loadImages(imageUrls, localPaths); // Download and load images
+                }
 
                 // Update the level display for the current level
                 TextView levelTextView = findViewById(R.id.level);
-                levelTextView.setText(String.valueOf(level)); // Corrected to handle int as String
+                levelTextView.setText(String.valueOf(level));
 
                 // Clear existing answer boxes and keyboard buttons before setting up new ones
                 answerBoxesLayout.removeAllViews();
@@ -185,6 +216,15 @@ public class FourPicOneword extends AppCompatActivity {
         });
     }
 
+
+    private boolean allImagesLocal(List<String> localPaths) {
+        for (String path : localPaths) {
+            if (path == null || path.isEmpty() || !new File(path).exists()) {
+                return false; // If any image is not found locally, return false
+            }
+        }
+        return true; // All images are found locally
+    }
     private void fetchAndDownloadAllResources() {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         CollectionReference gamesCollection = firestore.collection("games");
@@ -227,6 +267,7 @@ public class FourPicOneword extends AppCompatActivity {
             }
         });
     }
+
     private void loadImages(List<String> imageUrls, List<String> localPaths) {
         for (int i = 0; i < imageUrls.size(); i++) {
             String imageUrl = imageUrls.get(i);
@@ -236,176 +277,147 @@ public class FourPicOneword extends AppCompatActivity {
         }
     }
 
-
     private void loadImageWithCaching(String imageUrl, ImageView imageView, String localPath, String fileName) {
         File localFile = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), fileName);
 
         if (localFile.exists()) {
-            // Load the image from local storage if it exists
             Glide.with(this)
                     .load(localFile)
-                    .placeholder(R.drawable.image) // Optional placeholder image
-                    .error(R.drawable.error_outline) // Optional error image
+                    .placeholder(R.drawable.image)
+                    .error(R.drawable.error_outline)
                     .into(imageView);
         } else if (localPath != null && !localPath.isEmpty()) {
-            // Load the image from the saved local path in the database
             File imagePathFile = new File(localPath);
-            if (imagePathFile.exists()) {
-                Glide.with(this)
-                        .load(imagePathFile)
-                        .placeholder(R.drawable.image)
-                        .error(R.drawable.error_outline)
-                        .into(imageView);
-            } else {
-                // If the file path doesn't exist locally anymore, download again
-                downloadAndSaveImage(imageUrl, localFile);  // Uses the new overloaded method
-            }
-        } else {
-            // Download and save the image locally if not already cached
-            downloadAndSaveImage(imageUrl, localFile);  // Uses the new overloaded method
+            Glide.with(this).load(imagePathFile).into(imageView);
+        } else if (imageUrl != null && !imageUrl.isEmpty()) {
+            Glide.with(this)
+                    .load(imageUrl)
+                    .into(imageView);
         }
     }
 
-    private void downloadAndSaveImage(String imageUrl, File localFile) {
-        Glide.with(this)
-                .asBitmap()
-                .load(imageUrl)
-                .placeholder(R.drawable.image) // Optional placeholder image
-                .error(R.drawable.error_outline) // Optional error image
-                .into(new SimpleTarget<Bitmap>() {
-                    @Override
-                    public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
-                        try {
-                            // Save the bitmap to local storage
-                            saveImageToLocalStorage(resource, localFile);
-                        } catch (Exception e) {
-                            Log.e(TAG, "Error saving image to local storage: " + e.getMessage());
-                        }
-                    }
+    private void adjustKeyboardPosition() {
+        // Get references to views
+        View answerBox1 = findViewById(R.id.answerBox1);
+        LinearLayout enterAnswer = findViewById(R.id.enteranswer);
 
-                    @Override
-                    public void onLoadFailed(Drawable errorDrawable) {
-                        super.onLoadFailed(errorDrawable);
-                        Log.e(TAG, "Image download failed for URL: " + imageUrl);
-                    }
-                });
-    }
+        // Wait for layout to be measured
+        answerBox1.post(new Runnable() {
+            @Override
+            public void run() {
+                // Get the bottom position of the answer boxes
+                int[] answerBoxLocation = new int[2];
+                answerBox1.getLocationInWindow(answerBoxLocation);
+                int answerBoxBottom = answerBoxLocation[1] + answerBox1.getHeight();
 
-    private void downloadAndSaveImage(String imageUrl, File localFile, Games game, int index, int totalImages, AtomicInteger downloadedImages) {
-        Glide.with(this)
-                .asBitmap()
-                .load(imageUrl)
-                .placeholder(R.drawable.image) // Optional placeholder image
-                .error(R.drawable.error_outline) // Optional error image
-                .into(new SimpleTarget<Bitmap>() {
-                    @Override
-                    public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
-                        try {
-                            // Save the bitmap to local storage
-                            saveImageToLocalStorage(resource, localFile);
-                            // Save the local path to the database using the Firestore ID as a String
-                            saveImagePathToDatabase(game.getFirestoreId(), index, localFile.getAbsolutePath());
+                // Get screen height
+                int screenHeight = getResources().getDisplayMetrics().heightPixels;
 
-                            // Update progress
-                            int currentDownloads = downloadedImages.incrementAndGet();
-                            runOnUiThread(() -> {
-                                progressBar.setProgress(currentDownloads);
-                                int percentage = (int) ((currentDownloads / (float) totalImages) * 100);
-                                progressText.setText("Downloading resources... " + percentage + "%");
+                // Calculate available space
+                int availableSpace = screenHeight - answerBoxBottom;
 
-                                // Calculate estimated time remaining
-                                long elapsedMillis = System.currentTimeMillis() - startTime;
-                                float avgTimePerImage = elapsedMillis / (float) currentDownloads;
-                                float estimatedTimeRemaining = (totalImages - currentDownloads) * avgTimePerImage / 1000; // seconds
-                                progressText.append(" - " + Math.round(estimatedTimeRemaining) + " sec remaining");
+                // Set up ConstraintLayout parameters
+                androidx.constraintlayout.widget.ConstraintLayout.LayoutParams params =
+                        (androidx.constraintlayout.widget.ConstraintLayout.LayoutParams) enterAnswer.getLayoutParams();
 
-                                if (currentDownloads == totalImages) {
-                                    // Hide progress UI when done
-                                    progressBar.setVisibility(View.GONE);
-                                    progressText.setText("Download complete!");
-                                }
-                            });
-                        } catch (Exception e) {
-                            Log.e(TAG, "Error saving image to local storage: " + e.getMessage());
-                        }
-                    }
+                // Clear existing constraints
+                params.topToTop = -1;
+                params.topToBottom = R.id.answerBox1;
+                params.bottomToBottom = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID;
 
-                    @Override
-                    public void onLoadFailed(Drawable errorDrawable) {
-                        super.onLoadFailed(errorDrawable);
-                        Log.e(TAG, "Image download failed for URL: " + imageUrl);
-                    }
-                });
-    }
-
-    private void saveImageToLocalStorage(Bitmap bitmap, File file) throws IOException {
-        File directory = file.getParentFile();
-        if (!directory.exists()) {
-            boolean dirCreated = directory.mkdirs();
-            if (!dirCreated) {
-                throw new IOException("Failed to create directory: " + directory.getAbsolutePath());
-            }
-        }
-
-        try (FileOutputStream fos = new FileOutputStream(file)) {
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-            Log.d(TAG, "Image saved successfully: " + file.getAbsolutePath());
-        } catch (IOException e) {
-            throw new IOException("Error saving image to file: " + file.getAbsolutePath(), e);
-        }
-    }
-    private void saveImagePathToDatabase(String gameId, int imageIndex, String localPath) {
-        Executors.newSingleThreadExecutor().execute(() -> {
-            GamesDao dao = AppDatabase.getDatabase(this).gamesDao();
-            try {
-                switch (imageIndex) {
-                    case 0:
-                        dao.updateLocalImagePath1(gameId, localPath);
-                        break;
-                    case 1:
-                        dao.updateLocalImagePath2(gameId, localPath);
-                        break;
-                    case 2:
-                        dao.updateLocalImagePath3(gameId, localPath);
-                        break;
-                    case 3:
-                        dao.updateLocalImagePath4(gameId, localPath);
-                        break;
-                    default:
-                        throw new IllegalStateException("Unexpected image index: " + imageIndex);
+                // Add bottom margin to push keyboard up if needed
+                int keyboardHeight = enterAnswer.getHeight();
+                if (keyboardHeight > availableSpace) {
+                    params.bottomMargin = 50; // Add some padding from bottom
                 }
-                Log.d(TAG, "Database updated with image path: " + localPath);
-            } catch (Exception e) {
-                Log.e(TAG, "Error updating database with image path: " + e.getMessage());
+
+                enterAnswer.setLayoutParams(params);
             }
         });
     }
+
 
     private void setupAnswerBoxes() {
         if (correctAnswer == null) {
             Log.e(TAG, "Cannot setup answer boxes as correctAnswer is null");
             return;
         }
+
         int answerLength = correctAnswer.length();
         answerBoxes = new TextView[answerLength];
 
-        for (int i = 0; i < answerLength; i++) {
-            TextView answerBox = new TextView(this);
-            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
-                    150, 150);
+        // Clear existing layout
+        answerBoxesLayout.removeAllViews();
 
-            answerBox.setLayoutParams(layoutParams);
-            answerBox.setTextSize(24);
-            answerBox.setGravity(Gravity.CENTER);
-            answerBox.setBackgroundResource(R.drawable.rounded_box);
-            answerBox.setTextColor(getResources().getColor(android.R.color.white));
-            answerBox.setTag(null);
-            answerBox.setText("");
-            ((LinearLayout.LayoutParams) answerBox.getLayoutParams()).setMargins(5, 0, 5, 0);
+        // Calculate dimensions
+        int screenWidth = getResources().getDisplayMetrics().widthPixels;
+        int maxBoxesPerRow = Math.min(5, (screenWidth - 40) / 160); // 160 = box width (150) + margins (10)
+        int numRows = (int) Math.ceil((double) answerLength / maxBoxesPerRow);
 
-            answerBoxes[i] = answerBox;
-            answerBoxesLayout.addView(answerBox);
+        // Create vertical layout
+        LinearLayout verticalLayout = new LinearLayout(this);
+        verticalLayout.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        ));
+        verticalLayout.setOrientation(LinearLayout.VERTICAL);
+        verticalLayout.setGravity(Gravity.CENTER);
+
+        int currentBoxIndex = 0;
+
+        // Create rows
+        for (int row = 0; row < numRows; row++) {
+            LinearLayout horizontalRow = new LinearLayout(this);
+            LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+            );
+
+            // Add spacing between rows
+            if (row > 0) {
+                rowParams.topMargin = 20;
+            }
+
+            horizontalRow.setLayoutParams(rowParams);
+            horizontalRow.setOrientation(LinearLayout.HORIZONTAL);
+            horizontalRow.setGravity(Gravity.CENTER);
+
+            // Calculate boxes for this row
+            int boxesInThisRow = Math.min(maxBoxesPerRow, answerLength - (row * maxBoxesPerRow));
+
+            // Add boxes to row
+            for (int i = 0; i < boxesInThisRow; i++) {
+                TextView answerBox = createAnswerBox();
+                answerBoxes[currentBoxIndex] = answerBox;
+                horizontalRow.addView(answerBox);
+                currentBoxIndex++;
+            }
+
+            verticalLayout.addView(horizontalRow);
         }
+
+        // Update the answer boxes layout
+        answerBoxesLayout.removeAllViews();
+        answerBoxesLayout.addView(verticalLayout);
+
+        // Trigger keyboard position adjustment
+        answerBoxesLayout.post(() -> adjustKeyboardPosition());
+    }
+
+    private TextView createAnswerBox() {
+        TextView answerBox = new TextView(this);
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(150, 150);
+        layoutParams.setMargins(5, 0, 5, 0);
+
+        answerBox.setLayoutParams(layoutParams);
+        answerBox.setTextSize(24);
+        answerBox.setGravity(Gravity.CENTER);
+        answerBox.setBackgroundResource(R.drawable.rounded_box);
+        answerBox.setTextColor(getResources().getColor(android.R.color.white));
+        answerBox.setTag(null);
+        answerBox.setText("");
+
+        return answerBox;
     }
 
     private void onKeyboardButtonClick(View view) {
@@ -534,6 +546,44 @@ public class FourPicOneword extends AppCompatActivity {
             }
         }
     }
+
+    private void downloadAndSaveImage(String imageUrl, File localFile, Games game, int imageIndex, int totalImages, AtomicInteger downloadedImages) {
+        Glide.with(this)
+                .asBitmap() // Load the image as a Bitmap
+                .load(imageUrl)
+                .into(new SimpleTarget<Bitmap>() { // Use SimpleTarget instead of Target
+                    @Override
+                    public void onLoadStarted(Drawable placeholder) {
+                        // Optional: Show a loading indicator
+                    }
+
+                    @Override
+                    public void onLoadFailed(Drawable errorDrawable) {
+                        Log.e(TAG, "Error loading image from URL: " + imageUrl);
+                    }
+
+                    @Override
+                    public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
+                        try (FileOutputStream outputStream = new FileOutputStream(localFile)) {
+                            resource.compress(Bitmap.CompressFormat.JPEG, 80, outputStream);
+                            downloadedImages.incrementAndGet();
+                            progressBar.setProgress(downloadedImages.get());
+
+                            if (downloadedImages.get() == totalImages) {
+                                progressBar.setVisibility(View.INVISIBLE);
+                                progressText.setVisibility(View.INVISIBLE);
+                                Log.d(TAG, "All images downloaded");
+                            }
+                        } catch (IOException e) {
+                            Log.e(TAG, "Error saving image: " + e.getMessage());
+                        }
+                    }
+
+                    @Override
+                    public void onLoadCleared(Drawable placeholder) {
+                        // This method is required but can be left empty or used for cleanup
+                    }
+                });
+    }
+
 }
-
-

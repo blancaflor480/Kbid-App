@@ -37,7 +37,8 @@ public class GameDescriptionFourPics extends AppCompatActivity {
         play = findViewById(R.id.play);
         howtoplay = findViewById(R.id.howtoplay);
         level = findViewById(R.id.level);
-
+        play.setEnabled(false);
+        play.setAlpha(0.5f);
         // Initialize the MediaPlayer for click sound
         clickSound = MediaPlayer.create(this, R.raw.clickpop);
 
@@ -63,7 +64,6 @@ public class GameDescriptionFourPics extends AppCompatActivity {
     }
 
     private void showHowToPlayDialog() {
-        // Define instructions, images, and dot indicators
         String[] instructions = {
                 "Four pictures will be displayed on the screen. Each picture represents a hint that leads to one common word related to the Bible.",
                 "Use the letters below to form the word that connects the images.",
@@ -71,55 +71,62 @@ public class GameDescriptionFourPics extends AppCompatActivity {
         };
         int[] instructionImages = {R.raw.instruction1, R.raw.instruction2, R.raw.instruction3};
         int[] dotIndicators = {R.id.dot1, R.id.dot2, R.id.dot3};
-
-        // Track the current step
         final int[] currentIndex = {0};
 
-        // Inflate the custom dialog layout
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_howtoplay, null);
-
-        // Build the dialog
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(dialogView);
 
-        // Get views from the layout
         ImageView instructionImage = dialogView.findViewById(R.id.instruction);
         TextView instructionText = dialogView.findViewById(R.id.textinstruction);
         ImageButton nextButton = dialogView.findViewById(R.id.next);
         ImageButton previousButton = dialogView.findViewById(R.id.previous);
         AppCompatButton playButton = dialogView.findViewById(R.id.play);
 
-        // Set initial content
+        // Initially disable the "Okay" button
+        playButton.setEnabled(false);
+        playButton.setAlpha(0.5f);
+
         instructionImage.setImageResource(instructionImages[currentIndex[0]]);
         instructionText.setText(instructions[currentIndex[0]]);
         updateDots(dotIndicators, currentIndex[0], dialogView);
 
-        // Show the dialog
         AlertDialog dialog = builder.create();
         dialog.show();
 
-        // Next button functionality
         nextButton.setOnClickListener(v -> {
             if (currentIndex[0] < instructions.length - 1) {
                 currentIndex[0]++;
                 updateContent(instructionImage, instructionText, instructions, instructionImages, currentIndex[0]);
                 updateDots(dotIndicators, currentIndex[0], dialogView);
+
+                // Enable "Okay" button if on the last slide
+                if (currentIndex[0] == instructions.length - 1) {
+                    playButton.setEnabled(true);
+                    playButton.setAlpha(1f); // Make it fully visible
+                }
             }
         });
 
-        // Previous button functionality
         previousButton.setOnClickListener(v -> {
             if (currentIndex[0] > 0) {
                 currentIndex[0]--;
                 updateContent(instructionImage, instructionText, instructions, instructionImages, currentIndex[0]);
                 updateDots(dotIndicators, currentIndex[0], dialogView);
+
+                // Disable "Okay" button if not on the last slide
+                playButton.setEnabled(false);
+                playButton.setAlpha(0.5f);
             }
         });
 
-        // "Okay" button functionality
         playButton.setOnClickListener(v -> {
             dialog.dismiss();
-            playClickSound(); // Play sound effect when dismissing the dialog
+            playClickSound();
+
+            // Enable the main "Play" button
+            play.setEnabled(true);
+            play.setAlpha(1f); // Make it fully visible
         });
     }
 

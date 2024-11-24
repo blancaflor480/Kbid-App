@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="10dp"
+    app:cardBackgroundColor="@color/white"
+    android:padding="10dp">
+
+    <!-- Close Button -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp">
+
+        <ImageButton
+            android:id="@+id/close"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/close"
+            android:layout_gravity="end" /> <!-- Aligns to the right end -->
+    </FrameLayout>
+
+    <!-- Content Layout -->
+    <LinearLayout
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginBottom="20dp">
+
+        <!-- Title -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reset Data"
+            android:textSize="25sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:fontFamily="@font/gothamroundedbold" />
+
+        <!-- Description -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:text="Deleting all saved data will permanently erase your locally stored information. You can choose to clear specific data or reset everything."
+            android:textSize="15sp"
+            android:padding="8dp"
+            android:textColor="@color/black"
+            android:fontFamily="@font/gothamroundedmedium"
+            android:textAlignment="viewStart"
+            android:justificationMode="inter_word"
+            android:lineSpacingExtra="6dp" />
+
+        <!-- Button to Clear Data -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="30dp" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/clear"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="20dp"
+            android:text="Clear"
+            android:background="@drawable/shadow3dredbutton"
+            android:textColor="@color/white"/>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

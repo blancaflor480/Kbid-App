@@ -23,4 +23,7 @@ public interface UserDao {
    User getUserByEmail(String email);
     //@Query("SELECT COUNT(*) FROM user WHERE id = 1")
     //int countUserWithIdOne();
+
+    @Query("DELETE FROM user")  // 'user' is the name of your table
+    void deleteAllUsers();
 }

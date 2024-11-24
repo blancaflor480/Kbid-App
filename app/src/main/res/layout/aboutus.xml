@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="10dp"
+    app:cardBackgroundColor="@color/white"
+    android:padding="10dp">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp">
+
+        <ImageButton
+            android:id="@+id/close"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/close"
+            android:layout_gravity="end" /> <!-- Aligns to the right end -->
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginBottom="20dp">
+
+        <!-- Title -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="About Us"
+            android:textSize="25sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:fontFamily="@font/gothamroundedbold" />
+
+<ImageView
+    android:layout_width="200dp"
+    android:layout_height="200dp"
+    android:background="@raw/logomca"
+    android:layout_gravity="center"
+    android:layout_marginTop="20dp"/>
+
+        <!-- Description -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:text="The K-Bid app offers meaningful, Bible-based content designed to inspire and engage children. Supporting the Mabuhay Christian Assembly’s children’s ministry, it serves as a comprehensive tool for nurturing spiritual growth. With its fun and interactive features, the app encourages kids to deepen their relationship with the Lord while fostering personal development and active participation in the church community."
+            android:textSize="15sp"
+            android:padding="8dp"
+            android:textColor="@color/black"
+            android:fontFamily="@font/gothamroundedmedium"
+            android:textAlignment="viewStart"
+            android:justificationMode="inter_word"
+            android:lineSpacingExtra="6dp" />
+
+
+
+    </LinearLayout>
+
+
+</androidx.cardview.widget.CardView>

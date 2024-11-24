@@ -25,6 +25,7 @@ public class Games {
     private String imageUrl2;
     private String imageUrl3;
     private String imageUrl4;
+    private String localImagePath;
     private String localImagePath1; // Local file path for image 1
     private String localImagePath2; // Local file path for image 2
     private String localImagePath3; // Local file path for image 3
@@ -164,5 +165,12 @@ public class Games {
     public void setTimestamp(Date timestamp) {
         // Handle Date conversion if necessary
         this.timestamp = timestamp.toString();
+    }
+    public void setLocalImagePath(String path) {
+        this.localImagePath = path;
+    }
+
+    public String getLocalImagePath() {
+        return localImagePath;
     }
 }

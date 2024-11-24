@@ -10,8 +10,16 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="200dp"
-        android:background="#B1FCB1"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:background="#C6D860"
+        app:layout_constraintTop_toTopOf="parent" >
+        <ImageView
+            android:layout_width="350dp"
+            android:layout_height="250dp"
+            android:background="@raw/bg_profile"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"/>
+    </FrameLayout>
+
 
     <!-- Header Section -->
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -124,7 +132,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="70dp"
                 app:cardCornerRadius="15dp"
-                app:cardBackgroundColor="#FECAC3"
+                app:cardBackgroundColor="#D8606E"
                 android:layout_marginBottom="20dp">
 
                 <!-- Use LinearLayout for proper horizontal alignment -->
@@ -150,7 +158,7 @@
                         android:layout_height="wrap_content"
                         android:text="Edit Profile"
                         android:layout_gravity="center_vertical"
-                        android:textColor="@color/black"
+                        android:textColor="@color/white"
                         android:fontFamily="@font/gothamroundedbold"
                         android:textSize="20sp"
                         android:layout_marginStart="16dp" />
@@ -162,7 +170,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="350dp"
                 app:cardCornerRadius="15dp"
-                app:cardBackgroundColor="#C3DBFE">
+                app:cardBackgroundColor="#6090D8">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -182,7 +190,7 @@
                         android:layout_height="wrap_content"
                         android:text="Progress Badge"
                         android:layout_gravity="top"
-                        android:textColor="@color/black"
+                        android:textColor="@color/white"
                         android:layout_marginTop="20dp"
                         android:fontFamily="@font/gothamroundedbold"
                         android:textSize="20sp"
@@ -191,7 +199,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="horizontal"
+                    android:orientation="vertical"
                     android:paddingStart="35dp"
                     android:paddingEnd="16dp">
                     <ImageView
@@ -202,6 +210,19 @@
                         android:layout_marginTop="20dp"
                         android:contentDescription="Edit Profile Icon" />
 
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginEnd="10dp"
+                        >
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/recyclep"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            />
+                    </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 

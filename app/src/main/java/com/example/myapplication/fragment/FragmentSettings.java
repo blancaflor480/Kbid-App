@@ -1,5 +1,6 @@
 package com.example.myapplication.fragment;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -23,6 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.example.myapplication.MainActivity;
 import com.example.myapplication.database.userdb.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -40,6 +42,7 @@ import com.example.myapplication.database.userdb.UserDao;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class FragmentSettings extends Fragment {
 
@@ -47,11 +50,14 @@ public class FragmentSettings extends Fragment {
     private TextView userNameTextView;
     private ToggleButton toggleSound;
     private EditText userAgeEditText, userNameEditText;
-    private CardView ratingFeedbackCardView;
+    private CardView ratingFeedbackCardView,privacy, aboutus, resetdata;
     private View noAccountLayout;
-    private ExecutorService executor;
+    private ExecutorService executor = Executors.newSingleThreadExecutor();
     private AppDatabase db;
     private UserDao userDao;
+    private ProgressDialog progressDialog;
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
@@ -67,7 +73,14 @@ public class FragmentSettings extends Fragment {
         toggleSound = view.findViewById(R.id.togglesound);
         noAccountLayout = view.findViewById(R.id.noaccount);
         ratingFeedbackCardView = view.findViewById(R.id.ratingfeedback);
+        aboutus = view.findViewById(R.id.aboutus);
+        resetdata = view.findViewById(R.id.resetdata);
+        resetdata.setOnClickListener(v -> showCLeardataDialog());
+        aboutus.setOnClickListener(v -> showAboutusDialog());
 
+
+        privacy = view.findViewById(R.id.privacy);
+        privacy.setOnClickListener(v -> showPrivacyDialog());
         // Set listeners for UI components
         setUpToggleButton(toggleSound);
 
@@ -78,6 +91,8 @@ public class FragmentSettings extends Fragment {
 
         return view;
     }
+
+
 
     private void setUpToggleButton(ToggleButton toggleButton) {
         toggleButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -122,6 +137,124 @@ public class FragmentSettings extends Fragment {
         btnNo.setOnClickListener(v -> dialog.dismiss());
 
         dialog.show(); // Show the dialog
+    }
+
+    // Inside your FragmentSettings.java
+
+    private void showCLeardataDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+
+        // Inflate the custom layout for the dialog
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.resetdata, null);
+
+        // Find the close button and clear button in the custom layout
+        ImageButton closeButton = dialogView.findViewById(R.id.close);
+        AppCompatButton clearButton = dialogView.findViewById(R.id.clear);
+
+        // Set the custom view for the dialog
+        builder.setView(dialogView);
+
+        // Create the dialog instance
+        AlertDialog dialog = builder.create();
+
+        // Set click listener for the close button
+        closeButton.setOnClickListener(v -> dialog.dismiss());
+
+        // Set click listener for the clear button
+        clearButton.setOnClickListener(v -> {
+            // Show loading dialog while processing
+            showLoadingDialog();
+
+            // Execute the clear operation on a background thread
+            executor.execute(() -> {
+                // Truncate only the 'user' table
+                db.userDao().deleteAllUsers(); // Custom method in your UserDao to delete all users
+
+                // After truncating, dismiss the loading dialog and return to MainActivity
+                getActivity().runOnUiThread(() -> {
+                    dismissLoadingDialog();
+                    // Navigate back to MainActivity
+                    Intent intent = new Intent(getContext(), MainActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); // To clear the back stack
+                    startActivity(intent);
+                    requireActivity().finish(); // Optionally finish the current activity
+                });
+            });
+
+            // Dismiss the dialog
+            dialog.dismiss();
+        });
+
+        // Display the dialog
+        dialog.show();
+    }
+
+
+
+    private void showLoadingDialog() {
+        // Show a simple loading dialog (for demonstration purposes)
+        ProgressDialog progressDialog = new ProgressDialog(requireContext());
+        progressDialog.setMessage("Clearing data...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
+        // Store the progressDialog to dismiss it later
+        this.progressDialog = progressDialog;
+    }
+
+    private void dismissLoadingDialog() {
+        // Dismiss the progress dialog when the operation is complete
+        if (this.progressDialog != null && this.progressDialog.isShowing()) {
+            this.progressDialog.dismiss();
+        }
+    }
+
+
+    private void showAboutusDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+
+        // Inflate the custom layout for the dialog
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.aboutus, null);
+
+        // Find the close button in the custom layout
+        ImageButton closeButton = dialogView.findViewById(R.id.close);
+
+        // Set the custom view for the dialog
+        builder.setView(dialogView);
+
+        // Create the dialog instance
+        AlertDialog dialog = builder.create();
+
+        // Set click listener for the close button
+        closeButton.setOnClickListener(v -> dialog.dismiss());
+
+        // Display the dialog
+        dialog.show();
+    }
+
+    private void showPrivacyDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+
+        // Inflate the custom layout for the dialog
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.privacy_policy, null);
+
+        // Find the close button in the custom layout
+        ImageButton closeButton = dialogView.findViewById(R.id.close);
+
+        // Set the custom view for the dialog
+        builder.setView(dialogView);
+
+        // Create the dialog instance
+        AlertDialog dialog = builder.create();
+
+        // Set click listener for the close button
+        closeButton.setOnClickListener(v -> dialog.dismiss());
+
+        // Display the dialog
+        dialog.show();
     }
 
     private String getCurrentUserEmail() {
@@ -189,8 +322,13 @@ public class FragmentSettings extends Fragment {
             String comment = commentEditText.getText().toString().trim();
             String email = getCurrentUserEmail();  // Get the current user's email
 
-            // Check if the rating is greater than 0, and if email is not null
-            if (currentRating[0] > 0 && email != null) {
+            // If email is empty or null, set it to "unknown"
+            if (email == null || email.isEmpty()) {
+                email = "unknown";  // Set default value for email
+            }
+
+            // Check if the rating is greater than 0
+            if (currentRating[0] > 0) {
                 // Get the Firestore instance
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -203,7 +341,7 @@ public class FragmentSettings extends Fragment {
                 feedbackData.put("rating", currentRating[0]);
                 feedbackData.put("comment", comment.isEmpty() ? "" : comment);  // If no comment, send an empty string
                 feedbackData.put("timestamp", FieldValue.serverTimestamp()); // Add timestamp
-                feedbackData.put("email", (email));  // Use the email fetched from SQLite
+                feedbackData.put("email", email);  // Use the email fetched from SQLite (or "unknown")
 
                 // Save the data to Firestore
                 newFeedbackRef.set(feedbackData)
@@ -218,6 +356,7 @@ public class FragmentSettings extends Fragment {
                 Toast.makeText(requireContext(), "Please select a rating!", Toast.LENGTH_SHORT).show();
             }
         });
+
 
 
         dialog.show();
