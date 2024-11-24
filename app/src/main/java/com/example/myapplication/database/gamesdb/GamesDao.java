@@ -34,6 +34,9 @@ public interface GamesDao {
     @Query("SELECT * FROM games")
     LiveData<List<Games>> getAllGames();
 
+    @Query("SELECT * FROM games WHERE answer = :answer LIMIT 1")
+    Games getGameByAnswer(String answer);
+
     @Query("SELECT * FROM games WHERE level = :level")
     LiveData<List<Games>> getGamesByLevel(int level);
 

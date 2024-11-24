@@ -15,8 +15,10 @@ import java.util.concurrent.Executor;
 
 import com.example.myapplication.database.Converters;
 
+import com.example.myapplication.database.achievement.GameAchievementDao;
 import com.example.myapplication.database.achievement.StoryAchievementDao;
 import com.example.myapplication.database.devotionaldb.DevotionalDao;
+import com.example.myapplication.fragment.achievement.GameAchievementModel;
 import com.example.myapplication.fragment.devotional.DevotionalModel;
 import com.example.myapplication.database.favorite.FavoriteDao;
 import com.example.myapplication.database.fourpicsdb.FourPicsOneWord;
@@ -34,7 +36,7 @@ import com.example.myapplication.database.gamesdb.GamesDao;
 import com.example.myapplication.MainActivity;
 import com.example.myapplication.fragment.biblestories.favoritelist.Modelfavoritelist;
 
-@Database(entities = {ModelBible.class, User.class, Games.class, FourPicsOneWord.class, QuizGames.class, Modelfavoritelist.class, StoryAchievementModel.class, ModelMusic.class, DevotionalModel.class}, version = 9)  // Updated version
+@Database(entities = {ModelBible.class, User.class, Games.class, FourPicsOneWord.class, QuizGames.class, Modelfavoritelist.class, StoryAchievementModel.class, ModelMusic.class, DevotionalModel.class, GameAchievementModel.class}, version = 10)  // Updated version
 @TypeConverters({Converters.class})
 public abstract class AppDatabase extends RoomDatabase {
     public abstract BibleDao bibleDao();
@@ -46,6 +48,7 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract StoryAchievementDao storyAchievementDao();
     public abstract MusicDao musicDao();
     public abstract DevotionalDao devotionalDao();
+    public abstract GameAchievementDao gameAchievementDao();
 
 
     private static volatile AppDatabase INSTANCE;

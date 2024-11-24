@@ -19,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LiveData;
@@ -32,6 +33,7 @@ import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.myapplication.R;
 import com.example.myapplication.database.AppDatabase;
+import com.example.myapplication.database.achievement.GameAchievementDao;
 import com.example.myapplication.database.fourpicsdb.FourPicsOneWord;
 import com.example.myapplication.database.fourpicsdb.FourPicsOneWordDao;
 import com.example.myapplication.database.gamesdb.DataFetcher;
@@ -62,6 +64,7 @@ public class FourPicOneword extends AppCompatActivity {
     private Button[] keyboardButtons;
     private String correctAnswer;
     private GamesDao gamesDao;
+    private  GameAchievementDao gameAchievementDao;
     private int userId;
     private boolean isAnswerIncorrect = false;
 
@@ -75,9 +78,9 @@ public class FourPicOneword extends AppCompatActivity {
         // Initialize database
         AppDatabase db = AppDatabase.getDatabase(this);
         gamesDao = db.gamesDao();
+        gameAchievementDao = db.gameAchievementDao();
 
-
-        DataFetcher dataFetcher = new DataFetcher(this, gamesDao);
+        DataFetcher dataFetcher = new DataFetcher(this, gamesDao, gameAchievementDao);
         dataFetcher.fetchGamesFromFirestore(new DataFetcher.DownloadProgressListener() {
             @Override
             public void onProgressUpdate(int progress, int total) {
@@ -518,34 +521,49 @@ public class FourPicOneword extends AppCompatActivity {
         }
 
         if (enteredAnswer.toString().equalsIgnoreCase(correctAnswer)) {
-            // Answer is correct
-            int points = 5; // Points for a correct answer
-            int currentLevel = 1; // Add new level + 1
-
+            // Points for a correct answer
+            String points = "5";
+            String isCompleted = "completed";
+            int currentLevel = 1;
+            // Database operations
             AppDatabase db = AppDatabase.getDatabase(this);
+            GamesDao gamesDao = db.gamesDao();
+            GameAchievementDao achievementDao = db.gameAchievementDao();
             FourPicsOneWordDao dao = db.fourPicsOneWordDao();
 
-            // Update points for the user on a background thread
             Executors.newSingleThreadExecutor().execute(() -> {
-                dao.addPoints(userId, points);
-                dao.addLevel(userId, currentLevel);
+                // Fetch the gameId and level dynamically from the Games table
+                Games currentGame = gamesDao.getGameByAnswer(correctAnswer);
+                if (currentGame != null) {
+                    String gameId = currentGame.getFirestoreId(); // Use Firestore ID or primary key
+                    String level = currentGame.getLevel(); // Fetch the game's current level
 
-                // After updating points, start the next activity
-                runOnUiThread(() -> {
-                    Intent intent = new Intent(this, NextActivity.class);
-                    intent.putExtra("CORRECT_ANSWER", correctAnswer);
-                    startActivity(intent);
-                    finish();
-                });
+                    // Update achievement details in the database
+                    achievementDao.updateAchievement(gameId, level, points, isCompleted);
+                    dao.addPoints(userId, Integer.parseInt(points));
+                    dao.addLevel(userId, currentLevel);
+
+                    // Navigate to the next activity
+                    runOnUiThread(() -> {
+                        Intent intent = new Intent(this, NextActivity.class);
+                        intent.putExtra("CORRECT_ANSWER", correctAnswer);
+                        startActivity(intent);
+                        finish();
+                    });
+                } else {
+                    // Handle case where the game details are not found
+                    runOnUiThread(() -> Toast.makeText(this, "Game details not found!", Toast.LENGTH_SHORT).show());
+                }
             });
         } else {
-            // Answer is incorrect
+            // Incorrect answer logic
             isAnswerIncorrect = true;
             for (TextView answerBox : answerBoxes) {
                 answerBox.setBackgroundColor(getResources().getColor(android.R.color.holo_red_light));
             }
         }
     }
+
 
     private void downloadAndSaveImage(String imageUrl, File localFile, Games game, int imageIndex, int totalImages, AtomicInteger downloadedImages) {
         Glide.with(this)

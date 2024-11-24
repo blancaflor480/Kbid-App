@@ -10,6 +10,8 @@ import android.util.Log;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.example.myapplication.database.achievement.GameAchievementDao;
+import com.example.myapplication.fragment.achievement.GameAchievementModel;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -18,6 +20,7 @@ import com.google.firebase.Timestamp;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -27,10 +30,12 @@ public class DataFetcher {
     private final GamesDao gamesDao;
     private final Executor executor;
     private final Context context;
+    private final GameAchievementDao gameAchievementDao;
 
-    public DataFetcher(Context context, GamesDao gamesDao) {
+    public DataFetcher(Context context, GamesDao gamesDao, GameAchievementDao gameAchievementDao) {
         this.context = context;
         this.gamesDao = gamesDao;
+        this.gameAchievementDao = gameAchievementDao;
         this.executor = Executors.newSingleThreadExecutor();
     }
 
@@ -58,6 +63,7 @@ public class DataFetcher {
                         // Insert the game first
                         gamesDao.insert(game);
 
+                        createGameAchievement(game);
                         // Then download images
                         processGameDocument(document, downloadedImages, totalImages, listener);
                     }
@@ -65,6 +71,21 @@ public class DataFetcher {
             } else {
                 Log.e(TAG, "Error fetching games from Firestore", task.getException());
             }
+        });
+    }
+
+    private void createGameAchievement(Games game) {
+        GameAchievementModel achievement = new GameAchievementModel(
+                game.getFirestoreId(),        // Game ID reference
+                game.getTitle(),              // Game title
+                game.getLevel(),              // Game level
+                null,                         // Points (null by default)
+                "locked"                      // Initial state is locked
+        );
+
+        // Save the achievement to the database
+        executor.execute(() -> {
+            gameAchievementDao.insert(achievement);
         });
     }
 
