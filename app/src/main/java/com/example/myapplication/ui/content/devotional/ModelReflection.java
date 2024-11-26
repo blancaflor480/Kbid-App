@@ -9,16 +9,20 @@ public class ModelReflection extends ModelDevotional {
     private Date timestamp;
     private String ImageUrl;
     private String controlId;
+    private String feedback;
+    private String badge;
 
     public ModelReflection() {}
 
-    public ModelReflection(String id, String email, String reflectionanswer, Date timestamp,String ImageUrl, String controlId) {
+    public ModelReflection(String id, String email, String reflectionanswer, Date timestamp,String ImageUrl, String controlId, String feedback, String badge) {
         this.id = id;
         this.email = email;
         this.reflectionanswer = reflectionanswer;
         this.timestamp = timestamp;
         this.ImageUrl = ImageUrl;
         this.controlId = controlId;
+        this.badge = badge;
+        this.feedback = feedback;
     }
 
     public void setId(String id) {
@@ -66,5 +70,21 @@ public class ModelReflection extends ModelDevotional {
 
     public void setControlId(String controlId) {
         this.controlId = controlId;
+    }
+
+    public String getFeedback() {
+        return feedback;
+    }
+
+    public void setFeedback(String feedback) {
+        this.feedback = feedback;
+    }
+
+    public String getBadge() {
+        return badge;
+    }
+
+    public void setBadge(String badge) {
+        this.badge = badge;
     }
 }

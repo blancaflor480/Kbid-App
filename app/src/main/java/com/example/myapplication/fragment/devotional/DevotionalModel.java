@@ -21,6 +21,8 @@ public class DevotionalModel {
     private String verse;
     private String memoryverse;
     private String reflectionanswer;
+    private String feedback;
+    private String badge;
     private String imageUrl;
     private String email;
     private String controlId;
@@ -34,12 +36,14 @@ public class DevotionalModel {
     }
 
     // Constructor with all arguments
-    public DevotionalModel(@NonNull String id, String title, String verse, String memoryverse, String reflectionanswer, String imageUrl, Timestamp timestamp,String email,String controlId ) {
+    public DevotionalModel(@NonNull String id, String title, String verse, String memoryverse, String reflectionanswer, String feedback,String badge,String imageUrl, Timestamp timestamp,String email,String controlId ) {
         this.id = id;
         this.title = title;
         this.verse = verse;
         this.memoryverse = memoryverse;
         this.reflectionanswer = reflectionanswer;
+        this.feedback = feedback;
+        this.badge = badge;
         this.imageUrl = imageUrl;
         this.timestamp = timestamp;
         this.email = email;
@@ -127,4 +131,19 @@ public class DevotionalModel {
         this.email = email;
     }
 
+    public String getBadge() {
+        return badge;
+    }
+
+    public void setBadge(String badge) {
+        this.badge = badge;
+    }
+
+    public String getFeedback() {
+        return feedback;
+    }
+
+    public void setFeedback(String feedback) {
+        this.feedback = feedback;
+    }
 }

@@ -122,7 +122,7 @@ public class BiblePlay extends AppCompatActivity {
                         }
 
 
-                   //   mediaPlayer.setDataSource(this, Uri.parse(audioUrl));
+                        //   mediaPlayer.setDataSource(this, Uri.parse(audioUrl));
                         mediaPlayer.prepare();
                         mediaPlayer.start();
 

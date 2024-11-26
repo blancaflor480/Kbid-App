@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        >
+
+        <!-- Title -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="20dp"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Feedback"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:gravity="center_vertical"
+                android:textColor="@color/black" />
+
+            <ImageButton
+                android:id="@+id/close"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/close"
+                android:contentDescription="Close" />
+        </LinearLayout>
+
+
+
+        <!-- Description -->
+        <TextView
+            android:id="@+id/textVieww"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Description"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:layout_marginBottom="10dp" />
+
+        <!-- Title Input -->
+        <TextView
+            android:id="@+id/email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColorHint="@color/black"
+            android:hint="Email"
+            android:textColor="@color/black"
+            android:background="@drawable/rounded_input_name"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Memory Verse Input -->
+        <TextView
+            android:id="@+id/memoryverse"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:hint="Memory Verse"
+            android:inputType="textMultiLine"
+            android:textColorHint="@color/black"
+            android:textColor="@color/black"
+
+            android:gravity="top|start"
+            android:scrollbars="vertical"
+            android:padding="12dp"
+            android:background="@drawable/rounded_input_name"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Verse Input -->
+        <TextView
+            android:id="@+id/verse"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Verse"
+            android:background="@drawable/rounded_input_name"
+            android:textColorHint="@color/black"
+            android:textColor="@color/black"
+
+            android:padding="12dp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Date Picker -->
+        <TextView
+            android:id="@+id/datedaily"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Date"
+            android:focusable="false"
+            android:clickable="true"
+            android:textColorHint="@color/black"
+            android:textColor="@color/black"
+
+            android:background="@drawable/rounded_input_name"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp" />
+
+        <Spinner
+            android:id="@+id/spinnerBadge"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rounded_input_name"
+            android:layout_marginBottom="16dp"
+             />
+
+        <!-- Upload Button -->
+
+        <EditText
+            android:id="@+id/feedback"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/rounded_input_name"
+            android:gravity="top|start"
+            android:hint="feedback"
+
+            android:inputType="textMultiLine"
+            android:padding="12dp"
+            android:scrollbars="vertical"
+            android:textColor="@color/black"
+            android:textColorHint="@color/black" />
+
+        <Button
+            android:id="@+id/btnSubmit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Submit"
+            android:backgroundTint="@color/blue"
+            android:textColor="@color/white"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp" />
+    </LinearLayout>
+</ScrollView>

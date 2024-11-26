@@ -21,4 +21,12 @@
         <item>Unlocked</item>
     </string-array>
 
+    <string-array name="option_badge">
+        <item>Star Thinker</item>
+        <item>Creative Contributor</item>
+        <item>Consistent Reflector</item>
+    </string-array>
+
+
+
 </resources>

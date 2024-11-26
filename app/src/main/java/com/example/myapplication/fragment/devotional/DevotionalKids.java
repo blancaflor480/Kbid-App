@@ -50,6 +50,8 @@ public class DevotionalKids extends AppCompatActivity {
     ImageView devotionalThumbnail,arrowback;
     SwipeRefreshLayout swipeRefreshLayout;
 
+    private String feedback = "no feedback"; // Initialize with a default value or retrieve from your data source
+    private String badge = "no badge"; // Initialize with a default value or retrieve from your data source
     private FirebaseFirestore db;
     private String devotionalId;
     private AppDatabase appDatabase;
@@ -101,7 +103,7 @@ public class DevotionalKids extends AppCompatActivity {
             if (!reflection.isEmpty()) {
 
                 if (email != null && controlId != null) {
-                    checkAndSubmitReflection(devotionalId, reflection, email, controlId);
+                    checkAndSubmitReflection(devotionalId, reflection, email, badge, feedback, controlId);
                 } else {
                     Toast.makeText(DevotionalKids.this, "Email or Control ID is missing.", Toast.LENGTH_SHORT).show();
                 }
@@ -380,13 +382,15 @@ public class DevotionalKids extends AppCompatActivity {
 
 
 
-    private void checkAndSubmitReflection(String id, String reflectionanswer, String email, String controlId) {
+    private void checkAndSubmitReflection(String id, String reflectionanswer, String email,String badge, String feedback,String controlId) {
         // Step 1: Check if reflection already exists for the given devotionalId and controlId
         Map<String, Object> reflectionData = new HashMap<>();
         reflectionData.put("id", id);
         reflectionData.put("controlId", controlId);
         reflectionData.put("reflectionanswer", reflectionanswer);
         reflectionData.put("email", email);
+        reflectionData.put("badge", badge);
+        reflectionData.put("feedback", feedback);
         reflectionData.put("timestamp", new Timestamp(new Date()));
 
         db.collection("kidsReflection")
@@ -397,7 +401,7 @@ public class DevotionalKids extends AppCompatActivity {
                 .addOnSuccessListener(querySnapshot -> {
                     if (querySnapshot.isEmpty()) {
                         // Step 2: If no existing reflection, proceed with submission
-                        submitReflection(id, reflectionanswer, email, controlId);
+                        submitReflection(id, reflectionanswer, email, badge, feedback,controlId);
                     } else {
                         // Step 3: Reflection already submitted, disable button and show message
                         handleExistingReflection(querySnapshot);
@@ -427,7 +431,7 @@ public class DevotionalKids extends AppCompatActivity {
         Toast.makeText(DevotionalKids.this, "Reflection already submitted.", Toast.LENGTH_SHORT).show();
     }
 
-    private void submitReflection(String devotionalId, String reflectionText, String email, String controlId) {
+    private void submitReflection(String devotionalId, String reflectionText, String email, String badge, String feedback,String controlId) {
         // Step 1: Create a new reflection object
         Map<String, Object> reflectionData = new HashMap<>();
         DevotionalModel reflection = new DevotionalModel();
@@ -435,6 +439,8 @@ public class DevotionalKids extends AppCompatActivity {
         reflection.setReflectionanswer(reflectionText);
         reflection.setTimestamp(new Timestamp(new Date())); // Capture timestamp
         reflection.setEmail(email);
+        reflection.setBadge(badge);
+        reflection.setFeedback(feedback);
         reflection.setControlId(controlId);
 
         // Step 2: Inflate custom confirmation dialog layout

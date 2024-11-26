@@ -105,7 +105,7 @@ public class ChildAgeActivity extends AppCompatActivity {
         // Setup Years
         List<String> years = new ArrayList<>();
         years.add("Select");
-        for (int i = 2009; i <= 2019; i++) {
+        for (int i = 2012; i <= 2018; i++) {
             years.add(String.valueOf(i));
         }
 
@@ -136,7 +136,7 @@ public class ChildAgeActivity extends AppCompatActivity {
 
             // Update validation message and enable button if the age is 12 or under
             if (age <= 12) {
-                validationAge.setText("Your Age " + age + "years old Valid");
+                validationAge.setText("Your Age " + age + " years old is valid. You can continue.");
                 buttonContinue.setEnabled(true);
                 buttonContinue.setBackgroundResource(R.drawable.btn_getstarted);
                 buttonContinue.setTextColor(Color.WHITE);

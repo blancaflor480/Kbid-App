@@ -137,6 +137,9 @@ public class SideNavigationAdmin extends AppCompatActivity implements Navigation
             // Hide User and Admin menu items
             menu.findItem(R.id.nav_user).setVisible(false);
             menu.findItem(R.id.nav_admin).setVisible(false);
+            menu.findItem(R.id.nav_stories).setVisible(false);
+            menu.findItem(R.id.nav_video).setVisible(false);
+            menu.findItem(R.id.nav_games).setVisible(false);
         } else if ("SuperAdmin".equalsIgnoreCase(role)) {
             // Show all menu items
             menu.findItem(R.id.nav_user).setVisible(true);
