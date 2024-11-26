@@ -14,11 +14,20 @@ import android.widget.Toast;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 
 import android.speech.SpeechRecognizer;
+
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import androidx.appcompat.app.AppCompatActivity;
@@ -103,7 +112,17 @@ public class BiblePlay extends AppCompatActivity {
                 if (mediaPlayer == null) {
                     mediaPlayer = new MediaPlayer();
                     try {
-                        mediaPlayer.setDataSource(this, Uri.parse(audioUrl));
+
+                        File localFile = getLocalAudioFile(audioUrl);
+                        if (localFile != null && localFile.exists()) {
+                            mediaPlayer.setDataSource(localFile.getAbsolutePath());
+                        } else {
+                            // If no local file, try online URL
+                            mediaPlayer.setDataSource(this, Uri.parse(audioUrl));
+                        }
+
+
+                   //   mediaPlayer.setDataSource(this, Uri.parse(audioUrl));
                         mediaPlayer.prepare();
                         mediaPlayer.start();
 
@@ -144,6 +163,40 @@ public class BiblePlay extends AppCompatActivity {
         }
     }
 
+
+    private File getLocalAudioFile(String audioUrl) {
+        try {
+            // Remove the query part of the URL (if any)
+            String fileUrlWithoutQuery = audioUrl.split("\\?")[0];
+
+            // Decode the file name from the URL
+            String fileName = fileUrlWithoutQuery.substring(fileUrlWithoutQuery.lastIndexOf('/') + 1);
+            fileName = URLDecoder.decode(fileName, "UTF-8"); // Decode URL-encoded characters
+
+            // Make sure the file name doesn't have slashes (replace with underscores)
+            fileName = fileName.replace("/", "_");
+
+            // Create the storage directory matching the download method
+            File storageDir = new File(getFilesDir(), "audio_stories/stories/audio");
+
+            // Ensure all parent directories are created
+            if (!storageDir.mkdirs() && !storageDir.exists()) {
+                Log.e("AudioFile", "Failed to create directory: " + storageDir.getAbsolutePath());
+                return null;
+            }
+
+            // Create the file in the storage directory
+            File audioFile = new File(storageDir, fileName);
+
+            // Log the file path for debugging
+            Log.d("AudioFile", "Searching for local audio file: " + audioFile.getAbsolutePath());
+
+            return audioFile.exists() ? audioFile : null;
+        } catch (Exception e) {
+            Log.e("AudioFile", "Error finding local audio file", e);
+            return null;
+        }
+    }
 
     private void unlockNextStory(String currentStoryId) {
         // Access the database
@@ -212,9 +265,6 @@ public class BiblePlay extends AppCompatActivity {
             runOnUiThread(() -> Toast.makeText(BiblePlay.this, "Current story marked as completed!", Toast.LENGTH_SHORT).show());
         });
     }
-
-
-
 
     private void showFinishReadingDialog() {
         // Create a dialog to show the finish_reading layout
@@ -317,27 +367,17 @@ public class BiblePlay extends AppCompatActivity {
         });
     }
 
-
-
-
     // Example method to get the current story ID, you might already have this implemented
     private String getCurrentStoryId() {
-        // Implement logic to return the current story ID
-        // For example, you might want to keep track of it in an instance variable or pass it around
-        //return getIntent().getStringExtra("id");
         return getIntent().getStringExtra("id");
     }
 
-
     private String getCurrentUserId() {
-        // Retrieve the current user ID from Firebase or shared preferences, etc.
-        // Assuming you are using Firebase Auth
         FirebaseAuth auth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = auth.getCurrentUser();
         return currentUser != null ? currentUser.getUid() : null;
     }
     private void startAudioSynchronization() {
-        // Stop any ongoing recognition before starting a new one
         stopAudioSynchronization();
 
         // Using a handler to periodically fetch the current position and simulate subtitle sync
@@ -354,8 +394,6 @@ public class BiblePlay extends AppCompatActivity {
     }
 
     private void updateStoryText(int currentPosition) {
-        // Logic to update the storyView text based on the current position of the audio
-        // This is a placeholder implementation and should be updated with actual subtitle logic
         storyView.setText("Playing at: " + currentPosition + " ms");
     }
 

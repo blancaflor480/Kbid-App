@@ -1,5 +1,7 @@
 package com.example.myapplication.fragment.biblestories;
 
+import static java.security.AccessController.getContext;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -11,6 +13,7 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import static java.security.AccessController.getContext;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.example.myapplication.database.Converters;
@@ -30,6 +33,13 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.security.AccessControlContext;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -174,9 +184,9 @@ public class BibleFragment extends AppCompatActivity {
                 // Step 3: Trigger Firestore fetch to update data if online
                 if (isOnline()) {
                     fetchFromFirestore();
+                } else {
+                    swipeRefreshLayout.setRefreshing(false);
                 }
-
-                swipeRefreshLayout.setRefreshing(false);
             });
         });
     }
@@ -236,6 +246,9 @@ public class BibleFragment extends AppCompatActivity {
                                 String imageUrl = document.getString("imageUrl");
                                 String audioUrl = document.getString("audioUrl");
 
+                                boolean isAudioDownloaded = false;
+
+
                                 // Safely retrieve the count value
                                 int count = 0; // Default value
                                 if (document.contains("count") && document.get("count") != null) {
@@ -248,38 +261,25 @@ public class BibleFragment extends AppCompatActivity {
 
                                 // Convert Firestore timestamp to a long for SQLite compatibility
                                 long timestampMillis = timestamp != null ? timestamp.toDate().getTime() : 0;
-
-                                // Check if the story already exists in SQLite
                                 ModelBible localStory = appDatabase.bibleDao().getStoryById(id);
+                                isAudioDownloaded = (localStory != null) && localStory.isAudioDownloaded();
 
-                                // Retain the `isCompleted` status from SQLite if the story exists
                                 String isCompleted = (localStory != null) ? localStory.getIsCompleted() : document.getString("isCompleted");
+                                ModelBible story = new ModelBible(id,title,description,verse, String.valueOf(timestampMillis), imageUrl, audioUrl, isCompleted, count, isAudioDownloaded);
 
-                                // Create a new ModelBible object
-                                ModelBible story = new ModelBible(
-                                        id,
-                                        title,
-                                        description,
-                                        verse,
-                                        String.valueOf(timestampMillis), // Store timestamp as String
-                                        imageUrl,
-                                        audioUrl,
-                                        isCompleted,
-                                        count
-                                );
+                                if (!isAudioDownloaded && audioUrl != null && !audioUrl.isEmpty()) {
+                                    downloadAudioFile(id, audioUrl);
+                                }
 
-                                // Add only new stories to the list if they don't already exist in SQLite
                                 if (localStory == null) {
                                     newStories.add(story);
                                 }
                             }
 
-                            // Insert new stories into SQLite and create corresponding achievement entries
                             if (!newStories.isEmpty()) {
                                 for (ModelBible newStory : newStories) {
                                     // Insert the story into the Bible table
                                     appDatabase.bibleDao().insert(newStory);
-
                                     // Create an achievement entry related to this story
                                     StoryAchievementModel achievement = new StoryAchievementModel(
                                             newStory.getTitle(), "Story Achievement", newStory.getIsCompleted(), newStory.getCount(),newStory.getId());
@@ -287,10 +287,8 @@ public class BibleFragment extends AppCompatActivity {
                                 }
                             }
 
-                            // Fetch the updated list of stories from SQLite
-                            List<ModelBible> updatedStories = appDatabase.bibleDao().getAllBibleStories();
+                            List<ModelBible> updatedStories = appDatabase.bibleDao().getAllBibleStoriesSortedByTimestamp();
 
-                            // Debugging: Log the fetched stories
                             Log.d("SQLiteFetch", "Fetched " + updatedStories.size() + " stories from SQLite.");
                             for (ModelBible story : updatedStories) {
                                 Log.d("SQLiteFetch", "Story ID: " + story.getId() + ", Title: " + story.getTitle() + ", isCompleted: " + story.getIsCompleted());
@@ -304,7 +302,7 @@ public class BibleFragment extends AppCompatActivity {
                                     showNoConnectionUI();
                                 } else {
                                     // Update the list and notify the adapter
-                                    bibleStories.clear();  // Clear only after successfully fetching updated data
+                                   bibleStories.clear();  // Clear only after successfully fetching updated data
                                     bibleStories.addAll(updatedStories);
 
                                     if (adapterBible == null) {
@@ -325,7 +323,7 @@ public class BibleFragment extends AppCompatActivity {
                         Log.e("FirestoreFetch", "Failed to fetch stories from Firestore.");
                         swipeRefreshLayout.setRefreshing(false);
                         Executors.newSingleThreadExecutor().execute(() -> {
-                            List<ModelBible> localStories = appDatabase.bibleDao().getAllBibleStories();
+                            List<ModelBible> localStories = appDatabase.bibleDao().getAllBibleStoriesSortedByTimestamp();
                             runOnUiThread(() -> {
                                 if (localStories.isEmpty()) {
                                     showNoConnectionUI();
@@ -351,17 +349,109 @@ public class BibleFragment extends AppCompatActivity {
                 });
     }
 
+    private void downloadAudioFile(String storyId, String audioUrl) {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            Context context = BibleFragment.this;
 
+            if (context == null) {
+                Log.e("AudioDownload", "Context is null, cannot download audio file");
+                return;
+            }
+
+            try {
+                // Remove the query part of the URL (if any)
+                String fileUrlWithoutQuery = audioUrl.split("\\?")[0];
+
+                // Decode the file name from the URL
+                String fileName = fileUrlWithoutQuery.substring(fileUrlWithoutQuery.lastIndexOf('/') + 1);
+                fileName = URLDecoder.decode(fileName, "UTF-8"); // Decode URL-encoded characters
+
+                // Make sure the file name doesn't have slashes (replace with underscores)
+                fileName = fileName.replace("/", "_");
+
+                // Prepare the storage directory
+                File storageDir = new File(context.getFilesDir(), "audio_stories/stories/audio");
+
+                // Ensure all parent directories are created
+                if (!storageDir.mkdirs() && !storageDir.exists()) {
+                    Log.e("AudioDownload", "Failed to create directory: " + storageDir.getAbsolutePath());
+                    return;
+                }
+
+                // Create the file in the storage directory
+                File audioFile = new File(storageDir, fileName);
+
+                // Ensure the parent directory exists before creating the file
+                File parentDir = audioFile.getParentFile();
+                if (parentDir != null && !parentDir.exists()) {
+                    if (!parentDir.mkdirs()) {
+                        Log.e("AudioDownload", "Failed to create parent directory: " + parentDir.getAbsolutePath());
+                        return;
+                    }
+                }
+                Log.d("AudioDownload", "Saving audio to: " + audioFile.getAbsolutePath());
+                // Check if file already exists
+                if (audioFile.exists()) {
+                    Log.d("AudioDownload", "Audio file already exists: " + audioFile.getAbsolutePath());
+                    appDatabase.bibleDao().updateAudioDownloadedStatus(storyId, true);
+                    return;
+                }
+                // Download audio file
+                URL url = new URL(audioUrl); // Use the full URL with token
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.connect();
+
+                if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                    Log.e("AudioDownload", "Server returned HTTP " + connection.getResponseCode());
+                    return;
+                }
+
+                // Ensure the file can be created
+                if (!audioFile.createNewFile()) {
+                    Log.e("AudioDownload", "Failed to create file: " + audioFile.getAbsolutePath());
+                    return;
+                }
+
+                // Download the file
+                try (InputStream input = connection.getInputStream();
+                     FileOutputStream output = new FileOutputStream(audioFile)) {
+
+                    byte[] buffer = new byte[4096];
+                    int bytesRead;
+                    while ((bytesRead = input.read(buffer)) != -1) {
+                        output.write(buffer, 0, bytesRead);
+                        Log.d("AudioDownload", "Downloaded " + bytesRead + " bytes");
+                    }
+
+                } finally {
+                    connection.disconnect();
+                }
+
+                // Update database if download is successful
+                if (audioFile.exists() && audioFile.length() > 0) {
+                    Log.d("AudioDownload", "Audio downloaded successfully: " + audioFile.getAbsolutePath());
+                    appDatabase.bibleDao().updateAudioDownloadedStatus(storyId, true);
+                } else {
+                    Log.e("AudioDownload", "Audio file not found or empty after download.");
+                }
+
+            } catch (Exception e) {
+                Log.e("AudioDownload", "Error downloading audio file", e);
+            }
+        });
+    }
 
     private void loadFromLocalStorage() {
         Executors.newSingleThreadExecutor().execute(() -> {
-            List<ModelBible> localStories = appDatabase.bibleDao().getAllBibleStories();
+            List<ModelBible> localStories = appDatabase.bibleDao().getAllBibleStoriesSortedByTimestamp();
             runOnUiThread(() -> {
                 if (!localStories.isEmpty()) {
-                    bibleStories.clear();
-                    bibleStories.addAll(localStories); // Add local stories
-                    adapterBible = new AdapterBible(BibleFragment.this, bibleStories);
-                    recyclerView.setAdapter(adapterBible);
+                    if (adapterBible == null) {
+                        adapterBible = new AdapterBible(BibleFragment.this, localStories);
+                        recyclerView.setAdapter(adapterBible);
+                    } else {
+                        adapterBible.updateStories(localStories);
+                    }
                 } else {
                     // Show "No Data" UI if no stories are found and there's no internet connection
                     if (!isOnline()) {
@@ -407,8 +497,6 @@ public class BibleFragment extends AppCompatActivity {
             });
         });
     }
-
-
 
     private void loadUpcomingStories() {
         Executors.newSingleThreadExecutor().execute(() -> {

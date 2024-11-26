@@ -49,6 +49,7 @@ public class AdapterBible extends RecyclerView.Adapter<AdapterBible.MyHolder> {
 
         String isCompleted = bibleVerse.getIsCompleted();
 
+
         // Set visibility and transparency based on the lock state
         if ("locked".equalsIgnoreCase(isCompleted)) {
             holder.lockImage.setVisibility(View.VISIBLE); // Show lock image

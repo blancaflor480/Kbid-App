@@ -46,6 +46,11 @@ public interface BibleDao {
     @Query("SELECT * FROM stories WHERE count = :count LIMIT 1")
     ModelBible getStoryByCount(int count);
 
+    @Query("SELECT isAudioDownloaded FROM stories WHERE id = :storyId LIMIT 1")
+    boolean isAudioDownloaded(String storyId);
+
+    @Query("UPDATE stories SET isAudioDownloaded = :isDownloaded WHERE id = :storyId")
+    void updateAudioDownloadedStatus(String storyId, boolean isDownloaded);
 
     @Update
     void update(ModelBible story);

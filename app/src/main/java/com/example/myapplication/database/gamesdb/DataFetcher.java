@@ -75,19 +75,27 @@ public class DataFetcher {
     }
 
     private void createGameAchievement(Games game) {
-        GameAchievementModel achievement = new GameAchievementModel(
-                game.getFirestoreId(),        // Game ID reference
-                game.getTitle(),              // Game title
-                game.getLevel(),              // Game level
-                null,                         // Points (null by default)
-                "locked"                      // Initial state is locked
-        );
-
-        // Save the achievement to the database
+        // First, check if any achievement with the same gameId already exists
         executor.execute(() -> {
-            gameAchievementDao.insert(achievement);
+            GameAchievementModel existingAchievement = gameAchievementDao.getAchievementByGameId(game.getFirestoreId());
+
+            // If no existing achievement with the same gameId is found, insert the new achievement
+            if (existingAchievement == null) {
+                GameAchievementModel achievement = new GameAchievementModel(
+                        game.getFirestoreId(),        // Game ID reference
+                        game.getTitle(),              // Game title
+                        game.getLevel(),              // Game level
+                        null,                         // Points (null by default)
+                        "locked"                      // Initial state is locked
+                );
+
+                // Insert the achievement into the database
+                gameAchievementDao.insert(achievement);
+            }
         });
     }
+
+
 
 
     private void processGameDocument(DocumentSnapshot document, AtomicInteger downloadedImages,

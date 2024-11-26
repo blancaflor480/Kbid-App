@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -22,23 +21,28 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.myapplication.R;
 import com.example.myapplication.database.AppDatabase;
+import com.example.myapplication.fragment.achievement.GameAchievementModel;
+import com.example.myapplication.fragment.achievement.GameAdapterAchievement;
 import com.example.myapplication.fragment.achievement.LeaderBoard;
 import com.example.myapplication.fragment.achievement.StoryAchievementModel;
 import com.example.myapplication.fragment.achievement.StoryAdapterAchievement;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executors;
 
 public class FragmentAchievement extends Fragment {
 
-    private ImageView underMaintenance;
     private ViewPager2 homepage;
     private ImageButton leaderboard;
     private TextView storytitle, gametitle, emptyMessage;
     private RadioGroup achievementSwitch;
-    private RecyclerView recyclepstory;
+    private RecyclerView recyclepstory, recyclepgame;
     private StoryAdapterAchievement storyAdapter;
+    private GameAdapterAchievement gameAdapter;
+    private List<GameAchievementModel> gameList;
     private List<StoryAchievementModel> storyList;
     private AppDatabase appDatabase;
 
@@ -47,80 +51,77 @@ public class FragmentAchievement extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_achievement, container, false);
 
-        // Initialize the RecyclerView and the achievement list
+        // Initialize Views
         leaderboard = rootView.findViewById(R.id.leaderboard);
-        storyList = new ArrayList<>();
-        storyAdapter = new StoryAdapterAchievement(requireContext(), storyList);
-
-        recyclepstory = rootView.findViewById(R.id.recyclep);
-        recyclepstory.setLayoutManager(new LinearLayoutManager(requireContext()));
-        recyclepstory.setAdapter(storyAdapter);
-
-        // Initialize the Database Helper
-        appDatabase = AppDatabase.getDatabase(requireContext());
-
-        // Initialize the RadioGroup and RadioButtons
-        achievementSwitch = rootView.findViewById(R.id.achievement_switch);
-        RadioButton storyButton = rootView.findViewById(R.id.story);
-        RadioButton gamesButton = rootView.findViewById(R.id.games);
-
-        // Initialize the TextViews for storytitle, gametitle, and emptyMessage
+        recyclepstory = rootView.findViewById(R.id.recyclepstory);
+        recyclepgame = rootView.findViewById(R.id.recyclepgame);
         storytitle = rootView.findViewById(R.id.storytitle);
         gametitle = rootView.findViewById(R.id.gametitle);
         emptyMessage = rootView.findViewById(R.id.emptyMessage);
+        achievementSwitch = rootView.findViewById(R.id.achievement_switch);
         homepage = rootView.findViewById(R.id.homepage);
 
-        // Set initial style for RadioButtons
+        // Initialize RecyclerView and Adapters
+        storyList = new ArrayList<>();
+        gameList = new ArrayList<>();
+        storyAdapter = new StoryAdapterAchievement(requireContext(), storyList);
+        gameAdapter = new GameAdapterAchievement(requireContext(), gameList);
+
+        recyclepstory.setLayoutManager(new LinearLayoutManager(requireContext()));
+        recyclepgame.setLayoutManager(new LinearLayoutManager(requireContext()));
+        recyclepstory.setAdapter(storyAdapter);
+        recyclepgame.setAdapter(gameAdapter);
+
+        // Initialize Database
+        appDatabase = AppDatabase.getDatabase(requireContext());
+
+        // Set Initial State
+        RadioButton storyButton = rootView.findViewById(R.id.story);
+        RadioButton gamesButton = rootView.findViewById(R.id.games);
         setRadioButtonStyle(storyButton, true);
         setRadioButtonStyle(gamesButton, false);
+        loadStoryAchievements(); // Default to story achievements
 
-        leaderboard.setOnClickListener(v -> {
-            Navigateleaderboard();
+        // Listeners
+        leaderboard.setOnClickListener(v -> navigateLeaderboard());
+        storyButton.setOnClickListener(v -> {
+            toggleAchievements(true);
         });
-
-        // Set up listener for RadioGroup
+        gamesButton.setOnClickListener(v -> {
+            toggleAchievements(false);
+        });
         achievementSwitch.setOnCheckedChangeListener((group, checkedId) -> {
             resetRadioButtonStyles(storyButton, gamesButton);
-
             if (checkedId == R.id.story) {
                 setRadioButtonStyle(storyButton, true);
                 loadStoryAchievements();
-                showStoryTitle(); // Load achievements for Story
             } else if (checkedId == R.id.games) {
                 setRadioButtonStyle(gamesButton, true);
                 loadGameAchievements();
-                showGameTitle(); // Load achievements for Games
             }
         });
-
-        // Load initial achievements
-        loadStoryAchievements(); // Default to loading story achievements
 
         return rootView;
     }
 
-    private void showStoryTitle() {
-        storytitle.setVisibility(View.VISIBLE);
-        gametitle.setVisibility(View.GONE);
-        homepage.setBackgroundColor(getResources().getColor(R.color.purplelight));
-    }
-
-    private void showGameTitle() {
-        gametitle.setVisibility(View.VISIBLE);
-        storytitle.setVisibility(View.GONE);
-        homepage.setBackgroundColor(getResources().getColor(R.color.redlight));
+    private void toggleAchievements(boolean isStory) {
+        if (isStory) {
+            recyclepstory.setVisibility(View.VISIBLE);
+            recyclepgame.setVisibility(View.GONE);
+            storytitle.setVisibility(View.VISIBLE);
+            gametitle.setVisibility(View.GONE);
+        } else {
+            recyclepstory.setVisibility(View.GONE);
+            recyclepgame.setVisibility(View.VISIBLE);
+            storytitle.setVisibility(View.GONE);
+            gametitle.setVisibility(View.VISIBLE);
+        }
     }
 
     private void setRadioButtonStyle(RadioButton radioButton, boolean isSelected) {
-        if (isSelected) {
-            radioButton.setTypeface(null, Typeface.BOLD);
-            radioButton.setTextColor(getResources().getColor(android.R.color.black));
-            radioButton.setBackgroundResource(R.drawable.bg_selected_achievement);
-        } else {
-            radioButton.setTypeface(null, Typeface.NORMAL);
-            radioButton.setTextColor(getResources().getColor(android.R.color.darker_gray));
-            radioButton.setBackgroundResource(R.drawable.bg_unselected_achievement);
-        }
+        radioButton.setTypeface(null, isSelected ? Typeface.BOLD : Typeface.NORMAL);
+        radioButton.setTextColor(getResources().getColor(isSelected ? android.R.color.black : android.R.color.darker_gray));
+        radioButton.setBackgroundResource(isSelected ? R.drawable.bg_selected_achievement : R.drawable.bg_unselected_achievement);
     }
 
     private void resetRadioButtonStyles(RadioButton... buttons) {
@@ -130,71 +131,71 @@ public class FragmentAchievement extends Fragment {
     }
 
     private void loadStoryAchievements() {
-        Log.d("FragmentAchievement", "Loading achievements for Story...");
         Executors.newSingleThreadExecutor().execute(() -> {
-            // Fetch the sorted achievements from the database
             List<StoryAchievementModel> storyAchievements = appDatabase.storyAchievementDao().getAchievementsForStory();
-
-            // Update the achievement statuses based on story completion
             for (StoryAchievementModel achievement : storyAchievements) {
-                // Check if the associated story is completed
-                boolean isCompleted = appDatabase.storyAchievementDao().isStoryCompleted(achievement.getStoryId());
-                if (isCompleted) {
-                    achievement.setIsCompleted("completed");  // Set the achievement status to "completed"
-                } else {
-                    achievement.setIsCompleted("locked");  // Set the achievement status to "locked"
+                achievement.setIsCompleted(appDatabase.storyAchievementDao().isStoryCompleted(achievement.getStoryId()) ? "completed" : "locked");
+            }
+            requireActivity().runOnUiThread(() -> updateAchievements(storyAchievements));
+        });
+    }
+
+    private void loadGameAchievements() {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            // Fetch all game achievements
+            List<GameAchievementModel> gameAchievements = appDatabase.gameAchievementDao().getAchievementsForGames();
+
+            // Use a Set to filter out duplicates based on unique attributes (e.g., gameId, level)
+            Set<String> seenGameIds = new HashSet<>();
+            List<GameAchievementModel> uniqueAchievements = new ArrayList<>();
+
+            for (GameAchievementModel achievement : gameAchievements) {
+                // Create a unique key based on gameId and level (or other unique fields)
+                String uniqueKey = achievement.getGameId() + "_" + achievement.getLevel();
+
+                // Check if the achievement is already added to the unique list
+                if (!seenGameIds.contains(uniqueKey)) {
+                    seenGameIds.add(uniqueKey);
+                    uniqueAchievements.add(achievement);
                 }
             }
 
-            // Log the number of fetched achievements for debugging
-            Log.d("FragmentAchievement", "Fetched " + storyAchievements.size() + " achievements for Story.");
+            // Update completion status for each unique achievement
+            for (GameAchievementModel achievement : uniqueAchievements) {
+                boolean isCompleted = appDatabase.gameAchievementDao().isGameCompleted(achievement.getGameId());
+                achievement.setIsCompleted(isCompleted ? "completed" : "locked");
+            }
 
-            // Update the UI on the main thread with the sorted achievements
-            requireActivity().runOnUiThread(() -> {
-                updateAchievements(storyAchievements);
-            });
+            // Update UI on the main thread
+            requireActivity().runOnUiThread(() -> updateGameAchievements(uniqueAchievements));
         });
     }
 
 
-
-    private void loadGameAchievements() {
-        Log.d("FragmentAchievement", "Loading achievements for Games...");
-        Executors.newSingleThreadExecutor().execute(() -> {
-            List<StoryAchievementModel> gameAchievements = appDatabase.storyAchievementDao().getAchievementsForGames();
-            Log.d("FragmentAchievement", "Fetched " + gameAchievements.size() + " achievements for Games.");
-
-            requireActivity().runOnUiThread(() -> {
-                updateAchievements(gameAchievements);
-            });
-        });
-    }
 
     private void updateAchievements(List<StoryAchievementModel> achievements) {
         storyList.clear();
-
         if (achievements.isEmpty()) {
-            recyclepstory.setVisibility(View.GONE);
             emptyMessage.setVisibility(View.VISIBLE);
         } else {
-            for (StoryAchievementModel achievement : achievements) {
-                // Change appearance based on completed status
-                if ("completed".equalsIgnoreCase(achievement.getIsCompleted())) {
-                    achievement.setIsCompleted("completed");  // If the achievement is completed
-                } else {
-                    achievement.setIsCompleted("locked");  // If the achievement is locked
-                }
-            }
-
-            storyList.addAll(achievements);
-            storyAdapter.notifyDataSetChanged();
-            recyclepstory.setVisibility(View.VISIBLE);
             emptyMessage.setVisibility(View.GONE);
+            storyList.addAll(achievements);
         }
+        storyAdapter.notifyDataSetChanged();
     }
 
-    private void Navigateleaderboard() {
-        Intent intent = new Intent(getActivity(), LeaderBoard.class);
-        startActivity(intent);
+    private void updateGameAchievements(List<GameAchievementModel> achievements) {
+        gameList.clear();
+        if (achievements.isEmpty()) {
+            emptyMessage.setVisibility(View.VISIBLE);
+        } else {
+            emptyMessage.setVisibility(View.GONE);
+            gameList.addAll(achievements);
+        }
+        gameAdapter.notifyDataSetChanged();
+    }
+
+    private void navigateLeaderboard() {
+        startActivity(new Intent(getActivity(), LeaderBoard.class));
     }
 }

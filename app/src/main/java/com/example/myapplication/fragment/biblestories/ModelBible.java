@@ -6,42 +6,44 @@ import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
 
 import com.example.myapplication.database.Converters;
-import com.google.firebase.Timestamp;
 
 @Entity(tableName = "stories")
-@TypeConverters({Converters.class}) // Ensure the Timestamp is handled correctly with Room
+@TypeConverters({Converters.class})
 public class ModelBible {
 
     @PrimaryKey
     @NonNull
-    private String id;  // Firestore ID as the primary key
+    private String id;
 
-    private String title;  // Title of the story
-    private String description;  // Description of the story
-    private String verse; // New field for verse
-    private String timestamp;  // Change this to String for formatted date
-    private String imageUrl; // New field for image URL
+    private String title;
+    private String description;
+    private String verse;
+    private String timestamp; // Ensure Converters can handle this as a String
+    private String imageUrl;
     private String audioUrl;
     private String isCompleted;
     private int count;
+    private boolean isAudioDownloaded;
 
-    // No-argument constructor required by Firebase Firestore
-    public ModelBible() {
-    }
+    // No-argument constructor required by Firestore
+    public ModelBible() {}
 
-    // Constructor to initialize the ModelBible object
-    public ModelBible(@NonNull String id, String title, String description, String verse, String timestamp, String imageUrl, String audioUrl, String isCompleted,int count ) {
+    // All-arguments constructor
+    public ModelBible(@NonNull String id, String title, String description, String verse, String timestamp,
+                      String imageUrl, String audioUrl, String isCompleted, int count, boolean isAudioDownloaded) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.verse = verse;
-        this.timestamp = timestamp; // Updated to String
+        this.timestamp = timestamp;
         this.imageUrl = imageUrl;
         this.audioUrl = audioUrl;
         this.isCompleted = isCompleted;
-        this.count = count;// Fixed the typo here
+        this.count = count;
+        this.isAudioDownloaded = isAudioDownloaded;
     }
 
+    // Getters and Setters
     @NonNull
     public String getId() {
         return id;
@@ -76,10 +78,10 @@ public class ModelBible {
     }
 
     public String getTimestamp() {
-        return timestamp; // Change return type to String
+        return timestamp;
     }
 
-    public void setTimestamp(String timestamp) { // Change parameter type to String
+    public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
     }
 
@@ -94,15 +96,16 @@ public class ModelBible {
     public String getAudioUrl() {
         return audioUrl;
     }
+
     public void setAudioUrl(String audioUrl) {
         this.audioUrl = audioUrl;
     }
 
-    public String getIsCompleted() {  // Fixed method name
+    public String getIsCompleted() {
         return isCompleted;
     }
 
-    public void setIsCompleted(String isCompleted) {  // Fixed method name
+    public void setIsCompleted(String isCompleted) {
         this.isCompleted = isCompleted;
     }
 
@@ -114,4 +117,11 @@ public class ModelBible {
         this.count = count;
     }
 
+    public boolean isAudioDownloaded() { // Updated method name
+        return isAudioDownloaded;
+    }
+
+    public void setAudioDownloaded(boolean isAudioDownloaded) {
+        this.isAudioDownloaded = isAudioDownloaded;
+    }
 }

@@ -16,19 +16,25 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <ImageView
-            android:id="@+id/thumbnailp"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:src="@drawable/image"
-            android:scaleType="centerCrop"/>
-
+        <LinearLayout
+            android:layout_width="70dp"
+            android:layout_height="70dp">
+            <ImageView
+                android:id="@+id/thumbnailp"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:src="@raw/gamebadge"
+                android:layout_gravity="center"
+                android:layout_marginStart="5dp"
+                android:scaleType="centerCrop"/>
+        </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
             android:orientation="horizontal"
             android:gravity="center_vertical">
+
 
             <TextView
                 android:id="@+id/titlep"
@@ -37,17 +43,28 @@
                 android:layout_marginTop="10dp"
                 android:layout_weight="1"
                 android:fontFamily="@font/dinroundedpro_bold"
-                android:text="Game Level"
+                android:padding="5dp"
+                android:text="Title Story"
                 android:textColor="@color/black"
-                android:textSize="13sp"
-                android:padding="5dp" />
+                android:textSize="15sp" />
 
             <ImageView
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:id="@+id/unlockachivements"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="10dp"
+                android:background="@raw/lockgray"
+                android:visibility="gone"
+                />
+            <ImageView
+                android:id="@+id/starrewardachivements"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
                 android:layout_marginRight="5dp"
                 android:layout_marginTop="10dp"
-                android:background="@raw/lock_achievement"
+                android:background="@raw/starreward"
+                android:visibility="gone"
                 />
         </LinearLayout>
     </LinearLayout>
