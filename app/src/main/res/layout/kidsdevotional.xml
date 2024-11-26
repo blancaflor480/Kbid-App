@@ -293,7 +293,33 @@
                     android:textColorHint="@color/black"
                     android:hint="What are your thoughts on today's verse?"
                     android:padding="12dp"
-                    android:inputType="text"
+                    android:inputType="textMultiLine"
+                    android:background="@drawable/rounded_input_name"
+                    android:fontFamily="@font/gothamroundedmedium"
+                    android:textSize="15sp"
+                    android:gravity="start|top"
+                    android:textColor="@color/black"
+                    android:scrollbars="vertical" />
+                <TextView
+                    android:id="@+id/feedbacktitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:layout_marginTop="15dp"
+                    android:text="Feedback"
+                    android:visibility="gone"
+                    android:fontFamily="@font/gothamroundedbold"
+                    android:textSize="20sp"
+                    android:textColor="@color/black" />
+                <TextView
+                    android:id="@+id/feedback"
+                    android:layout_marginTop="10dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:textColorHint="@color/black"
+                    android:hint="feedback"
+                    android:visibility="gone"
+                    android:padding="12dp"
                     android:background="@drawable/rounded_input_name"
                     android:fontFamily="@font/gothamroundedmedium"
                     android:textSize="15sp"
@@ -304,7 +330,6 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
-
     <LinearLayout
         android:id="@+id/buttonLayout"
         android:layout_width="match_parent"

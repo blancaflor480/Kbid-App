@@ -44,12 +44,11 @@ import java.util.concurrent.Executors;
 import java.util.Calendar;
 public class DevotionalKids extends AppCompatActivity {
 
-    TextView memoryverse, verse;
+    TextView memoryverse, verse, feedbackTextView, feedbacktitle;
     AppCompatButton submit;
     EditText answerreflection;
     ImageView devotionalThumbnail,arrowback;
     SwipeRefreshLayout swipeRefreshLayout;
-
     private String feedback = "no feedback"; // Initialize with a default value or retrieve from your data source
     private String badge = "no badge"; // Initialize with a default value or retrieve from your data source
     private FirebaseFirestore db;
@@ -77,7 +76,8 @@ public class DevotionalKids extends AppCompatActivity {
         speechToTextButton = findViewById(R.id.speechttext);
         submit = findViewById(R.id.submit);
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
-
+        feedbackTextView = findViewById(R.id.feedback);
+        feedbacktitle = findViewById(R.id.feedbacktitle);
         // Retrieve `devotionalId` from Intent, if available
         devotionalId = getIntent().getStringExtra("devotionalId");
         String controlId = getIntent().getStringExtra("controlId");
@@ -289,6 +289,67 @@ public class DevotionalKids extends AppCompatActivity {
                 });
     }
 
+    private void checkAndShowBadge(String email, String controlId) {
+        // Query Firestore to check for badges
+        db.collection("kidsReflection")
+                .whereEqualTo("email", email)
+                .whereEqualTo("controlId", controlId)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    if (!querySnapshot.isEmpty()) {
+                        // Get the badge from the first document
+                        String badge = querySnapshot.getDocuments().get(0).getString("badge");
+
+                        if (badge != null && !badge.isEmpty()) {
+                            // Show the corresponding badge popup
+                            showBadgePopup(badge);
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("DevotionalKids", "Error checking badge", e);
+                });
+    }
+
+    private void showBadgePopup(String badge) {
+        // Create the dialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.badge, null);
+        builder.setView(dialogView);
+
+        AlertDialog dialog = builder.create();
+
+        // Find the badge ImageView
+        ImageView badgeImageView = dialogView.findViewById(R.id.badge);
+        TextView badgeTextView = dialogView.findViewById(R.id.badgeTextView);
+
+        // Set the badge image and text based on the badge type
+        switch (badge) {
+            case "Star Thinker":
+                badgeImageView.setImageResource(R.drawable.startthinker);
+                badgeTextView.setText("Star Thinker");
+                break;
+            case "Creative Contributor":
+                badgeImageView.setImageResource(R.drawable.creativecontributiion);
+                badgeTextView.setText("Creative Contributor");
+                break;
+            case "Consistent Reflector":
+                badgeImageView.setImageResource(R.drawable.consistentreflector);
+                badgeTextView.setText("Consistent Reflector");
+                break;
+            default:
+                // If badge doesn't match known types, don't show the popup
+                return;
+        }
+
+        // Add a button to dismiss the dialog
+        AppCompatButton closeButton = dialogView.findViewById(R.id.button_done);
+        closeButton.setOnClickListener(v -> dialog.dismiss());
+
+        // Show the dialog
+        dialog.show();
+    }
 
     // Load devotional data from Firestore
     private void loadDevotional(String id, String controlId, String email) {
@@ -298,6 +359,7 @@ public class DevotionalKids extends AppCompatActivity {
             return;
         }
 
+        checkAndShowBadge(email, controlId);
         swipeRefreshLayout.setRefreshing(true);
 
         // Fetch devotional data from Firestore
@@ -334,6 +396,15 @@ public class DevotionalKids extends AppCompatActivity {
         memoryverse.setText(devotional.getMemoryverse());
         verse.setText(devotional.getVerse());
 
+        if (devotional.getFeedback() != null && !devotional.getFeedback().isEmpty()) {
+            feedbackTextView.setText(devotional.getFeedback());
+            feedbackTextView.setVisibility(View.VISIBLE);
+            feedbacktitle.setVisibility(View.VISIBLE);
+        } else {
+            feedbackTextView.setVisibility(View.GONE);
+            feedbacktitle.setVisibility(View.GONE);
+        }
+
         if (devotional.getImageUrl() != null && !devotional.getImageUrl().isEmpty()) {
             Glide.with(DevotionalKids.this)
                     .load(devotional.getImageUrl())
@@ -365,9 +436,17 @@ public class DevotionalKids extends AppCompatActivity {
 
                         // Fetch the existing reflection from Firestore
                         String existingReflection = querySnapshot.getDocuments().get(0).getString("reflectionanswer");
-
+                        String existingFeedback = querySnapshot.getDocuments().get(0).getString("feedback");
                         // Set the existing reflection in the EditText
                         answerreflection.setText(existingReflection);
+                        if (existingFeedback != null && !existingFeedback.isEmpty()) {
+                            feedbackTextView.setText(existingFeedback);
+                            feedbackTextView.setVisibility(View.VISIBLE);
+                            feedbacktitle.setVisibility(View.VISIBLE);
+                        } else {
+                            feedbackTextView.setVisibility(View.GONE);
+                            feedbacktitle.setVisibility(View.GONE);
+                        }
                     }
                     else {
                         // Enable reflection input if not yet submitted

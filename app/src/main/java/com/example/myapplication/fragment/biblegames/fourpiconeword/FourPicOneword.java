@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RippleDrawable;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -55,7 +56,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class FourPicOneword extends AppCompatActivity {
     private static final String TAG = "FourPicOneword";
-    private ImageView arrowback;
+    private ImageView arrowback,sounds;
     private ProgressBar progressBar;
     private LinearLayout answerBoxesLayout;
     private TextView[] answerBoxes;
@@ -67,7 +68,8 @@ public class FourPicOneword extends AppCompatActivity {
     private  GameAchievementDao gameAchievementDao;
     private int userId;
     private boolean isAnswerIncorrect = false;
-
+    private MediaPlayer mediaPlayer;
+    private boolean isSoundOn = true;
     private long startTime;
 
     @Override
@@ -79,7 +81,10 @@ public class FourPicOneword extends AppCompatActivity {
         AppDatabase db = AppDatabase.getDatabase(this);
         gamesDao = db.gamesDao();
         gameAchievementDao = db.gameAchievementDao();
-
+        sounds = findViewById(R.id.sounds);
+        mediaPlayer = MediaPlayer.create(this, R.raw.fourpicsbg);
+        mediaPlayer.setLooping(true);
+        sounds.setOnClickListener(v -> toggleSound());
         DataFetcher dataFetcher = new DataFetcher(this, gamesDao, gameAchievementDao);
         dataFetcher.fetchGamesFromFirestore(new DataFetcher.DownloadProgressListener() {
             @Override
@@ -139,11 +144,50 @@ public class FourPicOneword extends AppCompatActivity {
         // Set up listener for shuffle button
         ImageButton shuffleButton = findViewById(R.id.shuffle);
         shuffleButton.setOnClickListener(v -> shuffleKeyboard());
-
         setupAnswerBoxes();
         adjustKeyboardPosition();
+        mediaPlayer.start();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Release MediaPlayer resources
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Pause the music when the activity is not in the foreground
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+            mediaPlayer.pause();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Resume the music when the activity comes back to the foreground
+        if (mediaPlayer != null) {
+            mediaPlayer.start();
+        }
+    }
+    private void toggleSound() {
+        if (isSoundOn) {
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.pause();
+            }
+            sounds.setImageResource(R.drawable.soundoff); // Replace with your sound-off icon
+        } else {
+            mediaPlayer.start();
+            sounds.setImageResource(R.drawable.sounds); // Replace with your sound-on icon
+        }
+        isSoundOn = !isSoundOn; // Toggle the sound state
+    }
     private void fetchGameData() {
         if (userId == -1) {
             Log.e(TAG, "User ID is invalid.");

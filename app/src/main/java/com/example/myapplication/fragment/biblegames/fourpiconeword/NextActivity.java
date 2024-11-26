@@ -1,6 +1,7 @@
 package com.example.myapplication.fragment.biblegames.fourpiconeword;
 
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -22,12 +23,17 @@ public class NextActivity extends AppCompatActivity {
     AppCompatButton nextButton;
     int userId = 1;
     private LinearLayout answerBoxesLayout;
-
+    private MediaPlayer mediaPlayer;
+    private boolean isSoundOn = true;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fourpiconeword_next); // Ensure the correct layout is used
 
+
+
+        mediaPlayer = MediaPlayer.create(this, R.raw.conragtseffect);
+        mediaPlayer.setLooping(true);
         Log.d("BibleActivity", "RecyclerView and Adapter setup complete.");
         answerBoxesLayout = findViewById(R.id.answerBoxes);
 
@@ -58,8 +64,37 @@ public class NextActivity extends AppCompatActivity {
             startActivity(intent);
             finish(); // Optionally finish the current activity
         });
+
+        mediaPlayer.start();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Release MediaPlayer resources
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Pause the music when the activity is not in the foreground
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+            mediaPlayer.pause();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Resume the music when the activity comes back to the foreground
+        if (mediaPlayer != null) {
+            mediaPlayer.start();
+        }
+    }
     private void displayCorrectAnswer(String correctAnswer) {
         int answerLength = correctAnswer.length();
         TextView[] answerBoxes = new TextView[answerLength];
