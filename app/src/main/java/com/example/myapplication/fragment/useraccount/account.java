@@ -26,6 +26,7 @@ import com.bumptech.glide.Glide;
 import com.example.myapplication.AvatarSelectionActivity;
 import com.example.myapplication.R;
 import com.example.myapplication.database.AppDatabase;
+import com.example.myapplication.database.achievement.GameAchievementDao;
 import com.example.myapplication.database.achievement.StoryAchievementDao;
 import com.example.myapplication.database.userdb.User;
 import com.example.myapplication.database.userdb.UserDao;
@@ -51,6 +52,7 @@ public class account extends AppCompatActivity {
     private AppDatabase db;
     private UserDao userDao;
     private StoryAchievementDao storyAchievementDao;
+    private GameAchievementDao gameAchievementDao;
     private GoogleSignInClient googleSignInClient;
     private static final int RC_SIGN_IN = 9001;
     private Executor executor;
@@ -64,6 +66,7 @@ public class account extends AppCompatActivity {
         db = AppDatabase.getDatabase(this);
         userDao = db.userDao();
         storyAchievementDao = db.storyAchievementDao();
+        gameAchievementDao = db.gameAchievementDao();
         executor = Executors.newSingleThreadExecutor();
         // Initialize views
         ImageButton closeButton = findViewById(R.id.close);
@@ -76,6 +79,7 @@ public class account extends AppCompatActivity {
 
         // Load user details
         setupBadgeRecyclerView();
+        setupGameBadgeRecyclerView();
         loadUserDetails(editName, controlNumber, avatarImageView);
     }
 
@@ -379,4 +383,102 @@ public class account extends AppCompatActivity {
         }
         return R.raw.lock; // Default locked badge image
     }
+
+    private void setupGameBadgeRecyclerView() {
+        RecyclerView recyclerView = findViewById(R.id.recyclepgame);
+
+        // Set up a GridLayoutManager with 3 items per row
+        GridLayoutManager layoutManager = new GridLayoutManager(this, 3);
+        recyclerView.setLayoutManager(layoutManager);
+
+        // Prepare the badge list
+        List<Badge> badges = new ArrayList<>();
+
+        // Fetch achievements asynchronously
+        executor.execute(() -> {
+            try {
+                // Fetch achievements from the database
+                int completedGames = gameAchievementDao.getCompletedGamesCount();
+
+                // Map achievements to badges based on completed stories
+                badges.add(new Badge(
+                        getGameBadgeImageResource(1, completedGames >= 1),
+                        completedGames >= 1,
+                        true,
+                        false
+                ));
+                badges.add(new Badge(
+                        getGameBadgeImageResource(15, completedGames>= 15),
+                        completedGames >= 15,
+                        true,
+                        completedGames >= 15
+                ));
+                badges.add(new Badge(
+                        getGameBadgeImageResource(30, completedGames >= 30),
+                        completedGames >= 30,
+                        true,
+                        completedGames >= 30
+                ));
+                badges.add(new Badge(
+                        getGameBadgeImageResource(50, completedGames >= 50),
+                        completedGames >= 50,
+                        true,
+                        completedGames >= 50
+                ));
+                badges.add(new Badge(
+                        getGameBadgeImageResource(70, completedGames >= 70),
+                        completedGames >= 70,
+                        true,
+                        completedGames >= 70
+                ));
+                badges.add(new Badge(
+                        getGameBadgeImageResource(90, completedGames >= 90),
+                        completedGames >= 90,
+                        true,
+                        completedGames >= 90
+                ));
+                badges.add(new Badge(
+                        getGameBadgeImageResource(100, completedGames >= 100),
+                        completedGames >= 100,
+                        true,
+                        completedGames >= 100
+                ));
+
+                // Update UI on the main thread
+                runOnUiThread(() -> {
+                    GameBadgeAdapter adapter = new GameBadgeAdapter(this, badges);
+                    recyclerView.setAdapter(adapter);
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "Failed to load badges", Toast.LENGTH_SHORT).show();
+                });
+            }
+        });
+    }
+
+
+    private int getGameBadgeImageResource(int milestone, boolean isUnlocked) {
+        if (isUnlocked) {
+            switch (milestone) {
+                case 1:
+                    return R.drawable.bronze1; // Replace with the actual drawable
+                case 15:
+                    return R.drawable.bronze2; // Replace with the actual drawable
+                case 30:
+                    return R.drawable.bronze3; // Replace with the actual drawable
+                case 50:
+                    return R.drawable.silver1; // Replace with the actual drawable
+                case 70:
+                    return R.drawable.silver2; // Replace with the actual drawable
+                case 90:
+                    return R.drawable.silver3;
+                case 100:
+                    return R.drawable.gold; // Replace with the actual drawable
+            }
+        }
+        return R.raw.lock; // Default locked badge image
+    }
+
 }

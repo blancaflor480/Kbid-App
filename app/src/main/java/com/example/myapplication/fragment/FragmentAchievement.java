@@ -145,29 +145,12 @@ public class FragmentAchievement extends Fragment {
             // Fetch all game achievements
             List<GameAchievementModel> gameAchievements = appDatabase.gameAchievementDao().getAchievementsForGames();
 
-            // Use a Set to filter out duplicates based on unique attributes (e.g., gameId, level)
-            Set<String> seenGameIds = new HashSet<>();
-            List<GameAchievementModel> uniqueAchievements = new ArrayList<>();
-
             for (GameAchievementModel achievement : gameAchievements) {
                 // Create a unique key based on gameId and level (or other unique fields)
-                String uniqueKey = achievement.getGameId() + "_" + achievement.getLevel();
-
-                // Check if the achievement is already added to the unique list
-                if (!seenGameIds.contains(uniqueKey)) {
-                    seenGameIds.add(uniqueKey);
-                    uniqueAchievements.add(achievement);
-                }
+                achievement.setIsCompleted(appDatabase.gameAchievementDao().isGameCompleted(achievement.getGameId()) ? "completed" : "locked");
             }
 
-            // Update completion status for each unique achievement
-            for (GameAchievementModel achievement : uniqueAchievements) {
-                boolean isCompleted = appDatabase.gameAchievementDao().isGameCompleted(achievement.getGameId());
-                achievement.setIsCompleted(isCompleted ? "completed" : "locked");
-            }
-
-            // Update UI on the main thread
-            requireActivity().runOnUiThread(() -> updateGameAchievements(uniqueAchievements));
+            requireActivity().runOnUiThread(() -> updateGameAchievements(gameAchievements));
         });
     }
 
