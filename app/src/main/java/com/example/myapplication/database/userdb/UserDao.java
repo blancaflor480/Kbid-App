@@ -7,7 +7,6 @@ import androidx.room.Update;
 
 @Dao
 public interface UserDao {
-
     @Insert
     long insert(User user);
 
@@ -17,13 +16,17 @@ public interface UserDao {
     @Update
     void updateUser(User user);
 
-   // @Query("SELECT level FROM user WHERE id = 1 LIMIT 1")
-    //int getUserLevel();
-   @Query("SELECT * FROM user WHERE email = :email LIMIT 1")
-   User getUserByEmail(String email);
-    //@Query("SELECT COUNT(*) FROM user WHERE id = 1")
-    //int countUserWithIdOne();
+    @Query("SELECT * FROM user WHERE email = :email LIMIT 1")
+    User getUserByEmail(String email);
 
-    @Query("DELETE FROM user")  // 'user' is the name of your table
+    @Query("DELETE FROM user")
     void deleteAllUsers();
+
+    // Corrected query for deleting by UID
+    @Query("DELETE FROM user WHERE uid = :uid")
+    void deleteByUid(String uid);
+
+    // Optional: Add a query to get user by UID
+    @Query("SELECT * FROM user WHERE uid = :uid LIMIT 1")
+    User getUserByUid(String uid);
 }

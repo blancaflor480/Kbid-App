@@ -1,10 +1,18 @@
 package com.example.myapplication.database.fourpicsdb;
 
+import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 
+import com.example.myapplication.database.userdb.User;
+
 // Annotate the class with @Entity to define it as a table in Room
-@Entity(tableName = "fourpicsoneword")
+@Entity(tableName = "fourpicsoneword",
+        foreignKeys = @ForeignKey(entity = User.class,
+                parentColumns = "id",
+                childColumns = "userId",
+                onDelete = ForeignKey.CASCADE))
 public class FourPicsOneWord {
 
     @PrimaryKey(autoGenerate = true)
@@ -15,6 +23,8 @@ public class FourPicsOneWord {
     private int points = 0;      // Default points
     private String date;         // Date field
 
+    @ColumnInfo(name = "email")
+    private String email;
     // No-argument constructor
     public FourPicsOneWord() {
         // Optional: Initialize fields with default values if needed
@@ -67,5 +77,13 @@ public class FourPicsOneWord {
 
     public void setDate(String date) {
         this.date = date;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

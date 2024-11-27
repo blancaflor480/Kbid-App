@@ -46,12 +46,12 @@ public class LoginUser extends AppCompatActivity {
     private LottieAnimationView loader, noInternet;
     private static final int RC_SIGN_IN = 9001;
     private UserDatabaseHelper userDatabaseHelper;
-
+    private AuthSyncHelper authSyncHelper;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_user);
-
+        authSyncHelper = new AuthSyncHelper(this);
         // Initialize Firebase Auth and Firestore
         auth = FirebaseAuth.getInstance();
         firestore = FirebaseFirestore.getInstance();
@@ -187,50 +187,35 @@ public class LoginUser extends AppCompatActivity {
     }
 
     private void checkUserInFirestore(String userId, String email) {
-        firestore.collection("user").document(userId).get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (document.exists()) {
-                            // Retrieve child information
-                            Log.d("LoginUser", "Inserting user with email: " + email);
-                            String childName = document.getString("childName");
-                            String childBirthday = document.getString("childBirthday");
+        showLoader();
+        FirebaseUser currentUser = auth.getCurrentUser();
 
-                            if (childName != null && childBirthday != null) {
-                                // Save to SQLite, including the email
-                                userDatabaseHelper.addUser(userId, childName, childBirthday, email);
-                                navigateToHome();
-                            } else {
-                                navigateToChildname();
-                            }
-                        } else {
-                            // Check if user exists in the admin collection if not found in the user collection
-                            firestore.collection("admin").document(userId).get()
-                                    .addOnCompleteListener(adminTask -> {
-                                        if (adminTask.isSuccessful()) {
-                                            DocumentSnapshot adminDocument = adminTask.getResult();
-                                            if (adminDocument.exists()) {
-                                                String role = adminDocument.getString("role");
-                                                if (role != null && (role.equals("Teacher") || role.equals("SuperAdmin"))) {
-                                                    navigateToAdminDashboard();
-                                                } else {
-                                                    showNoAccessMessage();
-                                                }
-                                            } else {
-                                                handleInvalidAccount(); // Call to sign out and select a new account
-                                            }
-                                        } else {
-                                            Log.e("LoginUser", "Error checking admin collection", adminTask.getException());
-                                        }
-                                        hideLoader();  // Hide loader once done
-                                    });
-                        }
-                    } else {
-                        Log.e("LoginUser", "Error checking user collection", task.getException());
-                        hideLoader();  // Hide loader on error
-                    }
-                });
+        authSyncHelper.syncUserDataFromFirestore(currentUser, new AuthSyncHelper.SyncCallback() {
+            @Override
+            public void onSuccess(String userType) {
+                hideLoader();
+                switch (userType) {
+                    case "user":
+                        navigateToHome();
+                        break;
+                    case "admin":
+                        navigateToAdminDashboard();
+                        break;
+                    case "invalid":
+                        handleInvalidAccount();
+                        break;
+                    case "incomplete_profile":
+                        navigateToChildname();
+                        break;
+                }
+            }
+
+            @Override
+            public void onError(String message) {
+                hideLoader();
+                showValidationDialog(message);
+            }
+        });
     }
 
 

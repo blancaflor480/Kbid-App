@@ -15,6 +15,18 @@ public class UserDatabaseHelper extends SQLiteOpenHelper {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
+    // Add this method to UserDatabaseHelper class
+    public void updateUserDetails(String userId, String controlId, String avatarName, int avatarResourceId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        if (controlId != null) values.put("controlid", controlId);
+        if (avatarName != null) values.put("avatarName", avatarName);
+        values.put("avatarResourceId", avatarResourceId);
+
+        db.update("user", values, "userId = ?", new String[]{userId});
+    }
+
     @Override
     public void onCreate(SQLiteDatabase db) {
         String CREATE_USER_TABLE = "CREATE TABLE " + TABLE_NAME + " ("

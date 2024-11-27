@@ -22,6 +22,13 @@ public interface FourPicsOneWordDao {
     @Query("SELECT * FROM fourPicsOneWord WHERE userId = :userId")
     LiveData<List<FourPicsOneWord>> getAllLevelsForUser(int userId);
 
+    @Query("SELECT f.*, u.email AS email FROM fourpicsoneword f INNER JOIN user u ON f.userId = u.id WHERE f.userId = :userId LIMIT 1")
+    FourPicsOneWord getGameDataWithEmailSync(String userId);
+    @Query("SELECT * FROM fourpicsoneword WHERE userId = :userId LIMIT 1")
+    LiveData<FourPicsOneWord> getGameDataWithEmail(String userId); // If you still want LiveData
+
+
+
     @Query("UPDATE fourpicsoneword SET currentLevel = currentLevel + :currentLevel WHERE userId = :userId")
     void addLevel(int userId, int currentLevel);
     // Additional DAO methods can be defined here as needed

@@ -62,6 +62,8 @@ public class account extends AppCompatActivity {
     private static final int RC_SIGN_IN = 9001;
     private Executor executor;
     private EditText editemail;
+    private FirestoreSyncManager firestoreSyncManager;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,16 +76,19 @@ public class account extends AppCompatActivity {
         storyAchievementDao = db.storyAchievementDao();
         gameAchievementDao = db.gameAchievementDao();
         executor = Executors.newSingleThreadExecutor();
+        firestoreSyncManager = new FirestoreSyncManager(this);
+        // Firebase Authentication listener
         FirebaseAuth.getInstance().addAuthStateListener(firebaseAuth -> {
             FirebaseUser user = firebaseAuth.getCurrentUser();
             if (user != null) {
                 // User is signed in, proceed with sync
-                syncUserDataWithFirestore();
+                firestoreSyncManager.syncUserDataWithFirestore();
+                firestoreSyncManager.syncFourPicsOneWordWithFirestore();
             } else {
-                // Optional: Handle signed-out state
                 Log.w("FirebaseAuth", "User is signed out");
             }
         });
+
         // Initialize views
         ImageButton closeButton = findViewById(R.id.close);
         closeButton.setOnClickListener(v -> onBackPressed());
@@ -499,59 +504,7 @@ public class account extends AppCompatActivity {
     }
 
 
-    private void syncUserDataWithFirestore() {
-        // Ensure you're on a background thread
-        if (executor == null) {
-            executor = Executors.newSingleThreadExecutor();
-        }
 
-        executor.execute(() -> {
-            try {
-                User user = userDao.getFirstUser();
-                FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-
-                // Additional null checks
-                if (user == null || firebaseUser == null || firebaseUser.getEmail() == null) {
-                    Log.w("FirestoreSync", "User or Firebase user is null");
-                    return;
-                }
-
-                FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-
-                // Prepare user data map
-                Map<String, Object> userData = new HashMap<>();
-                userData.put("uid", firebaseUser.getUid());
-                userData.put("email", firebaseUser.getEmail());
-                userData.put("childName", user.getChildName());
-                userData.put("childBirthday", user.getChildBirthday());
-                userData.put("avatarName", user.getAvatarName());
-                userData.put("controlId", user.getControlid());
-                userData.put("avatarResourceId", user.getAvatarResourceId());
-
-                // Use Firebase UID as document ID for more reliability
-                firestore.collection("user")
-                        .document(firebaseUser.getUid())
-                        .set(userData, SetOptions.merge())
-                        .addOnSuccessListener(aVoid -> {
-                            Log.d("FirestoreSync", "User data successfully synced");
-                            runOnUiThread(() -> {
-                                Toast.makeText(account.this, "Profile synced with cloud", Toast.LENGTH_SHORT).show();
-                            });
-                        })
-                        .addOnFailureListener(e -> {
-                            Log.e("FirestoreSync", "Failed to sync user data", e);
-                            runOnUiThread(() -> {
-                                Toast.makeText(account.this, "Failed to sync profile: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                            });
-                        });
-            } catch (Exception e) {
-                Log.e("FirestoreSync", "Unexpected error during sync", e);
-                runOnUiThread(() -> {
-                    Toast.makeText(account.this, "Sync error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                });
-            }
-        });
-    }
 
 
 }
