@@ -150,7 +150,7 @@
         android:id="@+id/layout3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:layout_marginTop="2dp"
         android:layout_below="@id/layout2"
         android:paddingLeft="10dp"
@@ -163,10 +163,9 @@
             android:padding="13dp"
             android:gravity="center"
             android:layout_marginTop="15dp"
-            android:background="@drawable/bg_narrator"
+            android:background="@drawable/bg_narrator">
 
-            >
-
+            <!-- TextStory -->
             <TextView
                 android:id="@+id/textstory"
                 android:layout_width="wrap_content"
@@ -175,9 +174,48 @@
                 android:textAlignment="center"
                 android:fontFamily="@font/dinroundedpro_bold"
                 android:textSize="18sp"
-                android:textColor="@android:color/black" />
+                android:textColor="@android:color/black"
+                android:layout_centerInParent="true" />
+
+            <!-- Previous Button -->
+
+            <!-- Next Button -->
 
         </RelativeLayout>
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:padding="13dp"
+            android:gravity="center"
+            android:layout_marginTop="15dp"
+            >
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/previousButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="120dp"
+                android:background="@drawable/playslide"
+                android:padding="8dp"
+
+                android:rotationY="-180"
+                 />
+
+            <!-- Next Button -->
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/nextButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/playslide"
+                android:padding="8dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="120dp" />
+
+        </RelativeLayout>
+
 
     </LinearLayout>
 

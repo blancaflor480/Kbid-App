@@ -61,8 +61,10 @@ public class BiblePlay extends AppCompatActivity {
     private SpeechRecognizer speechRecognizer;
     private Handler handler;
     private LinearLayout addplaylist;
-
-
+    private Handler storyHandler;
+    private List<String> descriptionSentences;
+    private int currentSlideIndex = 0;
+    private AppCompatButton nextButton, previousButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,16 +81,25 @@ public class BiblePlay extends AppCompatActivity {
         playButton = findViewById(R.id.buttonplay);
         pauseButton = findViewById(R.id.buttonpause);
         addplaylist = findViewById(R.id.addplaylist);
+        nextButton = findViewById(R.id.nextButton);
+        previousButton = findViewById(R.id.previousButton);
         // Get data from intent
         String title = getIntent().getStringExtra("title");
         String verse = getIntent().getStringExtra("verse");
         audioUrl = getIntent().getStringExtra("audioUrl");
         String imageUrl = getIntent().getStringExtra("imageUrl");
+        String description = getIntent().getStringExtra("description");
 
         // Set data to views
         titleView.setText(title);
         verseView.setText(verse);
         setThumbnail(imageUrl);
+
+        descriptionSentences = splitDescriptionIntoSentences(description);
+        updateStoryView();
+        nextButton.setOnClickListener(v -> showNextSlide());
+        previousButton.setOnClickListener(v -> showPreviousSlide());
+        storyHandler = new Handler();
 
         // Set click listeners
         arrowback.setOnClickListener(v -> onBackPressed());
@@ -101,7 +112,6 @@ public class BiblePlay extends AppCompatActivity {
         playButton.setVisibility(View.VISIBLE);
         pauseButton.setVisibility(View.GONE);
         repeatButton.setBackgroundTintList(getResources().getColorStateList(R.color.greenlightning));
-// Add this inside onCreate() after initializing addplaylist
         addplaylist.setOnClickListener(v -> addStoryToFavorites());
         handler = new Handler();
     }
@@ -198,6 +208,50 @@ public class BiblePlay extends AppCompatActivity {
         }
     }
 
+    private List<String> splitDescriptionIntoSentences(String description) {
+        List<String> sentences = new ArrayList<>();
+        if (description != null && !description.isEmpty()) {
+            String[] parts = description.split("\\.\\s+"); // Split by period followed by whitespace
+            for (String part : parts) {
+                if (!part.trim().isEmpty()) {
+                    sentences.add(part.trim() + "."); // Add period back for each sentence
+                }
+            }
+        }
+        return sentences;
+    }
+
+    private void showNextSlide() {
+        if (!descriptionSentences.isEmpty()) {
+            currentSlideIndex = (currentSlideIndex + 1) % descriptionSentences.size(); // Loop back to start
+            updateStoryView();
+        }
+    }
+
+    private void showPreviousSlide() {
+        if (!descriptionSentences.isEmpty()) {
+            currentSlideIndex = (currentSlideIndex - 1 + descriptionSentences.size()) % descriptionSentences.size(); // Loop back to end
+            updateStoryView();
+        }
+    }
+
+    private void updateStoryView() {
+        if (!descriptionSentences.isEmpty()) {
+            storyView.setText(descriptionSentences.get(currentSlideIndex));
+        } else {
+            storyView.setText("No description available.");
+        }
+    }
+
+    // Optional: Stop slideshow when activity is paused
+    @Override
+    protected void onPause() {
+        super.onPause();
+        storyHandler.removeCallbacksAndMessages(null);
+    }
+
+    // Optional: Restart slideshow when activity is resumed
+
     private void unlockNextStory(String currentStoryId) {
         // Access the database
         AppDatabase db = AppDatabase.getDatabase(this);
@@ -287,6 +341,7 @@ public class BiblePlay extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         checkIfStoryIsFavorite();
+
     }
     private void checkIfStoryIsFavorite() {
         String storyId = getCurrentStoryId(); // Get the current story ID as a string
@@ -394,7 +449,7 @@ public class BiblePlay extends AppCompatActivity {
     }
 
     private void updateStoryText(int currentPosition) {
-        storyView.setText("Playing at: " + currentPosition + " ms");
+      //  storyView.setText("Playing at: " + currentPosition + " ms");
     }
 
     private void stopAudioSynchronization() {
