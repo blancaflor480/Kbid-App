@@ -67,6 +67,7 @@ public class FourPicOneword extends AppCompatActivity {
     private GamesDao gamesDao;
     private  GameAchievementDao gameAchievementDao;
     private int userId;
+    private String email;
     private boolean isAnswerIncorrect = false;
     private MediaPlayer mediaPlayer;
     private boolean isSoundOn = true;
@@ -81,6 +82,7 @@ public class FourPicOneword extends AppCompatActivity {
         AppDatabase db = AppDatabase.getDatabase(this);
         gamesDao = db.gamesDao();
         gameAchievementDao = db.gameAchievementDao();
+
         sounds = findViewById(R.id.sounds);
         mediaPlayer = MediaPlayer.create(this, R.raw.fourpicsbg);
         mediaPlayer.setLooping(true);
@@ -103,6 +105,7 @@ public class FourPicOneword extends AppCompatActivity {
 
         // Retrieve the userId from Intent
         userId = getIntent().getIntExtra("USER_ID", -1);
+        email = getIntent().getStringExtra("email");
 
         Log.d(TAG, "FourPicOneWord Activity started.");
 
@@ -569,6 +572,7 @@ public class FourPicOneword extends AppCompatActivity {
             String points = "5";
             String isCompleted = "completed";
             int currentLevel = 1;
+
             // Database operations
             AppDatabase db = AppDatabase.getDatabase(this);
             GamesDao gamesDao = db.gamesDao();
@@ -585,7 +589,7 @@ public class FourPicOneword extends AppCompatActivity {
                     // Update achievement details in the database
                     achievementDao.updateAchievement(gameId, level, points, isCompleted);
                     dao.addPoints(userId, Integer.parseInt(points));
-                    dao.addLevel(userId, currentLevel);
+                    dao.addLevel(userId,currentLevel);
 
                     // Navigate to the next activity
                     runOnUiThread(() -> {

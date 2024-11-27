@@ -37,6 +37,12 @@ public interface GameAchievementDao {
 
     @Query("SELECT * FROM gamesachievements WHERE gameId = :gameId LIMIT 1")
     GameAchievementModel getAchievementByGameId(String gameId);
+
+    @Query("SELECT ga.* FROM gamesachievements ga " +
+            "INNER JOIN fourpicsoneword fpow ON ga.gameId = fpow.userId " +
+            "WHERE fpow.email = :email")
+    List<GameAchievementModel> getAchievementsByEmail(String email);
+
     // Optional: Retrieve the current game achievement for validation or display
     @Query("SELECT * FROM gamesachievements WHERE gameId = :gameId AND level = :level LIMIT 1")
     GameAchievementModel getAchievement(String gameId, String level);

@@ -22,8 +22,9 @@ public interface FourPicsOneWordDao {
     @Query("SELECT * FROM fourPicsOneWord WHERE userId = :userId")
     LiveData<List<FourPicsOneWord>> getAllLevelsForUser(int userId);
 
-    @Query("SELECT f.*, u.email AS email FROM fourpicsoneword f INNER JOIN user u ON f.userId = u.id WHERE f.userId = :userId LIMIT 1")
-    FourPicsOneWord getGameDataWithEmailSync(String userId);
+    @Query("SELECT * FROM fourpicsoneword WHERE email = :email LIMIT 1")
+    FourPicsOneWord getGameDataWithEmailSync(String email);
+
     @Query("SELECT * FROM fourpicsoneword WHERE userId = :userId LIMIT 1")
     LiveData<FourPicsOneWord> getGameDataWithEmail(String userId); // If you still want LiveData
 

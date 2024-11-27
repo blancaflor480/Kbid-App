@@ -23,7 +23,6 @@ public class FourPicsOneWord {
     private int points = 0;      // Default points
     private String date;         // Date field
 
-    @ColumnInfo(name = "email")
     private String email;
     // No-argument constructor
     public FourPicsOneWord() {
@@ -31,11 +30,12 @@ public class FourPicsOneWord {
     }
 
     // Constructor with arguments
-    public FourPicsOneWord(int userId, int currentLevel, int points, String date) {
+    public FourPicsOneWord(int userId, int currentLevel, int points, String date, String email) {
         this.userId = userId;
         this.currentLevel = currentLevel;
         this.points = points;
         this.date = date;
+        this.email = email;
     }
 
     // Getters and setters

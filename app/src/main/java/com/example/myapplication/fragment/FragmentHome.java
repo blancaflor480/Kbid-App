@@ -75,7 +75,6 @@ public class FragmentHome extends Fragment {
     EditText userAgeEditText,userNameEditText;
     private View editProfileOverlay;
     private ImageView changeInfoButton;
-
     private ExecutorService executor;
     private GoogleSignInClient googleSignInClient;
     private static final int RC_SIGN_IN = 9001;
@@ -415,6 +414,14 @@ public class FragmentHome extends Fragment {
     private void navigateToBiblegamesActivity() {
         Intent intent = new Intent(getActivity(), GameDescriptionFourPics.class);
         startActivity(intent);
+        AsyncTask.execute(() -> {
+            User user = userDao.getFirstUser();
+            if (user != null) {
+                String email = user.getEmail(); // Get email
+                intent.putExtra("email", email); // Add email as an extra
+                startActivity(intent);
+            }
+        });
         Log.d("FragmentHome", "Navigating to Biblegames");
     }
     private void navigateToBiblesongActivity() {

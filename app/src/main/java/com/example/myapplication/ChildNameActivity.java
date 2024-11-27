@@ -105,36 +105,29 @@ public class ChildNameActivity extends AppCompatActivity {
         loadSavedName();
     }
 
-   private void saveNameLocally(String name) {
+    private void saveNameLocally(String name) {
         AsyncTask.execute(() -> {
-            // Default values for the avatar
             String defaultAvatarName = "";
             String childBirthday = "";
-            int defaultAvatarResourceId = R.drawable.lion; // Ensure you have this drawable in your project
-            byte[] defaultAvatarImage = null; // Or replace this with actual image data if available
-            // Set email to null
+            int defaultAvatarResourceId = R.drawable.lion;
+            byte[] defaultAvatarImage = null;
             String email = this.email;
             String controlid = this.controlid;
 
-            // Create and insert the user
+            // Create and insert user with email
             User user = new User(name, childBirthday, defaultAvatarName, defaultAvatarResourceId, defaultAvatarImage, email, controlid);
-            long userId = userDao.insert(user); // Assuming this returns the user ID
+            long userId = userDao.insert(user);
 
-            // Insert into fourpicsoneword table
-            FourPicsOneWord fourPicsOneWord = new FourPicsOneWord();
-            fourPicsOneWord.setUserId((int) userId);
-            // Create the FourPicsOneWord object with the correct constructor
-            fourPicsOneWord = new FourPicsOneWord((int) userId, 1, 0, new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date()));
+            // Create FourPicsOneWord with email
+            FourPicsOneWord fourPicsOneWord = new FourPicsOneWord(
+                    (int) userId,
+                    1,
+                    0,
+                    new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date()),
+                    email  // Adding email here
+            );
 
-            // Insert into quizgames table
-            QuizGames quizGames = new QuizGames();
-            quizGames.setUserId((int) userId);
-            quizGames.setScore(0);  // Setting default score or as needed
-            quizGames.setDate(new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date())); // Set the current date
-
-            // Insert into respective tables
             db.fourPicsOneWordDao().insert(fourPicsOneWord);
-            db.quizGamesDao().insert(quizGames);
         });
     }
 

@@ -9,16 +9,21 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.myapplication.database.AppDatabase;
+import com.example.myapplication.database.achievement.GameAchievementDao;
 import com.example.myapplication.database.fourpicsdb.FourPicsOneWord;
 import com.example.myapplication.database.fourpicsdb.FourPicsOneWordDao;
 import com.example.myapplication.database.userdb.User;
 import com.example.myapplication.database.userdb.UserDao;
+import com.example.myapplication.fragment.achievement.GameAchievementModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -28,13 +33,14 @@ public class FirestoreSyncManager {
     private Context context;
     private UserDao userDao;
     private FourPicsOneWordDao fourPicsOneWordDao;
-
+    private GameAchievementDao gameAchievementDao;
     public FirestoreSyncManager(Context context) {
         this.context = context;
         this.executor = Executors.newSingleThreadExecutor();
         AppDatabase db = AppDatabase.getDatabase(context);
         this.userDao = db.userDao();
         this.fourPicsOneWordDao = db.fourPicsOneWordDao();
+        this.gameAchievementDao = db.gameAchievementDao();
     }
 
     public void syncUserDataWithFirestore() {
@@ -101,55 +107,113 @@ public class FirestoreSyncManager {
         executor.execute(() -> {
             try {
                 FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-
-                if (firebaseUser == null || firebaseUser.getUid() == null) {
-                    Log.w("FirestoreSync", "Firebase user is null or UID missing");
+                if (firebaseUser == null || firebaseUser.getEmail() == null) {
+                    Log.w("FirestoreSync", "Firebase user or email is null");
                     return;
                 }
 
-                FourPicsOneWord gameData = fourPicsOneWordDao.getGameDataWithEmailSync(firebaseUser.getUid());
-
+                // Get game data using email from Firebase Auth
+                FourPicsOneWord gameData = fourPicsOneWordDao.getGameDataWithEmailSync(firebaseUser.getEmail());
                 if (gameData == null) {
-                    Log.w("FirestoreSync", "No FourPicsOneWord data found for user");
+                    Log.w("FirestoreSync", "No FourPicsOneWord data found for email: " + firebaseUser.getEmail());
                     return;
                 }
 
                 FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-
-                // Prepare data for Firestore
                 Map<String, Object> data = new HashMap<>();
                 data.put("uid", firebaseUser.getUid());
-                data.put("email", gameData.getEmail()); // Use getter
+                data.put("email", gameData.getEmail());
                 data.put("userId", gameData.getUserId());
                 data.put("currentLevel", gameData.getCurrentLevel());
                 data.put("points", gameData.getPoints());
                 data.put("date", gameData.getDate());
 
                 firestore.collection("fourpicsoneword")
-                        .document(firebaseUser.getUid())
+                        .document(firebaseUser.getEmail()) // Use email as document ID
                         .set(data, SetOptions.merge())
                         .addOnSuccessListener(aVoid -> {
                             Log.d("FirestoreSync", "Game data successfully synced");
-                            runOnMainThread(() -> {
-                                Toast.makeText(context, "Game data synced with cloud", Toast.LENGTH_SHORT).show();
-                            });
+                            runOnMainThread(() -> Toast.makeText(context, "Game data synced with cloud", Toast.LENGTH_SHORT).show());
                         })
                         .addOnFailureListener(e -> {
                             Log.e("FirestoreSync", "Failed to sync game data", e);
-                            runOnMainThread(() -> {
-                                Toast.makeText(context, "Failed to sync game data: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                            });
+                            runOnMainThread(() -> Toast.makeText(context, "Failed to sync game data: " + e.getMessage(), Toast.LENGTH_SHORT).show());
                         });
 
             } catch (Exception e) {
                 Log.e("FirestoreSync", "Unexpected error during game data sync", e);
-                runOnMainThread(() -> {
-                    Toast.makeText(context, "Game sync error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                });
+                runOnMainThread(() -> Toast.makeText(context, "Game sync error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
             }
         });
     }
 
+    public void syncGameAchievementsWithFirestore() {
+        executor.execute(() -> {
+            try {
+                FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+                if (firebaseUser == null || firebaseUser.getEmail() == null) {
+                    Log.w("FirestoreSync", "Firebase user or email is null");
+                    return;
+                }
+
+                // Get FourPicsOneWord data first for the email
+                FourPicsOneWord gameData = fourPicsOneWordDao.getGameDataWithEmailSync(firebaseUser.getEmail());
+                if (gameData == null) {
+                    Log.w("FirestoreSync", "No FourPicsOneWord data found for email: " + firebaseUser.getEmail());
+                    return;
+                }
+
+                // Get achievements for the user's game data
+                List<GameAchievementModel> achievements = gameAchievementDao.getAllAchievements();
+                if (achievements.isEmpty()) {
+                    Log.w("FirestoreSync", "No achievements found for user");
+                    return;
+                }
+
+                FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+                WriteBatch batch = firestore.batch();
+
+                // Sync game data first
+                DocumentReference gameDataRef = firestore.collection("fourpicsoneword")
+                        .document(firebaseUser.getEmail());
+                Map<String, Object> gameDataMap = new HashMap<>();
+                gameDataMap.put("userId", gameData.getUserId());
+                gameDataMap.put("email", gameData.getEmail());
+                gameDataMap.put("points", gameData.getPoints());
+                gameDataMap.put("currentLevel", gameData.getCurrentLevel());
+                batch.set(gameDataRef, gameDataMap, SetOptions.merge());
+
+                // Sync achievements
+                for (GameAchievementModel achievement : achievements) {
+                    Map<String, Object> data = new HashMap<>();
+                    data.put("uid", firebaseUser.getUid());
+                    data.put("email", firebaseUser.getEmail());
+                    data.put("gameId", achievement.getGameId());
+                    data.put("title", achievement.getTitle());
+                    data.put("level", achievement.getLevel());
+                    data.put("points", achievement.getPoints());
+                    data.put("isCompleted", achievement.getIsCompleted());
+
+                    DocumentReference docRef = firestore.collection("gamesachievements")
+                            .document(firebaseUser.getEmail() + "_" + achievement.getId());
+                    batch.set(docRef, data, SetOptions.merge());
+                }
+
+                batch.commit()
+                        .addOnSuccessListener(aVoid -> {
+                            Log.d("FirestoreSync", "Game data and achievements successfully synced");
+                            runOnMainThread(() -> Toast.makeText(context, "Game data and achievements synced", Toast.LENGTH_SHORT).show());
+                        })
+                        .addOnFailureListener(e -> {
+                            Log.e("FirestoreSync", "Failed to sync game data and achievements", e);
+                            runOnMainThread(() -> Toast.makeText(context, "Sync failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                        });
+            } catch (Exception e) {
+                Log.e("FirestoreSync", "Unexpected error during sync", e);
+                runOnMainThread(() -> Toast.makeText(context, "Sync error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+            }
+        });
+    }
 
     // Optional: Method to check Firebase Authentication
     public void checkFirebaseAuthentication() {

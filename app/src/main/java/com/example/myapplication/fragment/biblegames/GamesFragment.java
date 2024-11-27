@@ -19,6 +19,7 @@ public class GamesFragment extends AppCompatActivity {
     ImageView arrowback;
     TextView playQuiz, playPics;
     int userId = 1; // Declare the ImageView for playQuiz
+    String email;
     MediaPlayer clickSound;
 
     @Override
@@ -46,6 +47,7 @@ public class GamesFragment extends AppCompatActivity {
             // Navigate to GameDescriptionFourPics activity
             Intent intent = new Intent(GamesFragment.this, GameDescriptionFourPics.class);
             intent.putExtra("USER_ID", userId);
+            intent.putExtra("EMAIL", email);
             startActivity(intent);
         });
     }

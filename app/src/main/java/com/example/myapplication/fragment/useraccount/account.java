@@ -30,6 +30,7 @@ import com.example.myapplication.R;
 import com.example.myapplication.database.AppDatabase;
 import com.example.myapplication.database.achievement.GameAchievementDao;
 import com.example.myapplication.database.achievement.StoryAchievementDao;
+import com.example.myapplication.database.fourpicsdb.FourPicsOneWordDao;
 import com.example.myapplication.database.userdb.User;
 import com.example.myapplication.database.userdb.UserDao;
 import com.example.myapplication.fragment.achievement.StoryAchievementModel;
@@ -58,6 +59,7 @@ public class account extends AppCompatActivity {
     private UserDao userDao;
     private StoryAchievementDao storyAchievementDao;
     private GameAchievementDao gameAchievementDao;
+    private FourPicsOneWordDao fourPicsOneWordDao;
     private GoogleSignInClient googleSignInClient;
     private static final int RC_SIGN_IN = 9001;
     private Executor executor;
@@ -75,6 +77,7 @@ public class account extends AppCompatActivity {
         userDao = db.userDao();
         storyAchievementDao = db.storyAchievementDao();
         gameAchievementDao = db.gameAchievementDao();
+        fourPicsOneWordDao = db.fourPicsOneWordDao();
         executor = Executors.newSingleThreadExecutor();
         firestoreSyncManager = new FirestoreSyncManager(this);
         // Firebase Authentication listener
@@ -84,6 +87,7 @@ public class account extends AppCompatActivity {
                 // User is signed in, proceed with sync
                 firestoreSyncManager.syncUserDataWithFirestore();
                 firestoreSyncManager.syncFourPicsOneWordWithFirestore();
+                firestoreSyncManager.syncGameAchievementsWithFirestore();
             } else {
                 Log.w("FirebaseAuth", "User is signed out");
             }
