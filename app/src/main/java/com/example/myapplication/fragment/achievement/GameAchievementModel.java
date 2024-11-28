@@ -21,6 +21,10 @@ public class GameAchievementModel {
     private String points;
     private String isCompleted;
 
+    public GameAchievementModel() {
+        // Required empty constructor
+    }
+
     // Constructor used by Room
     public GameAchievementModel(int id, String gameId, String title, String level, String points, String isCompleted) {
         this.id = id;

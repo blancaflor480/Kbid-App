@@ -12,12 +12,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <View
+    <ImageView
         android:id="@+id/curvedTop"
-        android:layout_width="550dp"
+        android:layout_width="150dp"
         android:layout_height="150dp"
-        android:background="@drawable/curved_shapelogin"
-        android:rotation="180"
+        android:scaleType="centerCrop"
+        android:background="@drawable/log"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

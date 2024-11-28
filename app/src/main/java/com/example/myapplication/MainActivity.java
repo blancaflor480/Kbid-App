@@ -1,5 +1,8 @@
 package com.example.myapplication;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -13,6 +16,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.airbnb.lottie.LottieAnimationView;
+import com.example.myapplication.Notification.NotificationReceiver;
 import com.example.myapplication.database.AppDatabase;
 import com.example.myapplication.database.userdb.User;
 import com.example.myapplication.database.userdb.UserDao;
@@ -32,7 +36,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        scheduleDevotionalNotifications(this);
+        triggerDevotionalNotification();
         // Initialize Firebase Auth and Firestore
         mAuth = FirebaseAuth.getInstance();
         firestore = FirebaseFirestore.getInstance();
@@ -81,6 +86,32 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void triggerDevotionalNotification() {
+        Intent intent = new Intent(this, NotificationReceiver.class);
+        sendBroadcast(intent);
+    }
+    public void scheduleDevotionalNotifications(Context context) {
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(context, NotificationReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                context,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+
+        // Trigger every hour
+        long intervalMillis = AlarmManager.INTERVAL_HOUR;
+        long triggerTime = System.currentTimeMillis() + intervalMillis;
+
+        // Use setRepeating for consistent hourly notifications
+        alarmManager.setRepeating(
+                AlarmManager.RTC_WAKEUP,
+                triggerTime,
+                intervalMillis,
+                pendingIntent
+        );
+    }
 
     private void checkUserRecord() {
         // Fetch the first user record from the database

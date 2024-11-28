@@ -302,7 +302,7 @@ public class UserFragment extends Fragment {
                                     FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
                                     if (firebaseUser != null) {
                                         String uid = firebaseUser.getUid();
-                                        handleImageUpload(uid, finalNewControlId, firstName, middleName, lastName, birthday, gender, email, isMCAStudent, firebaseUser);
+                                        handleImageUpload(uid, finalNewControlId, firstName, middleName, lastName, birthday, gender, email, isMCAStudent, password,firebaseUser);
                                     }
                                 } else {
                                     Snackbar.make(getView(), "Error creating user: " + task.getException().getMessage(), Snackbar.LENGTH_LONG).show();
@@ -314,7 +314,7 @@ public class UserFragment extends Fragment {
                 });
     }
 
-    private void handleImageUpload(String uid, int controlId, String firstName, String middleName, String lastName, String birthday, String gender, String email, boolean isMCAStudent, FirebaseUser firebaseUser) {
+    private void handleImageUpload(String uid, int controlId, String firstName, String middleName, String lastName, String birthday, String gender, String email, boolean isMCAStudent, String password, FirebaseUser firebaseUser) {
         if (imageUri != null) {
             StorageReference fileReference = storageRef.child("Profile_Image/" + uid + "." + getFileExtension(imageUri));
             fileReference.putFile(imageUri)
@@ -335,7 +335,8 @@ public class UserFragment extends Fragment {
                                 isMCAStudent
                         );
                         saveUserToFirestore(newUser, uid); // Call with two parameters
-                        sendVerificationEmail(firebaseUser, controlId, isMCAStudent); // Send verification email with FirebaseUser
+                        sendVerificationEmail(firebaseUser, controlId, isMCAStudent, password); // Pass password to the method
+                        // Send verification email with FirebaseUser
                     }))
                     .addOnFailureListener(e -> Snackbar.make(getView(), "Failed to upload image: " + e.getMessage(), Snackbar.LENGTH_LONG).show());
         } else {
@@ -354,21 +355,27 @@ public class UserFragment extends Fragment {
                     isMCAStudent // Pass the student status
             );
             saveUserToFirestore(newUser, uid); // Call with two parameters
-            sendVerificationEmail(firebaseUser, controlId, isMCAStudent); // Send verification email with FirebaseUser
+            sendVerificationEmail(firebaseUser, controlId, isMCAStudent, password); // Pass password to the method
+
+            // Send verification email with FirebaseUser
         }
     }
 
-    private void sendVerificationEmail(FirebaseUser user, int controlId, boolean isMCAStudent) {
+    private void sendVerificationEmail(FirebaseUser user, int controlId, boolean isMCAStudent, String password) {
         String subject = "Account Verification";
-        String message = "Dear user,\n\n" +
-                "Your account has been created successfully!\n" +
+        String message = "Dear User,\n\n" +
+                "Your account has been successfully created!\n" +
                 "Your Control ID: " + controlId + "\n" +
-                (isMCAStudent ? "You are confirmed as an MCA student." : "You are not confirmed as an MCA student.") + "\n\n" +
-                "Please verify your email by clicking the link we sent.\n\n" +
+                "Your Temporary Password: " + password + "\n\n" +  // Temporary password for first login
+                (isMCAStudent
+                        ? "You have been confirmed as an MCA student."
+                        : "You have not been confirmed as an MCA student.") + "\n\n" +
+                "Please verify your email by clicking the link we have sent.\n\n" +
+                "For your security, we kindly request that you change your password upon your first login.\n\n" +
                 "Thank you!";
 
         if (user != null) {
-            // Send the Firebase email verification link
+            // Send verification email
             user.sendEmailVerification()
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
@@ -378,7 +385,7 @@ public class UserFragment extends Fragment {
                         }
                     });
 
-            // Optionally, send a custom email notification
+            // Send custom email notification
             JavaMailAPI javaMailAPI = new JavaMailAPI(getContext(), user.getEmail(), subject, message);
             javaMailAPI.execute();
         } else {
@@ -400,9 +407,6 @@ public class UserFragment extends Fragment {
                     Snackbar.make(getView(), "Error adding user: " + e.getMessage(), Snackbar.LENGTH_LONG).show();
                 });
     }
-
-
-
 
     private String getFileExtension(Uri uri) {
         ContentResolver cR = getActivity().getContentResolver();
@@ -454,8 +458,6 @@ public class UserFragment extends Fragment {
         });
     }
 
-
-
     private void getOlduser() {
         CollectionReference usersRef = db.collection("user");
         usersRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
@@ -494,8 +496,6 @@ public class UserFragment extends Fragment {
         });
     }
 
-
-
     @Override
     public void onResume() {
         super.onResume();
@@ -504,7 +504,6 @@ public class UserFragment extends Fragment {
         adapterUsers = new AdapterUser(getContext(), usersList);
         recyclerView.setAdapter(adapterUsers);
     }
-
 
     private void filterUsers(String query) {
         List<ModelUser> filteredList = new ArrayList<>();

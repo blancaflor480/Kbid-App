@@ -67,6 +67,7 @@ public class account extends AppCompatActivity {
     private FirestoreSyncManager firestoreSyncManager;
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,6 +79,7 @@ public class account extends AppCompatActivity {
         storyAchievementDao = db.storyAchievementDao();
         gameAchievementDao = db.gameAchievementDao();
         fourPicsOneWordDao = db.fourPicsOneWordDao();
+        storyAchievementDao = db.storyAchievementDao();
         executor = Executors.newSingleThreadExecutor();
         firestoreSyncManager = new FirestoreSyncManager(this);
         // Firebase Authentication listener
@@ -88,6 +90,8 @@ public class account extends AppCompatActivity {
                 firestoreSyncManager.syncUserDataWithFirestore();
                 firestoreSyncManager.syncFourPicsOneWordWithFirestore();
                 firestoreSyncManager.syncGameAchievementsWithFirestore();
+                firestoreSyncManager.syncStoryAchievementsWithFirestore();
+                //firestoreSyncManager.syncDataFromFirestore();
             } else {
                 Log.w("FirebaseAuth", "User is signed out");
             }

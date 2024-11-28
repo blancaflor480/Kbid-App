@@ -93,7 +93,7 @@ public class DevotionalKids extends AppCompatActivity {
         speechToTextButton.setOnClickListener(v -> startSpeechToText());
 
         // Set up the alarm for 6 AM daily
-        scheduleDailyNotification();
+        //scheduleDailyNotification();
         // Setup SwipeRefreshLayout listener
         swipeRefreshLayout.setOnRefreshListener(() -> loadDevotional(devotionalId, controlId, email));
 
@@ -125,7 +125,7 @@ public class DevotionalKids extends AppCompatActivity {
         });
     }
 
-    private void scheduleDailyNotification() {
+   /* private void scheduleDailyNotification() {
         // Get Calendar instance for 6 AM
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.HOUR_OF_DAY, 6);
@@ -156,7 +156,7 @@ public class DevotionalKids extends AppCompatActivity {
         } else {
             Log.e("DevotionalKids", "AlarmManager is null");
         }
-    }
+    }*/
 
     private void updateCardColors() {
         // Get the current day of the week

@@ -27,7 +27,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class HomeFragment extends Fragment {
 
-    private TextView userNameTextView, userRoleTextView, userCountTextView;
+    private TextView userNameTextView, userRoleTextView, userCountTextView, contentCountTextView, feedbackCountTextView;
+
     private CircleImageView profileImageView;
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
@@ -49,9 +50,10 @@ public class HomeFragment extends Fragment {
 
         userNameTextView = view.findViewById(R.id.userName);
         userRoleTextView = view.findViewById(R.id.userRole);
+        userCountTextView = view.findViewById(R.id.usercount); // For user count
+        contentCountTextView = view.findViewById(R.id.contentcount); // For content count
+        feedbackCountTextView = view.findViewById(R.id.feedbackcount); // For feedback count
         profileImageView = view.findViewById(R.id.profile);
-        userCountTextView = view.findViewById(R.id.usercount); // Initialize the TextView for user count
-
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
@@ -59,7 +61,9 @@ public class HomeFragment extends Fragment {
         if (currentUser != null) {
             String uid = currentUser.getUid();
             fetchAdminData(uid);
-            fetchUserCount(); // Call to fetch user count
+            fetchUserCount();
+            fetchContentCount(); // Fetch content count from different tables
+            fetchFeedbackCount(); // Fetch the number of feedback ratings// Call to fetch user count
         } else {
             Toast.makeText(getActivity(), "No user is currently signed in", Toast.LENGTH_SHORT).show();
             redirectToLogin();
@@ -92,11 +96,19 @@ public class HomeFragment extends Fragment {
                         userRoleTextView.setText(role != null ? role : "N/A");
 
                         // Load the profile image using Glide
-                        Glide.with(getActivity())
-                                .load(imageUrl)
-                                .placeholder(R.drawable.user) // Default image while loading
-                                .error(R.drawable.user) // Default image in case of error
-                                .into(profileImageView);
+                        if (imageUrl != null && !imageUrl.isEmpty()) {
+                            Glide.with(getActivity())
+                                    .load(imageUrl)
+                                    .placeholder(R.drawable.user) // Default image while loading
+                                    .error(R.drawable.user) // Default image in case of error
+                                    .into(profileImageView);
+                        } else {
+                            // Ensure Glide gets a fallback image if imageUrl is null or empty
+                            Glide.with(getActivity())
+                                    .load(R.drawable.user)  // Use the default image directly
+                                    .into(profileImageView);
+                        }
+
 
                         if (role != null && (role.equalsIgnoreCase("SuperAdmin") || role.equalsIgnoreCase("Teacher"))) {
                             // Proceed with the activity as the user has the appropriate role
@@ -145,6 +157,46 @@ public class HomeFragment extends Fragment {
                 }
             }
         });
+    }
+    private void fetchContentCount() {
+        // Querying the stories, games, videos, and devotionals collections
+        db.collection("stories").get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        int storiesCount = task.getResult().size();
+                        db.collection("games").get()
+                                .addOnCompleteListener(task1 -> {
+                                    if (task1.isSuccessful()) {
+                                        int gamesCount = task1.getResult().size();
+                                        db.collection("video").get()
+                                                .addOnCompleteListener(task2 -> {
+                                                    if (task2.isSuccessful()) {
+                                                        int videoCount = task2.getResult().size();
+                                                        db.collection("devotional").get()
+                                                                .addOnCompleteListener(task3 -> {
+                                                                    if (task3.isSuccessful()) {
+                                                                        int devotionalCount = task3.getResult().size();
+                                                                        // Calculate total content count
+                                                                        int totalContentCount = storiesCount + gamesCount + videoCount + devotionalCount;
+                                                                        contentCountTextView.setText(String.valueOf(totalContentCount));
+                                                                    }
+                                                                });
+                                                    }
+                                                });
+                                    }
+                                });
+                    }
+                });
+    }
+    private void fetchFeedbackCount() {
+        // Querying the rating_feedback collection to count ratings
+        db.collection("rating_feedback").get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        int feedbackCount = task.getResult().size();
+                        feedbackCountTextView.setText(String.valueOf(feedbackCount));
+                    }
+                });
     }
 
     private void redirectToLogin() {

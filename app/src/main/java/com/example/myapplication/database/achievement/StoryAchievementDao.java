@@ -39,7 +39,9 @@ public interface StoryAchievementDao {
 
     @Query("SELECT COUNT(*) FROM achievements WHERE isCompleted = 'completed'")
     int getCompletedStoryCount();
-   ;
+
+    @Query("SELECT * FROM achievements")
+    List<StoryAchievementModel> getAllStoryAchievements();
 
     @Update
     void update(StoryAchievementModel achievement);

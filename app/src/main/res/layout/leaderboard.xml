@@ -9,24 +9,35 @@
 
     <LinearLayout
         android:id="@+id/leaderboard"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        android:orientation="horizontal"
         android:layout_marginTop="30dp"
-        >
-    <TextView
+        android:gravity="center_vertical"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/gothamroundedbold"
-        android:textStyle="bold"
-        android:text="Leaderboard"
-        android:textColor="@color/black"
-        android:textSize="25sp"
-         />
+        <ImageView
+            android:id="@+id/arrowback"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:layout_marginStart="16dp"
+            android:src="@drawable/left_arrowstory"
+            android:background="@drawable/shape_arrowstory" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="70dp"
+            android:fontFamily="@font/gothamroundedbold"
+            android:textStyle="bold"
+            android:text="Leaderboard"
+            android:textColor="@color/black"
+            android:textSize="25sp" />
     </LinearLayout>
+
 
 
     <LinearLayout

@@ -24,6 +24,10 @@ public class StoryAchievementModel {
     private String isCompleted;
     private int count; // Foreign key
 
+    public StoryAchievementModel(){
+
+    }
+
     public StoryAchievementModel(String title, String type, String isCompleted, int count, String storyId) {
         this.title = title;
         this.type = type;
@@ -31,6 +35,7 @@ public class StoryAchievementModel {
         this.isCompleted = isCompleted;
         this.count = count;
     }
+
 
     // Getters and setters
     public int getId() {

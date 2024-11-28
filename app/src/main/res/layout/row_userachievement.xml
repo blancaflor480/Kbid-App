@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="2dp"
+    app:cardElevation="2dp"
+    app:cardUseCompatPadding="true"
+    app:contentPadding="3dp"
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/imagenon"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginTop="10dp"
+            android:src="@drawable/userkids"
+            android:layout_marginEnd="10dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_weight="1"
+            android:layout_marginTop="10dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/namep"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Name"
+                android:textColor="@color/black"
+                android:fontFamily="@font/gothamroundedmedium"
+                android:textSize="15sp" />
+
+
+            <TextView
+                android:id="@+id/storyachievments"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/gothamroundedmedium"
+                android:text="storyachievments: 0"
+                android:textColor="@color/black"
+                android:layout_marginTop="10dp"
+                android:textSize="15sp" />
+            <TextView
+                android:id="@+id/KidsReflection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/gothamroundedmedium"
+                android:text="KidsReflection: 0"
+                android:textColor="@color/black"
+                android:layout_marginTop="10dp"
+                android:textSize="15sp" />
+            <TextView
+                android:id="@+id/gameachievements"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/gothamroundedmedium"
+                android:text="gameachievements: 0"
+                android:textColor="@color/black"
+                android:layout_marginTop="10dp"
+                android:textSize="15sp" />
+            <TextView
+                android:id="@+id/datetimep"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="08/17/2023"
+                android:textColor="@color/black"
+                android:textSize="12sp"
+                android:layout_marginBottom="10dp"/>
+
+
+
+        </LinearLayout>
+        <ImageView
+            android:id="@+id/optionsMenu"
+            android:layout_width="wrap_content"
+            android:layout_height="60dp"
+            android:src="@drawable/more_vert"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true" />
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>
