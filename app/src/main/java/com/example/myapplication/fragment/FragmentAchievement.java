@@ -149,7 +149,6 @@ public class FragmentAchievement extends Fragment {
                 // Create a unique key based on gameId and level (or other unique fields)
                 achievement.setIsCompleted(appDatabase.gameAchievementDao().isGameCompleted(achievement.getGameId()) ? "completed" : "locked");
             }
-
             requireActivity().runOnUiThread(() -> updateGameAchievements(gameAchievements));
         });
     }

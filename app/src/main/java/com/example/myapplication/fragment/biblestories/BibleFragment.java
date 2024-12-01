@@ -42,6 +42,7 @@ import java.net.URLDecoder;
 import java.security.AccessControlContext;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -234,7 +235,6 @@ public class BibleFragment extends AppCompatActivity {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && task.getResult() != null) {
                         Executors.newSingleThreadExecutor().execute(() -> {
-                            // List to hold new stories fetched from Firestore
                             List<ModelBible> newStories = new ArrayList<>();
 
                             for (DocumentSnapshot document : task.getResult()) {
@@ -248,6 +248,13 @@ public class BibleFragment extends AppCompatActivity {
 
                                 boolean isAudioDownloaded = false;
 
+                                // Properly format the timestamp
+                                String formattedTimestamp = "";
+                                if (timestamp != null) {
+                                    @SuppressLint("SimpleDateFormat")
+                                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                                    formattedTimestamp = sdf.format(timestamp.toDate());
+                                }
 
                                 // Safely retrieve the count value
                                 int count = 0; // Default value
@@ -259,13 +266,24 @@ public class BibleFragment extends AppCompatActivity {
                                     }
                                 }
 
-                                // Convert Firestore timestamp to a long for SQLite compatibility
-                                long timestampMillis = timestamp != null ? timestamp.toDate().getTime() : 0;
                                 ModelBible localStory = appDatabase.bibleDao().getStoryById(id);
                                 isAudioDownloaded = (localStory != null) && localStory.isAudioDownloaded();
 
                                 String isCompleted = (localStory != null) ? localStory.getIsCompleted() : document.getString("isCompleted");
-                                ModelBible story = new ModelBible(id,title,description,verse, String.valueOf(timestampMillis), imageUrl, audioUrl, isCompleted, count, isAudioDownloaded);
+
+                                // Use the formatted timestamp when creating the ModelBible object
+                                ModelBible story = new ModelBible(
+                                        id,
+                                        title,
+                                        description,
+                                        verse,
+                                        formattedTimestamp,
+                                        imageUrl,
+                                        audioUrl,
+                                        isCompleted,
+                                        count,
+                                        isAudioDownloaded
+                                );
 
                                 if (!isAudioDownloaded && audioUrl != null && !audioUrl.isEmpty()) {
                                     downloadAudioFile(id, audioUrl);
@@ -282,16 +300,24 @@ public class BibleFragment extends AppCompatActivity {
                                     appDatabase.bibleDao().insert(newStory);
                                     // Create an achievement entry related to this story
                                     StoryAchievementModel achievement = new StoryAchievementModel(
-                                            newStory.getTitle(), "Story Achievement", newStory.getIsCompleted(), newStory.getCount(),newStory.getId());
-                                    appDatabase.storyAchievementDao().insert(achievement); // Ensure you have this method in the DAO
+                                            newStory.getTitle(), "Story Achievement", newStory.getIsCompleted(), newStory.getCount(), newStory.getId());
+                                    appDatabase.storyAchievementDao().insert(achievement);
                                 }
                             }
 
-                            List<ModelBible> updatedStories = appDatabase.bibleDao().getAllBibleStoriesSortedByTimestamp();
+                            Calendar calendar = Calendar.getInstance();
+                            Date currentDate = new Date();
+
+                            // Format current date for comparison
+                            @SuppressLint("SimpleDateFormat")
+                            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                            String currentDateString = dateFormat.format(currentDate);
+
+                            List<ModelBible> updatedStories = appDatabase.bibleDao().getCurrentBibleStoriesBeforeDate(currentDateString);
 
                             Log.d("SQLiteFetch", "Fetched " + updatedStories.size() + " stories from SQLite.");
                             for (ModelBible story : updatedStories) {
-                                Log.d("SQLiteFetch", "Story ID: " + story.getId() + ", Title: " + story.getTitle() + ", isCompleted: " + story.getIsCompleted());
+                                Log.d("SQLiteFetch", "Story ID: " + story.getId() + ", Title: " + story.getTitle() + ", Timestamp: " + story.getTimestamp());
                             }
 
                             // Update the UI on the main thread
@@ -302,7 +328,7 @@ public class BibleFragment extends AppCompatActivity {
                                     showNoConnectionUI();
                                 } else {
                                     // Update the list and notify the adapter
-                                   bibleStories.clear();  // Clear only after successfully fetching updated data
+                                    bibleStories.clear();  // Clear only after successfully fetching updated data
                                     bibleStories.addAll(updatedStories);
 
                                     if (adapterBible == null) {
@@ -443,7 +469,16 @@ public class BibleFragment extends AppCompatActivity {
 
     private void loadFromLocalStorage() {
         Executors.newSingleThreadExecutor().execute(() -> {
-            List<ModelBible> localStories = appDatabase.bibleDao().getAllBibleStoriesSortedByTimestamp();
+            // Modify this line to sort by count, starting from 1
+            Calendar calendar = Calendar.getInstance();
+            Date currentDate = new Date();
+
+            // Format current date for comparison
+            @SuppressLint("SimpleDateFormat")
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String currentDateString = dateFormat.format(currentDate);
+
+            List<ModelBible> localStories = appDatabase.bibleDao().getCurrentBibleStoriesBeforeDate(currentDateString);
             runOnUiThread(() -> {
                 if (!localStories.isEmpty()) {
                     if (adapterBible == null) {
@@ -476,11 +511,20 @@ public class BibleFragment extends AppCompatActivity {
 
     private void loadAllStories() {
         Executors.newSingleThreadExecutor().execute(() -> {
-            // Fetch all stories sorted by timestamp
-            List<ModelBible> allStories = appDatabase.bibleDao().getAllBibleStoriesSortedByTimestamp();
+            // Get the current date
+            Calendar calendar = Calendar.getInstance();
+            Date currentDate = new Date();
+
+            // Format current date for comparison
+            @SuppressLint("SimpleDateFormat")
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String currentDateString = dateFormat.format(currentDate);
+
+            // Fetch current stories (excluding upcoming stories)
+            List<ModelBible> currentStories = appDatabase.bibleDao().getCurrentBibleStoriesBeforeDate(currentDateString);
 
             runOnUiThread(() -> {
-                if (allStories.isEmpty()) {
+                if (currentStories.isEmpty()) {
                     comingSoonTextView.setVisibility(View.VISIBLE);
                     recyclerView.setVisibility(View.GONE);
                 } else {
@@ -488,10 +532,10 @@ public class BibleFragment extends AppCompatActivity {
                     recyclerView.setVisibility(View.VISIBLE);
 
                     if (adapterBible == null) {
-                        adapterBible = new AdapterBible(BibleFragment.this, allStories);
+                        adapterBible = new AdapterBible(BibleFragment.this, currentStories);
                         recyclerView.setAdapter(adapterBible);
                     } else {
-                        adapterBible.updateStories(allStories); // Update adapter data
+                        adapterBible.updateStories(currentStories); // Update adapter data
                     }
                 }
             });
@@ -500,8 +544,21 @@ public class BibleFragment extends AppCompatActivity {
 
     private void loadUpcomingStories() {
         Executors.newSingleThreadExecutor().execute(() -> {
-            String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-            List<ModelBible> upcomingStories = appDatabase.bibleDao().getUpcomingBibleStories(currentDate);
+            // Get the current date and calculate the date one week from now
+            Calendar calendar = Calendar.getInstance();
+            Date currentDate = new Date();
+            calendar.setTime(currentDate);
+            calendar.add(Calendar.DAY_OF_YEAR, 7); // Add 7 days
+            Date oneWeekFromNow = calendar.getTime();
+
+            // Format dates for comparison
+            @SuppressLint("SimpleDateFormat")
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String currentDateString = dateFormat.format(currentDate);
+            String oneWeekFromNowString = dateFormat.format(oneWeekFromNow);
+
+            // Fetch upcoming stories within the next week
+            List<ModelBible> upcomingStories = appDatabase.bibleDao().getUpcomingBibleStoriesWithinNextWeek(currentDateString, oneWeekFromNowString);
 
             runOnUiThread(() -> {
                 if (upcomingStories.isEmpty()) {

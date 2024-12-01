@@ -24,6 +24,10 @@ public interface StoryAchievementDao {
     @Query("SELECT * FROM achievements WHERE type = 'Games Achievement'")
     List<StoryAchievementModel> getAchievementsForGames();
 
+    @Query("DELETE FROM achievements")
+    void deleteAllStoryAchievements();
+
+
     // Delete achievement by ID
     @Query("DELETE FROM achievements WHERE id = :achievementId")
     void deleteAchievement(int achievementId);

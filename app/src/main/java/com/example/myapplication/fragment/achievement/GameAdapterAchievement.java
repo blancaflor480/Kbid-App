@@ -33,7 +33,7 @@ public class GameAdapterAchievement extends RecyclerView.Adapter<GameAdapterAchi
     @Override
     public void onBindViewHolder(@NonNull GameAdapterAchievement.GameViewHolder holder, int position) {
         GameAchievementModel game = gameList.get(position);
-        holder.titleTextView.setText(game.getLevel());
+        holder.titleTextView.setText("Level: " +game.getLevel());
 
         // Update lock and star reward icons based on the isCompleted flag
         if ("completed".equalsIgnoreCase(game.getIsCompleted())) {

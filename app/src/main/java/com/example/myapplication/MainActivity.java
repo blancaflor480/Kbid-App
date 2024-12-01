@@ -114,29 +114,33 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void checkUserRecord() {
-        // Fetch the first user record from the database
         new Thread(() -> {
-            User user = userDao.getFirstUser(); // Get the first user from the database
+            User user = userDao.getFirstUser();
             runOnUiThread(() -> {
-                hideLoader();  // Hide loader before navigation
+                hideLoader();
 
                 if (user != null) {
-                    // User record found, check for childBirthday
+                    // User record exists
                     if (user.getChildBirthday() == null || user.getChildBirthday().isEmpty()) {
-                        // If childBirthday is blank, navigate to ChildBirthdayActivity
-                        navigateToChildBirthdayActivity();
+                        // Check if user is guest (no email and controlid)
+                        if ((user.getEmail() == null || user.getEmail().isEmpty()) &&
+                                (user.getControlid() == null || user.getControlid().isEmpty())) {
+                            // Guest user with no birthday - go directly to home
+                            navigateToHome();
+                        } else {
+                            // Registered user with no birthday - go to birthday input
+                            navigateToChildBirthdayActivity();
+                        }
                     } else {
-                        // If childBirthday is valid, check for avatarName
+                        // Birthday exists, check avatar
                         if (user.getAvatarName() == null || user.getAvatarName().isEmpty()) {
-                            // If avatarName is blank, navigate to AvatarActivity
                             navigateToAvatarActivity();
                         } else {
-                            // If both childBirthday and avatarName are valid, navigate to HomeActivity
                             navigateToHome();
                         }
                     }
                 } else {
-                    // No user record found, navigate to ChildNameActivity
+                    // No user record found
                     navigateToChildNameActivity();
                 }
             });

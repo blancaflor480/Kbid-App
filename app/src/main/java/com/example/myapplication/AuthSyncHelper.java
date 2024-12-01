@@ -8,23 +8,31 @@ import android.util.Log;
 import com.example.myapplication.database.AppDatabase;
 import com.example.myapplication.database.userdb.User;
 import com.example.myapplication.database.userdb.UserDao;
+import com.example.myapplication.database.fourpicsdb.FourPicsOneWord;
+import com.example.myapplication.database.fourpicsdb.FourPicsOneWordDao;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 public class AuthSyncHelper {
     private final Context context;
     private final UserDao userDao;
+    private final FourPicsOneWordDao fourPicsOneWordDao;
     private final Executor executor;
     private final Handler mainHandler;
     private final FirebaseFirestore firestore;
 
     public AuthSyncHelper(Context context) {
         this.context = context;
-        this.userDao = AppDatabase.getDatabase(context).userDao();
+        AppDatabase db = AppDatabase.getDatabase(context);
+        this.userDao = db.userDao();
+        this.fourPicsOneWordDao = db.fourPicsOneWordDao();
         this.executor = Executors.newSingleThreadExecutor();
         this.mainHandler = new Handler(Looper.getMainLooper());
         this.firestore = FirebaseFirestore.getInstance();
@@ -62,10 +70,10 @@ public class AuthSyncHelper {
 
                             if (childName == null || childBirthday == null ||
                                     avatarName == null || controlId == null) {
-                                // If any required field is missing, redirect to ChildNameActivity
                                 runOnMainThread(() -> callback.onSuccess("incomplete_profile"));
                                 return;
                             }
+
                             // Create User object
                             User user = new User();
                             user.setUid(firebaseUser.getUid());
@@ -81,8 +89,15 @@ public class AuthSyncHelper {
                             // Insert into SQLite on background thread
                             executor.execute(() -> {
                                 try {
+                                    // Delete existing user data
                                     userDao.deleteByUid(firebaseUser.getUid());
-                                    userDao.insert(user);
+
+                                    // Insert new user data
+                                    long userId = userDao.insert(user);
+
+                                    // Ensure FourPicsOneWord entry exists
+                                    ensureFourPicsOneWordEntry(userId, firebaseUser.getEmail());
+
                                     runOnMainThread(() -> callback.onSuccess("user"));
                                 } catch (Exception e) {
                                     Log.e("AuthSyncHelper", "Error inserting user data", e);
@@ -94,10 +109,56 @@ public class AuthSyncHelper {
                             checkAdminCollection(firebaseUser, callback);
                         }
                     } else {
-                        runOnMainThread(() -> callback.onError("Failed to fetch user data: " +
-                                (task.getException() != null ? task.getException().getMessage() : "Unknown error")));
+                        // If Firestore fetch fails, still try to handle user and game data
+                        handleFirestoreFailure(firebaseUser, callback);
                     }
                 });
+    }
+
+    private void handleFirestoreFailure(FirebaseUser firebaseUser, SyncCallback callback) {
+        executor.execute(() -> {
+            try {
+                // Check if user already exists in local database
+                User existingUser = userDao.getUserByEmail(firebaseUser.getEmail());
+
+                long userId;
+                if (existingUser == null) {
+                    // Create a minimal user entry if not exists
+                    User user = new User();
+                    user.setUid(firebaseUser.getUid());
+                    user.setEmail(firebaseUser.getEmail());
+                    userId = userDao.insert(user);
+                } else {
+                    userId = existingUser.getId();
+                }
+
+                // Ensure FourPicsOneWord entry exists
+                ensureFourPicsOneWordEntry(userId, firebaseUser.getEmail());
+
+                runOnMainThread(() -> callback.onSuccess("user_fallback"));
+            } catch (Exception e) {
+                Log.e("AuthSyncHelper", "Error in fallback user handling", e);
+                runOnMainThread(() -> callback.onError("Fallback user handling failed: " + e.getMessage()));
+            }
+        });
+    }
+
+    private void ensureFourPicsOneWordEntry(long userId, String email) {
+        FourPicsOneWord existingEntry = fourPicsOneWordDao.getGameDataWithEmailSync(email);
+
+        if (existingEntry == null) {
+            // Create new FourPicsOneWord entry if none exists
+            FourPicsOneWord fourPicsOneWord = new FourPicsOneWord(
+                    (int) userId,
+                    1,  // Starting level
+                    0,  // Initial score
+                    new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date()),
+                    email
+            );
+
+            fourPicsOneWordDao.insert(fourPicsOneWord);
+            Log.d("AuthSyncHelper", "Created new FourPicsOneWord entry for: " + email);
+        }
     }
 
     private void checkAdminCollection(FirebaseUser firebaseUser, SyncCallback callback) {

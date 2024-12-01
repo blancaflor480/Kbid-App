@@ -35,11 +35,11 @@ public class AdapterLeaderboard extends RecyclerView.Adapter<AdapterLeaderboard.
         leaderboardmodel leaderboardModel = leaderboardList.get(position);
 
         // Set rank
-        holder.rank.setText("#" + (position + 1));
+        holder.rank.setText("#" + leaderboardModel.getRank());
         // Set user name (childName)
         holder.name.setText(leaderboardModel.getUserName());
         // Set total achievements (total count)
-        holder.points.setText("Total Achievements: " + leaderboardModel.getTotalPoints()); // Display total points
+        holder.points.setText("Points: " + leaderboardModel.getTotalPoints()); // Display total points
 
         // Set user profile image (if any)
         Glide.with(context)

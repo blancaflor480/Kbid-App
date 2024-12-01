@@ -86,7 +86,7 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="20dp"
-        app:backgroundTint="@color/green"
+        app:backgroundTint="@color/lightgreenshadow"
         android:background="@drawable/btn_getstarted"
         android:fontFamily="@font/dinroundedpro_bold"
         android:text="Continue"

@@ -8,6 +8,7 @@ import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +30,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.myapplication.R;
 import com.example.myapplication.ui.content.stories.ModelStories;
 import com.example.myapplication.ui.user.AdapterUser;
+import com.example.myapplication.ui.content.devotional.JavaMailAPI;
 import com.example.myapplication.ui.user.ModelUser;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -337,6 +339,9 @@ public class KidsDevotionalFragment extends Fragment {
                     devotional.setId(documentReference.getId());
                     db.collection("devotional").document(documentReference.getId()).set(devotional)
                             .addOnSuccessListener(aVoid -> {
+                                // Seserye ng email sa lahat ng naka-subscribe o registered na users
+                                sendDevotionalEmailToUsers(devotional);
+
                                 Snackbar.make(getView(), "Devotional added.", Snackbar.LENGTH_SHORT).show();
                             })
                             .addOnFailureListener(e -> {
@@ -348,4 +353,75 @@ public class KidsDevotionalFragment extends Fragment {
                 });
     }
 
+    private void sendDevotionalEmailToUsers(ModelDevotional devotional) {
+        // Kunin ang lahat ng users mula sa Firestore
+        db.collection("user")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        String userEmail = document.getString("email");
+
+                        if (userEmail != null && !userEmail.isEmpty()) {
+                            // Construct email content
+                            String emailSubject = "Today's Devotional: " + devotional.getTitle();
+                            String emailBody = constructDevotionalEmail(devotional);
+
+                            // Send email using JavaMailAPI
+                            new JavaMailAPI(
+                                    getContext(),
+                                    userEmail,
+                                    emailSubject,
+                                    emailBody
+                            ).execute();
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Devotional", "Failed to fetch users for email", e);
+                });
+    }
+
+    private String constructDevotionalEmail(ModelDevotional devotional) {
+        return "<!DOCTYPE html>" +
+                "<html lang=\"en\">" +
+                "<head>" +
+                "<meta charset=\"UTF-8\">" +
+                "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">" +
+                "<title>Today's Devotional</title>" +
+                "<style>" +
+                "body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f9f9f9; color: #333; }" +
+                ".email-container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border: 1px solid #ddd; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }" +
+                ".email-header { background-color: #4CAF50; color: white; text-align: center; padding: 20px 10px; }" +
+                ".email-header h1 { margin: 0; font-size: 24px; }" +
+                ".email-body { padding: 20px; line-height: 1.6; }" +
+                ".email-body h2 { color: #4CAF50; margin-top: 0; }" +
+                ".email-body p { margin: 10px 0; }" +
+                ".email-footer { background-color: #f1f1f1; text-align: center; padding: 15px; font-size: 14px; color: #555; }" +
+                ".email-footer a { color: #4CAF50; text-decoration: none; }" +
+                ".email-footer a:hover { text-decoration: underline; }" +
+                "</style>" +
+                "</head>" +
+                "<body>" +
+                "<div class=\"email-container\">" +
+                "<div class=\"email-header\">" +
+                "<h1>Today's Devotional</h1>" +
+                "</div>" +
+                "<div class=\"email-body\">" +
+                "<h2>Dear MCA Kids,</h2>" +
+                "<p>Here's today's devotional:</p>" +
+                "<p style=\"text-align: center; font-size: 20px;\"><strong>" + devotional.getTitle() + "</strong></p>" +
+                "<p style=\"text-align: center; font-size: 15px; font-style: italic;\"><strong>\"" + devotional.getMemoryverse() + "\"</strong></p>" +
+                "<p style=\"text-align: center; font-size: 15px;\"><strong>" + devotional.getVerse() + "</strong></p>" +
+                "<p>Reflect together and grow in faith!</p>" +
+                "<p>Blessings,<br>The Kids Bible Discovery Team</p>" +
+                "</div>" +
+                "<div class=\"email-footer\">" +
+                "<p>You are receiving this email as part of your subscription to the Kids Bible Discovery program.</p>" +
+                "<p><a href=\"#\">Unsubscribe</a> | <a href=\"#\">Contact Support</a></p>" +
+                "</div>" +
+                "</div>" +
+                "</body>" +
+                "</html>";
+    }
+    
 }

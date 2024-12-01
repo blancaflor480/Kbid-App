@@ -54,7 +54,7 @@
         <activity android:name=".fragment.biblemusic.VideoPlayerActivity"
             android:screenOrientation="landscape"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
-
+        <activity android:name=".TutorialVideoActivity" />
         <activity android:name=".fragment.useraccount.account" />
         <activity android:name=".AvatarSelectionActivity" />
         <activity android:name=".ForgetPassword" />

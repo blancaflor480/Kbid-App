@@ -14,8 +14,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.myapplication.database.AppDatabase;
 import com.example.myapplication.database.userdb.User;
 import com.example.myapplication.database.userdb.UserDao;
+import com.example.myapplication.database.fourpicsdb.FourPicsOneWord;
+import com.example.myapplication.database.fourpicsdb.FourPicsOneWordDao;
 
 import java.io.ByteArrayOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -23,28 +28,48 @@ public class AvatarActivity extends AppCompatActivity {
 
     private AppDatabase db;
     private UserDao userDao;
+    private FourPicsOneWordDao fourPicsOneWordDao;
     private User currentUser;
     private Handler handler;
     private Runnable loadingRunnable;
     private TextView loadingTextView;
+    private String userEmail;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.avatar_user);
 
-        // Initialize the database and DAO
+        // Initialize the database and DAOs
         db = AppDatabase.getDatabase(this);
         userDao = db.userDao();
+        fourPicsOneWordDao = db.fourPicsOneWordDao();
 
-        // Load the current user and setup avatar listeners after loading is complete
-        loadCurrentUser();
+        // Get data from intent
+        Intent intent = getIntent();
+        String controlId = intent.getStringExtra("CONTROL_ID");
+        userEmail = intent.getStringExtra("USER_EMAIL");
+        String firstname = intent.getStringExtra("FIRSTNAME");
+        String birthday = intent.getStringExtra("BIRTHDAY");
+
+        // Save user data locally
+        saveUserData(controlId, userEmail, firstname, birthday);
     }
 
-    private void loadCurrentUser() {
+    private void saveUserData(String controlId, String userEmail, String firstname, String birthday) {
         AsyncTask.execute(() -> {
-            currentUser = userDao.getFirstUser(); // Assuming you only have one user and it's the first one in the database
+            // Create new user object
+            User user = new User();
+            user.setControlid(controlId);
+            user.setEmail(userEmail);
+            user.setChildName(firstname);
+            user.setChildBirthday(birthday);
 
-            // After loading the user, proceed to set up the click listeners
+            // Insert or update user in local database
+            long userId = userDao.insert(user);
+
+            // Load the current user and proceed with avatar setup
+            currentUser = userDao.getFirstUser();
             runOnUiThread(this::setupAvatarClickListeners);
         });
     }
@@ -80,7 +105,7 @@ public class AvatarActivity extends AppCompatActivity {
 
         // Set click listeners for each avatar
         for (int i = 0; i < avatars.length; i++) {
-            final String avatarName = getResources().getResourceEntryName(avatarResourceIds[i]); // Get the name from the resource ID
+            final String avatarName = getResources().getResourceEntryName(avatarResourceIds[i]);
             final int resourceId = avatarResourceIds[i];
             avatars[i].setOnClickListener(view -> selectAvatar(avatarName, resourceId));
         }
@@ -88,52 +113,53 @@ public class AvatarActivity extends AppCompatActivity {
 
     private void showLoadingAnimation() {
         loadingTextView = findViewById(R.id.text);
-
-        // Define a Runnable to update the TextView with "LOADING." "LOADING.." and "LOADING..."
         loadingRunnable = new Runnable() {
             private int dotCount = 0;
 
             @Override
             public void run() {
-                // Cycle through "LOADING", "LOADING.", "LOADING..", and "LOADING..."
                 String text = "LOADING" + new String(new char[dotCount]).replace("\0", ".");
                 loadingTextView.setText(text);
-
-                // Update dotCount (0 to 3) to animate the dots
                 dotCount = (dotCount + 1) % 4;
-
-                // Schedule the next run after 500 milliseconds (adjust as needed)
                 handler.postDelayed(this, 500);
             }
         };
 
         handler = new Handler();
-        handler.post(loadingRunnable); // Start the animation
+        handler.post(loadingRunnable);
     }
 
     private void selectAvatar(String avatarName, int avatarResourceId) {
-        // Convert drawable to byte[]
         Drawable drawable = getResources().getDrawable(avatarResourceId);
         Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
         byte[] avatarImage = bitmapToByteArray(bitmap);
 
-        // Update the user with the selected avatar
         AsyncTask.execute(() -> {
             if (currentUser != null) {
                 currentUser.setAvatarName(avatarName);
                 currentUser.setAvatarResourceId(avatarResourceId);
-                currentUser.setAvatarImage(avatarImage); // Save the image as byte[]
+                currentUser.setAvatarImage(avatarImage);
 
                 userDao.updateUser(currentUser);
 
+                // Create FourPicsOneWord entry if not exists
+                FourPicsOneWord existingEntry = fourPicsOneWordDao.getGameDataWithEmailSync(userEmail);
+                if (existingEntry == null) {
+                    FourPicsOneWord fourPicsOneWord = new FourPicsOneWord(
+                            (int) currentUser.getId(),
+                            1,  // Starting level
+                            0,  // Initial score
+                            new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date()),
+                            userEmail
+                    );
+                    fourPicsOneWordDao.insert(fourPicsOneWord);
+                }
+
                 runOnUiThread(() -> {
-                    // Set the new content view and initialize loadingTextView
                     setContentView(R.layout.loader_homepage);
                     loadingTextView = findViewById(R.id.text);
-
                     showLoadingAnimation();
 
-                    // Delay transition to HomeActivity
                     new Handler().postDelayed(() -> {
                         if (handler != null) handler.removeCallbacks(loadingRunnable);
                         Intent intent = new Intent(AvatarActivity.this, HomeActivity.class);
@@ -145,7 +171,6 @@ public class AvatarActivity extends AppCompatActivity {
             }
         });
     }
-
 
     private byte[] bitmapToByteArray(Bitmap bitmap) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();

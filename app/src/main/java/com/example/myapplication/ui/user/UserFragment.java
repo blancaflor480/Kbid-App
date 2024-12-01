@@ -25,6 +25,7 @@ import android.widget.PopupMenu;
 import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -366,7 +367,7 @@ public class UserFragment extends Fragment {
         String message = "Dear User,\n\n" +
                 "Your account has been successfully created!\n" +
                 "Your Control ID: " + controlId + "\n" +
-                "Your Temporary Password: " + password + "\n\n" +  // Temporary password for first login
+                "Your Temporary Password: " + password + "\n\n" +
                 (isMCAStudent
                         ? "You have been confirmed as an MCA student."
                         : "You have not been confirmed as an MCA student.") + "\n\n" +
@@ -375,23 +376,37 @@ public class UserFragment extends Fragment {
                 "Thank you!";
 
         if (user != null) {
+            // Log for debugging
+            Log.d("Debug", "Attempting to send verification email to: " + user.getEmail());
+
             // Send verification email
             user.sendEmailVerification()
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
                             Log.d("Verification", "Verification email sent to " + user.getEmail());
+                            Toast.makeText(getContext(), "Verification email sent to: " + user.getEmail(), Toast.LENGTH_SHORT).show();
                         } else {
                             Log.e("Verification", "Error sending verification email", task.getException());
+                            Snackbar.make(getView(), "Failed to send verification email: " + task.getException().getMessage(), Snackbar.LENGTH_LONG).show();
                         }
                     });
 
             // Send custom email notification
-            JavaMailAPI javaMailAPI = new JavaMailAPI(getContext(), user.getEmail(), subject, message);
-            javaMailAPI.execute();
+            try {
+                Log.d("Debug", "Sending custom email to: " + user.getEmail());
+                JavaMailAPI javaMailAPI = new JavaMailAPI(getContext(), user.getEmail(), subject, message);
+                javaMailAPI.execute();
+                Log.d("Debug", "Custom email sent successfully");
+            } catch (Exception e) {
+                Log.e("EmailError", "Failed to send custom email: " + e.getMessage());
+                Snackbar.make(getView(), "Failed to send custom email: " + e.getMessage(), Snackbar.LENGTH_LONG).show();
+            }
         } else {
             Log.e("Verification", "User is null. Cannot send verification email.");
+            Snackbar.make(getView(), "Error: User is null. Cannot send verification email.", Snackbar.LENGTH_LONG).show();
         }
     }
+
 
 
 

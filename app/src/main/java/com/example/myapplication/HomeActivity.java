@@ -1,11 +1,14 @@
 package com.example.myapplication;
 
+import android.content.DialogInterface;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
@@ -20,10 +23,12 @@ import com.google.android.material.navigation.NavigationBarView;
 import java.util.ArrayList;
 
 public class HomeActivity extends AppCompatActivity {
+    private static final int BACK_PRESS_INTERVAL = 2000;
     ViewPager2 homepage;
     ArrayList<Fragment> fragmentArrayList = new ArrayList<>();
     BottomNavigationView bottom_nav;
     MediaPlayer mediaPlayer;
+    private long backPressedTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,4 +123,28 @@ public class HomeActivity extends AppCompatActivity {
             }
         }
     }
+    @Override
+    public void onBackPressed() {
+        // Check if dialog is not already showing
+
+        new AlertDialog.Builder(this)
+                .setTitle("Exit App")
+                .setMessage("Are you sure you want to exit the app?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finishAffinity(); // Exit the app
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel(); // Dismiss the dialog
+                    }
+                })
+                .setCancelable(true) // Allow dialog to be cancelable
+                .show();
+        super.onBackPressed();
+    }
 }
+

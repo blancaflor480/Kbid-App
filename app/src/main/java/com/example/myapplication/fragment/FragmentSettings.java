@@ -86,8 +86,25 @@ public class FragmentSettings extends Fragment {
 
         ratingFeedbackCardView.setOnClickListener(v -> showRatingFeedbackDialog());
 
-        CardView exitButton = view.findViewById(R.id.exit);
-        exitButton.setOnClickListener(v -> showExitConfirmationDialog());
+        CardView signOutButton = view.findViewById(R.id.signout);
+
+        // Check user email and set button visibility
+        executor.execute(() -> {
+            // Get the first user from the database
+            User user = userDao.getFirstUser();
+
+            // Update UI on main thread
+            getActivity().runOnUiThread(() -> {
+                if (user != null && user.getEmail() != null && !user.getEmail().isEmpty()) {
+                    // Email exists, show the sign-out button
+                    signOutButton.setVisibility(View.VISIBLE);
+                    signOutButton.setOnClickListener(v -> showSignoutConfirmationDialog());
+                } else {
+                    // No email or user, hide the sign-out button
+                    signOutButton.setVisibility(View.GONE);
+                }
+            });
+        });
 
         return view;
     }
@@ -112,31 +129,52 @@ public class FragmentSettings extends Fragment {
         });
     }
 
-    private void showExitConfirmationDialog() {
+    private void showSignoutConfirmationDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
 
         // Inflate the custom layout
         LayoutInflater inflater = requireActivity().getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.confirmation_exit, null);
 
-        builder.setView(dialogView); // Set the custom layout
+        builder.setView(dialogView);
 
-        // Find the buttons in the custom layout
         Button btnYes = dialogView.findViewById(R.id.btnYes);
         Button btnNo = dialogView.findViewById(R.id.btnNo);
 
-        // Create the dialog instance
         AlertDialog dialog = builder.create();
 
-        // Set click listeners
         btnYes.setOnClickListener(v -> {
-            dialog.dismiss(); // Dismiss the dialog before finishing the activity
-            requireActivity().finish(); // Close the app
+            // Show loading dialog while processing
+            showLoadingDialog();
+
+            // Execute database operations in background
+            executor.execute(() -> {
+                // Clear all tables
+                db.userDao().deleteAllUsers();
+                db.gameAchievementDao().deleteAllGameAchievements();
+                db.storyAchievementDao().deleteAllStoryAchievements();
+
+                // Update UI on main thread
+                getActivity().runOnUiThread(() -> {
+                    dismissLoadingDialog();
+                    dialog.dismiss();
+
+                    // Navigate to MainActivity with proper flags
+                    Intent intent = new Intent(getContext(), MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+
+                    // Finish all activities in the stack
+                    if (getActivity() != null) {
+                        getActivity().finishAffinity();
+                    }
+                });
+            });
         });
 
         btnNo.setOnClickListener(v -> dialog.dismiss());
 
-        dialog.show(); // Show the dialog
+        dialog.show();
     }
 
     // Inside your FragmentSettings.java

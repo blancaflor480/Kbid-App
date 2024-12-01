@@ -32,6 +32,7 @@ import com.bumptech.glide.load.resource.gif.GifDrawable;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.example.myapplication.AvatarSelectionActivity;
 import com.example.myapplication.R;
+import com.example.myapplication.TutorialVideoActivity;
 import com.example.myapplication.database.AppDatabase;
 import com.example.myapplication.database.userdb.User;
 import com.example.myapplication.database.userdb.UserDao;
@@ -71,7 +72,7 @@ public class FragmentHome extends Fragment {
     CardView clickStories, clickGames, clickSong, clickDevoional;
     VideoView videoView;
     ImageView imageView, imageright, userAvatarImageView, sungif,rainbowgif,star1,star2,star3,star4;
-    ImageButton notif, editprofile;
+    ImageButton notif, editprofile,tutorial;
     EditText userAgeEditText,userNameEditText;
     private View editProfileOverlay;
     private ImageView changeInfoButton;
@@ -104,6 +105,13 @@ public class FragmentHome extends Fragment {
         userNameTextView = view.findViewById(R.id.name);
         userAvatarImageView = view.findViewById(R.id.avatar);
         notif = view.findViewById(R.id.notif); // Initialize your notification button
+
+        tutorial = view.findViewById(R.id.tutorial);
+        tutorial.setOnClickListener(v -> {
+            playClickSound(); // Optional: play click sound
+            Intent intent = new Intent(getActivity(), TutorialVideoActivity.class);
+            startActivity(intent);
+        });
 
         editprofile = view.findViewById(R.id.editprofile);
 
@@ -164,19 +172,19 @@ public class FragmentHome extends Fragment {
             navigateToBiblesongActivity();
         });
 
-        clickDevoional.setOnClickListener(v -> {
-            AsyncTask.execute(() -> {
-                User user = userDao.getFirstUser();
-                requireActivity().runOnUiThread(() -> {
-                    if (user != null && user.getControlid() != null && !user.getControlid().isEmpty()) {
-                        playClickSound(); // Play sound effect
-                        navigateToBibledevotionalActivity(); // Navigate if controlid exists
-                    } else {
-                        // Set button visibility to GONE if controlid is not available
-                        clickDevoional.setVisibility(View.GONE);
-                        Toast.makeText(getContext(), "Devotional is not available for this user.", Toast.LENGTH_SHORT).show();
-                    }
-                });
+        AsyncTask.execute(() -> {
+            User user = userDao.getFirstUser();
+            requireActivity().runOnUiThread(() -> {
+                if (user != null && user.getControlid() != null && !user.getControlid().isEmpty()) {
+                    clickDevoional.setVisibility(View.VISIBLE);
+                    // Only set click listener if user has valid controlid
+                    clickDevoional.setOnClickListener(v -> {
+                        playClickSound();
+                        navigateToBibledevotionalActivity();
+                    });
+                } else {
+                    clickDevoional.setVisibility(View.GONE);
+                }
             });
         });
 

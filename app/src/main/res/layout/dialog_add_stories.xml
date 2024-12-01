@@ -45,6 +45,14 @@
             android:layout_height="wrap_content"
             android:hint="Verse Bible" />
 
+        <EditText
+            android:id="@+id/etDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Date"
+            android:focusable="false"
+            android:clickable="true"/>
+
         <Spinner
             android:id="@+id/spinnerUnlock"
             android:layout_width="match_parent"

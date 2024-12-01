@@ -79,7 +79,7 @@ public class ChildNameActivity extends AppCompatActivity {
 
                 } else {
                     buttonContinue.setEnabled(true);
-                    buttonContinue.setBackgroundColor(getResources().getColor(R.color.green));
+                    buttonContinue.setBackgroundColor(getResources().getColor(R.color.lightgreenshadow));
                     buttonContinue.setTextColor(Color.WHITE);
                     buttonContinue.setBackgroundResource(R.drawable.btn_getstarted);
 
@@ -97,7 +97,7 @@ public class ChildNameActivity extends AppCompatActivity {
             String childName = inputName.getText().toString().trim();
             if (!childName.isEmpty()) {
                 saveNameLocally(childName);
-                proceedToNextActivity();
+                // Navigation will be handled in saveNameLocally after the database operation
             }
         });
 
@@ -124,10 +124,19 @@ public class ChildNameActivity extends AppCompatActivity {
                     1,
                     0,
                     new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date()),
-                    email  // Adding email here
+                    email
             );
 
             db.fourPicsOneWordDao().insert(fourPicsOneWord);
+
+            // Check if email and controlid are empty
+            runOnUiThread(() -> {
+                if ((email == null || email.isEmpty()) && (controlid == null || controlid.isEmpty())) {
+                    navigateToAvatarActivity();
+                } else {
+                    proceedToNextActivity();
+                }
+            });
         });
     }
 
@@ -148,10 +157,18 @@ public class ChildNameActivity extends AppCompatActivity {
         });
     }
 
+
     private void proceedToNextActivity() {
         Intent intent = new Intent(ChildNameActivity.this, ChildAgeActivity.class);
         startActivity(intent);
         // Add a smooth slide transition effect
         overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+    }
+
+    private void navigateToAvatarActivity() {
+        Intent intent = new Intent(ChildNameActivity.this, AvatarActivity.class);
+        startActivity(intent);
+        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+        finish(); // Close this activity
     }
 }

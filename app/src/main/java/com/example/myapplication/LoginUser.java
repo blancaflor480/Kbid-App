@@ -20,6 +20,9 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.airbnb.lottie.LottieAnimationView;
+import com.example.myapplication.database.AppDatabase;
+import com.example.myapplication.database.userdb.User;
+import com.example.myapplication.database.userdb.UserDao;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -33,6 +36,9 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class LoginUser extends AppCompatActivity {
 
@@ -193,21 +199,48 @@ public class LoginUser extends AppCompatActivity {
         authSyncHelper.syncUserDataFromFirestore(currentUser, new AuthSyncHelper.SyncCallback() {
             @Override
             public void onSuccess(String userType) {
-                hideLoader();
-                switch (userType) {
-                    case "user":
-                        navigateToHome();
-                        break;
-                    case "admin":
-                        navigateToAdminDashboard();
-                        break;
-                    case "invalid":
-                        handleInvalidAccount();
-                        break;
-                    case "incomplete_profile":
-                        navigateToChildname();
-                        break;
+                if (userType.equals("admin")) {
+                    // If admin, go directly to admin dashboard
+                    navigateToAdminDashboard();
+                    return;
+                } else if (userType.equals("invalid")) {
+                    handleInvalidAccount();
+                    return;
                 }
+
+                firestore.collection("user")
+                        .document(userId)
+                        .get()
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful() && task.getResult() != null) {
+                                DocumentSnapshot document = task.getResult();
+
+                                // Check for avatar-related fields
+                                String avatarName = document.getString("avatarName");
+                                String firstname = document.getString("firstname");
+                                String birthday = document.getString("birthday");
+                                String controlId = document.getString("controlid");
+
+                                hideLoader();
+
+                                // Conditions for navigation
+                                if (TextUtils.isEmpty(avatarName)) {
+                                    // No avatar set, go to Avatar Activity
+                                    navigateToAvatarActivity();
+                                } else if (TextUtils.isEmpty(firstname) ||
+                                        TextUtils.isEmpty(birthday) ||
+                                        TextUtils.isEmpty(controlId)) {
+                                    // Incomplete profile, go to Child Name Activity
+                                    navigateToChildname();
+                                } else {
+                                    // Full profile exists, navigate based on user type
+                                    navigateToHome();
+                                }
+                            } else {
+                                hideLoader();
+                                showValidationDialog("Error fetching user data");
+                            }
+                        });
             }
 
             @Override
@@ -323,6 +356,33 @@ public class LoginUser extends AppCompatActivity {
                             }
                             startActivity(intent);
                             finish();
+                        }
+                    });
+        }
+    }
+
+    private void navigateToAvatarActivity() {
+        FirebaseUser user = auth.getCurrentUser();
+        if (user != null) {
+            firestore.collection("user")
+                    .document(user.getUid())
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful() && task.getResult() != null) {
+                            DocumentSnapshot document = task.getResult();
+                            Intent intent = new Intent(LoginUser.this, AvatarActivity.class);
+
+                            // Add all required data as extras
+                            intent.putExtra("CONTROL_ID", document.getString("controlid"));
+                            intent.putExtra("USER_EMAIL", user.getEmail());
+                            intent.putExtra("FIRSTNAME", document.getString("firstname"));
+                            intent.putExtra("BIRTHDAY", document.getString("birthday"));
+                            startActivity(intent);
+                            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                            finish(); // Close this activity
+                        } else {
+                            hideLoader();
+                            showValidationDialog("Error fetching user data");
                         }
                     });
         }

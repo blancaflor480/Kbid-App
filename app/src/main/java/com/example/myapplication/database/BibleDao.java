@@ -28,6 +28,7 @@ public interface BibleDao {
     List<ModelBible> getAllBibleStoriesSortedByTimestamp();
 
 
+
     @Query("SELECT * FROM stories WHERE isCompleted = :status") // Retrieves stories based on their completion status ("locked" or "unlocked")
     List<ModelBible> getStoriesByCompletionStatus(String status);
 
@@ -45,6 +46,16 @@ public interface BibleDao {
 
     @Query("SELECT * FROM stories WHERE count = :count LIMIT 1")
     ModelBible getStoryByCount(int count);
+
+    @Query("SELECT * FROM stories ORDER BY count ASC")
+    List<ModelBible> getAllBibleStoriesSortedByCount();
+
+        @Query("SELECT * FROM stories WHERE timestamp BETWEEN :currentDate AND :oneWeekFromNow ORDER BY count ASC")
+        List<ModelBible> getUpcomingBibleStoriesWithinNextWeek(String currentDate, String oneWeekFromNow);
+
+    @Query("SELECT * FROM stories WHERE timestamp <= :currentDate ORDER BY timestamp ASC")
+    List<ModelBible> getCurrentBibleStoriesBeforeDate(String currentDate);
+
 
     @Query("SELECT isAudioDownloaded FROM stories WHERE id = :storyId LIMIT 1")
     boolean isAudioDownloaded(String storyId);

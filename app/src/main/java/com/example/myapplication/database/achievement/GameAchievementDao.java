@@ -25,7 +25,8 @@ public interface GameAchievementDao {
     @Query("SELECT DISTINCT id, title, gameId, level, points, isCompleted FROM gamesachievements ORDER BY level ASC")
     List<GameAchievementModel> getAchievementsForGames();
 
-
+    @Query("DELETE FROM gamesachievements")
+    void deleteAllGameAchievements();
     // @Query("SELECT * FROM gamesachievements WHERE gameId = :gameId")
    // GameAchievementModel getAchievementsForGames(String gameId);
 

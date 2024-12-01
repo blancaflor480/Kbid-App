@@ -56,6 +56,7 @@ public class DevotionalKids extends AppCompatActivity {
     private AppDatabase appDatabase;
     private TextToSpeech textToSpeech;
     private AppCompatButton speechToTextButton;
+    private AppCompatButton readButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +79,8 @@ public class DevotionalKids extends AppCompatActivity {
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
         feedbackTextView = findViewById(R.id.feedback);
         feedbacktitle = findViewById(R.id.feedbacktitle);
+        readButton = findViewById(R.id.read);
+        readButton.setOnClickListener(v -> speakMemoryVerse());
         // Retrieve `devotionalId` from Intent, if available
         devotionalId = getIntent().getStringExtra("devotionalId");
         String controlId = getIntent().getStringExtra("controlId");
@@ -124,40 +127,14 @@ public class DevotionalKids extends AppCompatActivity {
             }
         });
     }
-
-   /* private void scheduleDailyNotification() {
-        // Get Calendar instance for 6 AM
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 6);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-
-        // If the time has already passed for today, schedule for tomorrow
-        if (calendar.getTimeInMillis() < System.currentTimeMillis()) {
-            calendar.add(Calendar.DAY_OF_YEAR, 1);
+    private void speakMemoryVerse() {
+        String verseText = memoryverse.getText().toString();
+        if (!verseText.isEmpty()) {
+            textToSpeech.setSpeechRate(0.7f);  // Slower speed (0.7 is 70% of normal speed)
+            textToSpeech.setPitch(1.0f);       // Normal pitch
+            textToSpeech.speak(verseText, TextToSpeech.QUEUE_FLUSH, null, null);
         }
-
-        // Create an intent to send the notification
-        Intent intent = new Intent(this, NotificationReceiver.class);
-
-        // Use FLAG_IMMUTABLE since the PendingIntent doesn't need to be modified
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-
-        // Get the AlarmManager system service
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-
-        // Set a repeating alarm for every day at 6 AM
-        if (alarmManager != null) {
-            alarmManager.setRepeating(
-                    AlarmManager.RTC_WAKEUP,
-                    calendar.getTimeInMillis(),
-                    AlarmManager.INTERVAL_DAY, // Repeat daily
-                    pendingIntent);
-        } else {
-            Log.e("DevotionalKids", "AlarmManager is null");
-        }
-    }*/
-
+    }
     private void updateCardColors() {
         // Get the current day of the week
         Calendar calendar = Calendar.getInstance();

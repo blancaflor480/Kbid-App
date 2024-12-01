@@ -18,7 +18,7 @@
         android:id="@+id/headerSection"
         android:layout_width="match_parent"
         android:layout_height="120dp"
-        android:background="@color/blue"
+        android:background="@color/lightgreenshadow"
         android:padding="26dp"
         android:orientation="horizontal"
         android:layout_alignParentTop="true"
@@ -29,10 +29,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Dashboard"
-            android:textColor="@android:color/white"
+            android:textColor="@color/white"
             android:textSize="24sp"
             android:textStyle="bold"
-            android:fontFamily="@font/dinroundedpro_bold"/>
+            android:fontFamily="@font/poppinsbold"/>
 
         <Space
             android:layout_width="0dp"
@@ -64,9 +64,9 @@
                 android:layout_marginTop="10dp"
                 android:padding="5dp"
                 android:text="Full Name"
-                android:textColor="@android:color/black"
+                android:textColor="@color/black"
                 android:textSize="18sp"
-                android:fontFamily="@font/dinroundedpro_bold"/>
+                android:fontFamily="@font/poppinsbold"/>
 
             <TextView
                 android:id="@+id/userRole"
@@ -76,9 +76,9 @@
                 android:layout_alignParentStart="true"
                 android:padding="2dp"
                 android:text="Role"
-                android:textColor="@android:color/black"
+                android:textColor="@color/black"
                 android:textSize="13sp"
-                android:fontFamily="@font/dinpro_regular"/>
+                android:fontFamily="@font/poppinsmedium"/>
 
             <Button
                 android:id="@+id/editProfileButton"
@@ -86,9 +86,9 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/userRole"
                 android:layout_marginTop="8dp"
-                android:backgroundTint="@color/blue"
-                android:fontFamily="@font/dangrek"
-                android:textColor="@android:color/white"
+                android:backgroundTint="@color/lightgreenshadow"
+                android:fontFamily="@font/poppinsmedium"
+                android:textColor="@color/white"
                 android:text="Edit Profile" />
         </RelativeLayout>
 
@@ -159,11 +159,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="50dp"
-                    android:text="User Manage"
-                    android:textColor="@android:color/black"
+                    android:text="User Management"
+                    android:textColor="@color/black"
                     android:textSize="13sp"
                     android:layout_gravity="center"
-                    android:fontFamily="@font/dinpro_regular" />
+                    android:fontFamily="@font/poppinsmedium" />
                           </FrameLayout>
 
             <FrameLayout
@@ -206,7 +206,7 @@
                     android:textColor="@android:color/black"
                     android:textSize="13sp"
                     android:layout_gravity="center"
-                    android:fontFamily="@font/dinpro_regular" />
+                    android:fontFamily="@font/poppinsmedium" />
             </FrameLayout>
 
             <FrameLayout
@@ -249,7 +249,7 @@
                     android:textColor="@android:color/black"
                     android:textSize="13sp"
                     android:layout_gravity="center"
-                    android:fontFamily="@font/dinpro_regular" />
+                    android:fontFamily="@font/poppinsmedium" />
             </FrameLayout>
 
             <FrameLayout
@@ -293,7 +293,7 @@
                     android:textColor="@android:color/black"
                     android:textSize="13sp"
                     android:layout_gravity="center"
-                    android:fontFamily="@font/dinpro_regular" />
+                    android:fontFamily="@font/poppinsmedium" />
             </FrameLayout>
 
 

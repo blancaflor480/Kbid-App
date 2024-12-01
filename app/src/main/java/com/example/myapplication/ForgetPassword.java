@@ -1,5 +1,6 @@
 package com.example.myapplication;
 
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -23,6 +24,7 @@ public class ForgetPassword extends AppCompatActivity {
     private EditText inputEmail;
     private MaterialButton submitButton;
     private LottieAnimationView loader, noInternet;
+    private Button buttonSignup, buttonCreate;
     private FirebaseAuth auth;
 
     @Override
@@ -34,10 +36,14 @@ public class ForgetPassword extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
 
         // Bind UI components
+        buttonCreate = findViewById(R.id.buttonCreate);
         inputEmail = findViewById(R.id.inputEmail);
         submitButton = findViewById(R.id.Submit);
         loader = findViewById(R.id.loader);
         noInternet = findViewById(R.id.nointernet);
+
+        buttonCreate.setOnClickListener(v -> startActivity(new Intent(ForgetPassword.this, LoginUser.class)));
+
 
         // Handle Submit button click
         submitButton.setOnClickListener(v -> {

@@ -183,6 +183,18 @@
         </FrameLayout>
 
         <!-- Star Image in front (on top layer) -->
+        <ImageButton
+            android:id="@+id/tutorial"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/tutorial"
+            android:layout_marginLeft="330dp"
+            android:layout_marginTop="100dp"
+            android:background="@drawable/cicrle_btntutorial"
+            android:layout_alignParentEnd="true"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/profileFrame"
+            />
         <ImageView
             android:id="@+id/stars1"
             android:layout_width="150dp"
@@ -425,6 +437,7 @@
                 android:layout_height="230dp"
                 android:layout_marginBottom="80dp"
                 app:cardCornerRadius="30dp"
+                android:visibility="gone"
                 app:cardBackgroundColor="#A2DDC2">
 
                 <View

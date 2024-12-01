@@ -5,6 +5,7 @@ import static android.system.Os.shutdown;
 import static androidx.core.content.ContentProviderCompat.requireContext;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Base64;
 import android.view.LayoutInflater;
@@ -40,8 +41,11 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 
@@ -65,7 +69,7 @@ public class account extends AppCompatActivity {
     private Executor executor;
     private EditText editemail;
     private FirestoreSyncManager firestoreSyncManager;
-
+    private AppCompatButton changepassword;
 
 
     @Override
@@ -97,6 +101,7 @@ public class account extends AppCompatActivity {
             }
         });
 
+
         // Initialize views
         ImageButton closeButton = findViewById(R.id.close);
         closeButton.setOnClickListener(v -> onBackPressed());
@@ -107,6 +112,7 @@ public class account extends AppCompatActivity {
         editprof.setOnClickListener(v -> showEditProfileDialog());
 
         // Load user details
+        setupBadgeDevotionalRecyclerView();
         setupBadgeRecyclerView();
         setupGameBadgeRecyclerView();
         loadUserDetails(editName, controlNumber, avatarImageView);
@@ -146,6 +152,84 @@ public class account extends AppCompatActivity {
         });
     }
 
+    private void showChangePasswordDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_changepasswordkids, null);
+        builder.setView(dialogView);
+
+        // Initialize views
+        EditText currentPassword = dialogView.findViewById(R.id.currentpassword);
+        EditText newPassword = dialogView.findViewById(R.id.confirmpassword);
+        EditText confirmPassword = dialogView.findViewById(R.id.Editage);
+        AppCompatButton saveButton = dialogView.findViewById(R.id.save);
+        ImageButton closeButton = dialogView.findViewById(R.id.close);
+
+        AlertDialog dialog = builder.create();
+
+        // Handle close button click
+        closeButton.setOnClickListener(v -> dialog.dismiss());
+
+        // Handle save button click
+        saveButton.setOnClickListener(v -> {
+            String currentPass = currentPassword.getText().toString().trim();
+            String newPass = newPassword.getText().toString().trim();
+            String confirmPass = confirmPassword.getText().toString().trim();
+
+            // Validate inputs
+            if (currentPass.isEmpty() || newPass.isEmpty() || confirmPass.isEmpty()) {
+                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (!newPass.equals(confirmPass)) {
+                Toast.makeText(this, "New passwords do not match", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Show confirmation dialog
+            new AlertDialog.Builder(this)
+                    .setTitle("Confirm Password Change")
+                    .setMessage("Are you sure you want to change your password?")
+                    .setPositiveButton("Yes", (dialogInterface, i) -> {
+                        // Get current Firebase user
+                        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                        if (user != null && user.getEmail() != null) {
+                            // First, reauthenticate the user
+                            AuthCredential credential = EmailAuthProvider.getCredential(user.getEmail(), currentPass);
+
+                            user.reauthenticate(credential)
+                                    .addOnCompleteListener(reauthTask -> {
+                                        if (reauthTask.isSuccessful()) {
+                                            // Reauthentication successful, now change the password
+                                            user.updatePassword(newPass)
+                                                    .addOnCompleteListener(task -> {
+                                                        if (task.isSuccessful()) {
+                                                            Toast.makeText(this, "Password updated successfully", Toast.LENGTH_SHORT).show();
+                                                            dialog.dismiss();
+                                                        } else {
+                                                            Toast.makeText(this, "Failed to update password: " +
+                                                                    task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    });
+                                        } else {
+                                            Toast.makeText(this, "Current password is incorrect", Toast.LENGTH_SHORT).show();
+                                        }
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Toast.makeText(this, "Authentication failed: " + e.getMessage(),
+                                                Toast.LENGTH_SHORT).show();
+                                    });
+                        } else {
+                            Toast.makeText(this, "No user is currently signed in", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .setNegativeButton("No", (dialogInterface, i) -> dialogInterface.dismiss())
+                    .show();
+        });
+
+        dialog.show();
+    }
     private void showEditProfileDialog() {
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
@@ -156,6 +240,11 @@ public class account extends AppCompatActivity {
         LayoutInflater inflater = getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.edit_profile, null);
         builder.setView(dialogView);
+
+        AppCompatButton changepassword = dialogView.findViewById(R.id.changepassbtn);
+        if (changepassword != null) {  // Add null check for safety
+            changepassword.setOnClickListener(v -> showChangePasswordDialog());
+        }
 
         ImageView avatarImageView = dialogView.findViewById(R.id.avatar);
         EditText editName = dialogView.findViewById(R.id.Editname);
@@ -512,7 +601,83 @@ public class account extends AppCompatActivity {
     }
 
 
+    private void setupBadgeDevotionalRecyclerView() {
+        RecyclerView recyclerView = findViewById(R.id.recyclepdevotion);
+        GridLayoutManager layoutManager = new GridLayoutManager(this, 3);
+        recyclerView.setLayoutManager(layoutManager);
 
+        List<DevotionalAchievementModel> devotionalList = new ArrayList<>();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        AsyncTask.execute(() -> {
+            User user = userDao.getFirstUser();
+            if (user != null) {
+                String userEmail = user.getEmail();
+
+                // Additional null and empty checks
+                if (userEmail == null || userEmail.trim().isEmpty()) {
+                    Log.e("DevotionalBadges", "User email is null or empty");
+                    runOnUiThread(() -> {
+                        Toast.makeText(this, "No email found for user", Toast.LENGTH_SHORT).show();
+                    });
+                    return;
+                }
+
+                runOnUiThread(() -> {
+                    db.collection("kidsReflection")
+                            .whereEqualTo("email", userEmail)
+                            .get()
+                            .addOnSuccessListener(queryDocumentSnapshots -> {
+                                if (!queryDocumentSnapshots.isEmpty()) {
+                                    DocumentSnapshot document = queryDocumentSnapshots.getDocuments().get(0);
+
+                                    // Log the document data for debugging
+                                    Log.d("DevotionalBadges", "Document data: " + document.getData());
+
+                                    // Check badge conditions with additional logging
+                                    boolean consistentReflector = Boolean.TRUE.equals(document.getBoolean("Consistent Reflector"));
+                                    boolean creativeContribution = Boolean.TRUE.equals(document.getBoolean("Creative Contribution"));
+                                    boolean startThinker = Boolean.TRUE.equals(document.getBoolean("Start Thinker"));
+
+                                    Log.d("DevotionalBadges", "Badges: Consistent=" + consistentReflector +
+                                            ", Creative=" + creativeContribution +
+                                            ", StartThinker=" + startThinker);
+
+                                    // Create badge models based on Firestore data
+                                    if (consistentReflector) {
+                                        devotionalList.add(new DevotionalAchievementModel(R.drawable.consistentreflector));
+                                    }
+                                    if (creativeContribution) {
+                                        devotionalList.add(new DevotionalAchievementModel(R.drawable.creativecontributiion));
+                                    }
+                                    if (startThinker) {
+                                        devotionalList.add(new DevotionalAchievementModel(R.drawable.startthinker));
+                                    }
+
+                                    // Add logging to check list
+                                    Log.d("DevotionalBadges", "Badges list size: " + devotionalList.size());
+
+                                    // Update the adapter
+                                    if (!devotionalList.isEmpty()) {
+                                        DevotionalAchievementAdapter adapter = new DevotionalAchievementAdapter(account.this, devotionalList);
+                                        recyclerView.setAdapter(adapter);
+                                    } else {
+                                        Log.w("DevotionalBadges", "No badges to display");
+                                    }
+                                } else {
+                                    Log.w("DevotionalBadges", "No documents found for email: " + userEmail);
+                                }
+                            })
+                            .addOnFailureListener(e -> {
+                                Log.e("DevotionalBadges", "Failed to load achievements", e);
+                                Toast.makeText(account.this, "Failed to load achievements", Toast.LENGTH_SHORT).show();
+                            });
+                });
+            } else {
+                Log.e("DevotionalBadges", "No user found");
+            }
+        });
+    }
 
 
 }
