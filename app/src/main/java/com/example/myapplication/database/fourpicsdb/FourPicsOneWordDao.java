@@ -4,6 +4,9 @@ import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.Update;
+
+import com.example.myapplication.database.userdb.User;
 
 import java.util.List; // Import the List class
 
@@ -28,7 +31,8 @@ public interface FourPicsOneWordDao {
     @Query("SELECT * FROM fourpicsoneword WHERE userId = :userId LIMIT 1")
     LiveData<FourPicsOneWord> getGameDataWithEmail(String userId); // If you still want LiveData
 
-
+    @Update
+    void updategames(FourPicsOneWord fourPicsOneWord);
 
     @Query("UPDATE fourpicsoneword SET currentLevel = currentLevel + :currentLevel WHERE userId = :userId")
     void addLevel(int userId, int currentLevel);

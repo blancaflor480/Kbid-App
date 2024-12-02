@@ -95,8 +95,8 @@ public class AuthSyncHelper {
                                     // Insert new user data
                                     long userId = userDao.insert(user);
 
-                                    // Ensure FourPicsOneWord entry exists
-                                    ensureFourPicsOneWordEntry(userId, firebaseUser.getEmail());
+                                    // Sync FourPicsOneWord data
+                                    syncFourPicsOneWordData(userId, firebaseUser.getEmail());
 
                                     runOnMainThread(() -> callback.onSuccess("user"));
                                 } catch (Exception e) {
@@ -105,15 +105,123 @@ public class AuthSyncHelper {
                                 }
                             });
                         } else {
-                            // Check admin collection if user document doesn't exist
                             checkAdminCollection(firebaseUser, callback);
                         }
                     } else {
-                        // If Firestore fetch fails, still try to handle user and game data
                         handleFirestoreFailure(firebaseUser, callback);
                     }
                 });
     }
+
+    private void syncFourPicsOneWordData(long userId, String email) {
+        // First check Firestore for existing FourPicsOneWord data
+        firestore.collection("fourpicsoneword")
+                .whereEqualTo("email", email)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                        // Found existing data in Firestore
+                        DocumentSnapshot document = task.getResult().getDocuments().get(0);
+
+                        // Get the data from Firestore matching the exact field names
+                        Integer currentLevel = document.getLong("currentLevel") != null ?
+                                document.getLong("currentLevel").intValue() : 1;
+                        Integer points = document.getLong("points") != null ?
+                                document.getLong("points").intValue() : 0;
+                        String date = document.getString("date");
+
+                        if (date == null) {
+                            date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                                    .format(new Date());
+                        }
+
+                        // Create FourPicsOneWord object with Firestore data
+                        FourPicsOneWord gameData = new FourPicsOneWord(
+                                (int) userId,
+                                currentLevel,
+                                points,
+                                date,
+                                email
+                        );
+
+                        // Update SQLite on background thread
+                        executor.execute(() -> {
+                            try {
+                                FourPicsOneWord existingEntry =
+                                        fourPicsOneWordDao.getGameDataWithEmailSync(email);
+
+                                if (existingEntry != null) {
+                                    gameData.setId(existingEntry.getId()); // Preserve local ID
+                                    fourPicsOneWordDao.updategames(gameData);
+                                    Log.d("AuthSyncHelper", "Updated existing FourPicsOneWord from Firestore for: " + email);
+                                } else {
+                                    fourPicsOneWordDao.insert(gameData);
+                                    Log.d("AuthSyncHelper", "Inserted new FourPicsOneWord from Firestore for: " + email);
+                                }
+                            } catch (Exception e) {
+                                Log.e("AuthSyncHelper", "Error syncing FourPicsOneWord data from Firestore", e);
+                                throw e;
+                            }
+                        });
+                    } else {
+                        // No data in Firestore, use default values
+                        executor.execute(() -> {
+                            try {
+                                FourPicsOneWord existingEntry =
+                                        fourPicsOneWordDao.getGameDataWithEmailSync(email);
+
+                                if (existingEntry == null) {
+                                    // Create new entry with default values matching the entity class
+                                    FourPicsOneWord newEntry = new FourPicsOneWord(
+                                            (int) userId,
+                                            1,  // Default currentLevel
+                                            0,  // Default points
+                                            new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                                                    .format(new Date()),
+                                            email
+                                    );
+                                    fourPicsOneWordDao.insert(newEntry);
+                                    Log.d("AuthSyncHelper", "Created new default FourPicsOneWord entry for: " + email);
+                                } else {
+                                    // Update existing entry's userId
+                                    existingEntry.setUserId((int) userId);
+                                    fourPicsOneWordDao.updategames(existingEntry);
+                                    Log.d("AuthSyncHelper", "Updated existing FourPicsOneWord userId for: " + email);
+                                }
+                            } catch (Exception e) {
+                                Log.e("AuthSyncHelper", "Error handling default FourPicsOneWord data", e);
+                                throw e;
+                            }
+                        });
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("AuthSyncHelper", "Error checking Firestore for FourPicsOneWord data", e);
+                    // Handle Firestore failure by falling back to default values
+                    executor.execute(() -> createDefaultFourPicsOneWordEntry(userId, email));
+                });
+    }
+
+    private void createDefaultFourPicsOneWordEntry(long userId, String email) {
+        try {
+            FourPicsOneWord existingEntry = fourPicsOneWordDao.getGameDataWithEmailSync(email);
+            if (existingEntry == null) {
+                FourPicsOneWord newEntry = new FourPicsOneWord(
+                        (int) userId,
+                        1,  // Default currentLevel
+                        0,  // Default points
+                        new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date()),
+                        email
+                );
+                fourPicsOneWordDao.insert(newEntry);
+                Log.d("AuthSyncHelper", "Created new default FourPicsOneWord entry after Firestore failure for: " + email);
+            }
+        } catch (Exception e) {
+            Log.e("AuthSyncHelper", "Error creating default FourPicsOneWord entry", e);
+            throw e;
+        }
+    }
+
 
     private void handleFirestoreFailure(FirebaseUser firebaseUser, SyncCallback callback) {
         executor.execute(() -> {
@@ -132,8 +240,8 @@ public class AuthSyncHelper {
                     userId = existingUser.getId();
                 }
 
-                // Ensure FourPicsOneWord entry exists
-                ensureFourPicsOneWordEntry(userId, firebaseUser.getEmail());
+                // Sync FourPicsOneWord data
+                syncFourPicsOneWordData(userId, firebaseUser.getEmail());
 
                 runOnMainThread(() -> callback.onSuccess("user_fallback"));
             } catch (Exception e) {
@@ -141,24 +249,6 @@ public class AuthSyncHelper {
                 runOnMainThread(() -> callback.onError("Fallback user handling failed: " + e.getMessage()));
             }
         });
-    }
-
-    private void ensureFourPicsOneWordEntry(long userId, String email) {
-        FourPicsOneWord existingEntry = fourPicsOneWordDao.getGameDataWithEmailSync(email);
-
-        if (existingEntry == null) {
-            // Create new FourPicsOneWord entry if none exists
-            FourPicsOneWord fourPicsOneWord = new FourPicsOneWord(
-                    (int) userId,
-                    1,  // Starting level
-                    0,  // Initial score
-                    new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date()),
-                    email
-            );
-
-            fourPicsOneWordDao.insert(fourPicsOneWord);
-            Log.d("AuthSyncHelper", "Created new FourPicsOneWord entry for: " + email);
-        }
     }
 
     private void checkAdminCollection(FirebaseUser firebaseUser, SyncCallback callback) {

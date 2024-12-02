@@ -59,13 +59,26 @@
         app:layout_constraintTop_toBottomOf="@id/header"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="20dp">
+        >
 
         <!-- Profile Avatar -->
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            >
+            <ImageView
+                android:id="@+id/border"
+                android:layout_width="250dp"
+                android:layout_height="250dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/bronze" />
+        </FrameLayout>
         <ImageView
             android:id="@+id/avatar"
-            android:layout_width="150dp"
-            android:layout_height="155dp"
+            android:layout_width="140dp"
+            android:layout_height="140dp"
+            android:layout_marginTop="55dp"
+            android:layout_marginStart="55dp"
             android:background="@drawable/circle_avatarbg"
             android:scaleType="centerCrop"
             android:src="@drawable/lion" />
