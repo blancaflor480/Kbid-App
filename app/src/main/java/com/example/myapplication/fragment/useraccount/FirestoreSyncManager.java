@@ -78,6 +78,8 @@ public class FirestoreSyncManager {
                 userData.put("avatarName", user.getAvatarName());
                 userData.put("controlId", user.getControlid());
                 userData.put("avatarResourceId", user.getAvatarResourceId());
+                userData.put("borderName", user.getBorderName());
+                userData.put("borderResourceId", user.getBorderResourceId());
 
                 // Optional: Convert avatar image to Base64 if needed
 
@@ -282,150 +284,7 @@ public class FirestoreSyncManager {
         });
     }
 
- /*public void syncDataFromFirestore() {
-        executor.execute(() -> {
-            try {
-                FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-                if (firebaseUser == null || firebaseUser.getEmail() == null) {
-                    Log.w("FirestoreSync", "Firebase user or email is null");
-                    return;
-                }
 
-                FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-                String userEmail = firebaseUser.getEmail();
-
-                // Sync FourPicsOneWord data
-                firestore.collection("fourpicsoneword")
-                        .document(userEmail)
-                        .get()
-                        .addOnSuccessListener(document -> {
-                            if (document.exists()) {
-                                FourPicsOneWord gameData = new FourPicsOneWord();
-                                gameData.setEmail(document.getString("email"));
-                                gameData.setUserId(Integer.parseInt(document.getString("userId")));
-                                gameData.setCurrentLevel(document.getLong("currentLevel").intValue());
-                                gameData.setPoints(document.getLong("points").intValue());
-                                gameData.setDate(document.getString("date"));
-
-                                executor.execute(() -> {
-                                    fourPicsOneWordDao.insert(gameData);
-                                    Log.d("FirestoreSync", "FourPicsOneWord data synced to SQLite");
-                                });
-                            }
-                        });
-
-                // Sync Game Achievements
-                firestore.collection("gameachievements")
-                        .document(userEmail)
-                        .collection("gamesdata")
-                        .get()
-                        .addOnSuccessListener(querySnapshot -> {
-                            for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
-                                if (doc.getId().startsWith("achievements_")) {
-                                    try {
-                                        GameAchievementModel achievement = new GameAchievementModel();
-                                        achievement.setId(Integer.parseInt(doc.getId().replace("achievements_", "")));
-                                        achievement.setGameId(doc.getString("gameId"));
-                                        achievement.setTitle(doc.getString("title"));
-
-                                        // Handle level field
-                                        Object levelObj = doc.get("level");
-                                        achievement.setLevel(convertToString(levelObj, "0"));
-
-                                        // Handle points field
-                                        Object pointsObj = doc.get("points");
-                                        achievement.setPoints(convertToString(pointsObj, "0"));
-
-                                        // Handle isCompleted field - using get() instead of getBoolean()
-                                        Object isCompletedObj = doc.get("isCompleted");
-                                        achievement.setIsCompleted(convertToString(isCompletedObj, "false"));
-
-                                        executor.execute(() -> {
-                                            gameAchievementDao.insert(achievement);
-                                            Log.d("FirestoreSync", "Game achievement synced to SQLite: " + achievement.getId());
-                                        });
-                                    } catch (Exception e) {
-                                        Log.e("FirestoreSync", "Error processing game achievement document: " + doc.getId(), e);
-                                    }
-                                }
-                            }
-                        });
-
-                // Sync Story Achievements
-                firestore.collection("storyachievements")
-                        .document(userEmail)
-                        .collection("storiesdata")
-                        .get()
-                        .addOnSuccessListener(querySnapshot -> {
-                            for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
-                                if (doc.getId().startsWith("achievements_")) {
-                                    try {
-                                        StoryAchievementModel achievement = new StoryAchievementModel();
-                                        achievement.setId(Integer.parseInt(doc.getId().replace("achievements_", "")));
-                                        achievement.setStoryId(doc.getString("storyId"));
-                                        achievement.setTitle(doc.getString("title"));
-                                        achievement.setType(doc.getString("type"));
-
-                                        // Handle isCompleted field - using get() instead of getBoolean()
-                                        Object isCompletedObj = doc.get("isCompleted");
-                                        achievement.setIsCompleted(convertToString(isCompletedObj, "false"));
-
-                                        // Handle count field
-                                        Object countObj = doc.get("count");
-                                        if (countObj != null) {
-                                            if (countObj instanceof Long) {
-                                                achievement.setCount(((Long) countObj).intValue());
-                                            } else if (countObj instanceof Integer) {
-                                                achievement.setCount((Integer) countObj);
-                                            } else {
-                                                achievement.setCount(0);
-                                            }
-                                        } else {
-                                            achievement.setCount(0);
-                                        }
-
-                                        executor.execute(() -> {
-                                            storyAchievementDao.insert(achievement);
-                                            Log.d("FirestoreSync", "Story achievement synced to SQLite: " + achievement.getId());
-                                        });
-                                    } catch (Exception e) {
-                                        Log.e("FirestoreSync", "Error processing story achievement document: " + doc.getId(), e);
-                                    }
-                                }
-                            }
-                        })
-                        .addOnFailureListener(e -> {
-                            Log.e("FirestoreSync", "Error syncing data from Firestore", e);
-                            runOnMainThread(() -> Toast.makeText(context,
-                                    "Failed to sync data: " + e.getMessage(),
-                                    Toast.LENGTH_SHORT).show());
-                        });
-
-            } catch (Exception e) {
-                Log.e("FirestoreSync", "Unexpected error during sync from Firestore", e);
-                runOnMainThread(() -> Toast.makeText(context,
-                        "Sync error: " + e.getMessage(),
-                        Toast.LENGTH_SHORT).show());
-            }
-        });
-    }
-
-    // Helper method to convert various types to String
-    private String convertToString(Object obj, String defaultValue) {
-        if (obj == null) return defaultValue;
-
-        if (obj instanceof Boolean) {
-            return String.valueOf(obj);
-        } else if (obj instanceof Long) {
-            return String.valueOf(obj);
-        } else if (obj instanceof String) {
-            return (String) obj;
-        } else if (obj instanceof Integer) {
-            return String.valueOf(obj);
-        }
-
-        return defaultValue;
-    }*/
     // Optional: Method to check Firebase Authentication
     public void checkFirebaseAuthentication() {
         FirebaseAuth auth = FirebaseAuth.getInstance();

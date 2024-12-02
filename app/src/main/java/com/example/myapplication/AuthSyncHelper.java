@@ -68,8 +68,12 @@ public class AuthSyncHelper {
                             Integer avatarResourceId = document.getLong("avatarResourceId") != null ?
                                     document.getLong("avatarResourceId").intValue() : null;
 
+                            String borderName = document.getString("borderName");
+                            Integer borderResourceId = document.getLong("borderResourceId") != null ?
+                                    document.getLong("borderResourceId").intValue() : null;
+
                             if (childName == null || childBirthday == null ||
-                                    avatarName == null || controlId == null) {
+                                    avatarName == null || borderName == null || controlId == null) {
                                 runOnMainThread(() -> callback.onSuccess("incomplete_profile"));
                                 return;
                             }
@@ -84,6 +88,10 @@ public class AuthSyncHelper {
                             user.setControlid(controlId);
                             if (avatarResourceId != null) {
                                 user.setAvatarResourceId(avatarResourceId);
+                            }
+                            user.setBorderName(borderName);
+                            if (borderResourceId != null) {
+                                user.setAvatarResourceId(borderResourceId);
                             }
 
                             // Insert into SQLite on background thread

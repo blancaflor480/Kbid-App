@@ -179,7 +179,8 @@ public class ChildAgeActivity extends AppCompatActivity {
                 byte[] defaultAvatarImage = null; // Replace with actual byte array if you have an image
                 String email = "No Bind";
                 String controlid = "";
-                currentUser = new User("Default Name", childBirthday, "Default Avatar", R.drawable.lion, defaultAvatarImage, email, controlid);
+                byte[] defaultBorderImage = null;
+                currentUser = new User("Default Name", childBirthday, "Default Avatar", R.drawable.lion, defaultAvatarImage, email, controlid,"Default Border",R.drawable.bronze,defaultBorderImage);
                 userDao.insert(currentUser);
             }
         });

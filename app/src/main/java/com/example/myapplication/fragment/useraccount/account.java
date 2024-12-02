@@ -106,6 +106,7 @@ public class account extends AppCompatActivity {
         ImageButton closeButton = findViewById(R.id.close);
         closeButton.setOnClickListener(v -> onBackPressed());
         ImageView avatarImageView = findViewById(R.id.avatar);
+        ImageView borderImageView = findViewById(R.id.border);
         TextView editName = findViewById(R.id.Editname);
         TextView controlNumber = findViewById(R.id.controlnumber);
         CardView editprof = findViewById(R.id.editprof);
@@ -115,11 +116,11 @@ public class account extends AppCompatActivity {
         setupBadgeDevotionalRecyclerView();
         setupBadgeRecyclerView();
         setupGameBadgeRecyclerView();
-        loadUserDetails(editName, controlNumber, avatarImageView);
+        loadUserDetails(editName, controlNumber, avatarImageView, borderImageView);
     }
 
 
-    private void loadUserDetails(TextView editName, TextView controlNumber, ImageView avatarImageView) {
+    private void loadUserDetails(TextView editName, TextView controlNumber, ImageView avatarImageView,ImageView borderImageView) {
         Executors.newSingleThreadExecutor().execute(() -> {
             User user = userDao.getFirstUser();
             runOnUiThread(() -> {
@@ -143,6 +144,15 @@ public class account extends AppCompatActivity {
                                 .into(avatarImageView);
                     } else {
                         avatarImageView.setImageResource(R.drawable.lion); // Fallback
+                    }
+
+                    if (user.getBorderImage() != null) {
+                        Glide.with(this)
+                                .load(user.getBorderImage())
+                                .placeholder(R.drawable.bronze) // Default avatar resource
+                                .into(borderImageView);
+                    } else {
+                        borderImageView.setImageResource(R.drawable.bronze); // Fallback
                     }
                 } else {
                     // No user found
@@ -247,12 +257,14 @@ public class account extends AppCompatActivity {
         }
 
         ImageView avatarImageView = dialogView.findViewById(R.id.avatar);
+        ImageView borderImageView = dialogView.findViewById(R.id.border);
         EditText editName = dialogView.findViewById(R.id.Editname);
         EditText editAge = dialogView.findViewById(R.id.Editage);
         editemail = dialogView.findViewById(R.id.google); // Email field
         TextView controlNumber = dialogView.findViewById(R.id.controlnumber);
         AppCompatButton connectButton = dialogView.findViewById(R.id.connect);
         AppCompatButton saveButton = dialogView.findViewById(R.id.save);
+        AppCompatButton changeBorder = dialogView.findViewById(R.id.changeborder);
         ImageButton closeButton = dialogView.findViewById(R.id.close);
         ImageButton changeProfileButton = dialogView.findViewById(R.id.changepf);
 
@@ -274,12 +286,21 @@ public class account extends AppCompatActivity {
                     Glide.with(this)
                             .load(user.getAvatarResourceId())
                             .into(avatarImageView);
+
+                    Glide.with(this)
+                            .load(user.getBorderResourceId())
+                            .into(borderImageView);
                 }
             });
         });
 
         changeProfileButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, AvatarSelectionActivity.class);
+            startActivityForResult(intent, 1);
+        });
+
+        changeBorder.setOnClickListener(v -> {
+            Intent intent = new Intent(this, BorderSelection.class);
             startActivityForResult(intent, 1);
         });
 

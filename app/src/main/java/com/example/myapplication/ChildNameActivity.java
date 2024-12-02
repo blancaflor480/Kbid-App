@@ -114,8 +114,12 @@ public class ChildNameActivity extends AppCompatActivity {
             String email = this.email;
             String controlid = this.controlid;
 
+            String defaultBorderName = "bronze";
+            int defaultBorderResourceId = R.drawable.bronze;
+            byte[] defaultBorderImage = null;
+
             // Create and insert user with email
-            User user = new User(name, childBirthday, defaultAvatarName, defaultAvatarResourceId, defaultAvatarImage, email, controlid);
+            User user = new User(name, childBirthday, defaultAvatarName, defaultAvatarResourceId, defaultAvatarImage, email, controlid, defaultBorderName,defaultBorderResourceId,defaultBorderImage);
             long userId = userDao.insert(user);
 
             // Create FourPicsOneWord with email

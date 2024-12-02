@@ -61,6 +61,7 @@
         <activity android:name=".AvatarActivity" />
         <activity android:name=".ChildNameActivity" />
         <activity android:name=".ChildAgeActivity" />
+        <activity android:name=".fragment.useraccount.BorderSelection" />
         <activity
             android:name=".MainActivity"
             android:exported="true">

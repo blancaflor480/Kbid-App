@@ -21,12 +21,16 @@ public class User {
     private byte[] avatarImage;
     private String email;
     private String controlid;
+
+    private String borderName;
+    private int borderResourceId;
+    private byte[] borderImage;
     // No-argument constructor required by Room
     public User() {
     }
 
     // Constructor including avatarImage and updated field name
-    public User(String childName, String childBirthday, String avatarName, int avatarResourceId, byte[] avatarImage, String email, String controlid) {
+    public User(String childName, String childBirthday, String avatarName, int avatarResourceId, byte[] avatarImage, String email, String controlid,String borderName,int borderResourceId, byte[] borderImage) {
         this.childName = childName;
         this.childBirthday = childBirthday; // Set childBirthday field
         this.avatarName = avatarName;
@@ -34,6 +38,9 @@ public class User {
         this.avatarImage = avatarImage;
         this.email = email;
         this.controlid = controlid;// Set email field
+        this.borderName = borderName;
+        this.borderResourceId = borderResourceId;
+        this.borderImage = borderImage;
     }
 
 
@@ -110,7 +117,25 @@ public class User {
         this.controlid = controlid;
     }
 
-    // Convert the object to a map
+    public byte[] getBorderImage() {
+        return borderImage;
+    }
+    public void setBorderImage(byte[] borderImage) {
+        this.borderImage = borderImage;
+    }
+    public int getBorderResourceId() {
+        return borderResourceId;
+    }
+    public void setBorderResourceId(int borderResourceId) {
+        this.borderResourceId = borderResourceId;
+    }
+    public String getBorderName() {
+        return borderName;
+    }
+    public void setBorderName(String borderName) {
+        this.borderName = borderName;
+    }
+        // Convert the object to a map
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();
         map.put("uid", this.uid); // Firebase UID
@@ -118,12 +143,9 @@ public class User {
         map.put("childName", this.childName); // Assuming your User model has a field for child name
         map.put("controlid", this.controlid); // Assuming your User model has a control ID field
         map.put("avatarName", this.avatarName); // Assuming your User model has a control ID field
-
+        map.put("borderName", this.borderName);
         return map;
     }
-
-
-
 
 
 }
