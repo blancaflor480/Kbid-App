@@ -7,13 +7,7 @@ import androidx.room.PrimaryKey;
 import com.example.myapplication.fragment.biblestories.ModelBible;
 
 @Entity(
-        tableName = "achievements",
-        foreignKeys = @ForeignKey(
-                entity = ModelBible.class,
-                parentColumns = "id", // Primary key in ModelBible
-                childColumns = "storyId", // Foreign key in StoryAchievementModel
-                onDelete = ForeignKey.CASCADE // Cascade delete if the referenced story is deleted
-        )
+        tableName = "achievements"
 )
 public class StoryAchievementModel {
     @PrimaryKey(autoGenerate = true)

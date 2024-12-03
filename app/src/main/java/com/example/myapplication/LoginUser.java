@@ -199,6 +199,25 @@ public class LoginUser extends AppCompatActivity {
         authSyncHelper.syncUserDataFromFirestore(currentUser, new AuthSyncHelper.SyncCallback() {
             @Override
             public void onSuccess(String userType) {
+
+                if (userType.equals("user") || userType.equals("incomplete_profile")) {
+                    // Get userId from local database
+                    Executor executor = Executors.newSingleThreadExecutor();
+                    executor.execute(() -> {
+                        UserDao userDao = AppDatabase.getDatabase(LoginUser.this).userDao();
+                        User user = userDao.getUserByEmail(email);
+                        if (user != null) {
+                            long localUserId = user.getId();
+                            // Sync both achievements
+                            authSyncHelper.syncGameAchievements(email, localUserId);
+                            Log.d("LoginUser", "Syncing story achievements for email: " + email);
+                            Log.d("LoginUser", "Local user ID: " + localUserId);
+                            authSyncHelper.syncStoryAchievements(email, localUserId);
+                        }
+                    });
+                }
+
+
                 if (userType.equals("admin")) {
                     // If admin, go directly to admin dashboard
                     navigateToAdminDashboard();

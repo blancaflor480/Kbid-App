@@ -95,6 +95,7 @@ public class account extends AppCompatActivity {
                 firestoreSyncManager.syncFourPicsOneWordWithFirestore();
                 firestoreSyncManager.syncGameAchievementsWithFirestore();
                 firestoreSyncManager.syncStoryAchievementsWithFirestore();
+
                 //firestoreSyncManager.syncDataFromFirestore();
             } else {
                 Log.w("FirebaseAuth", "User is signed out");
@@ -120,7 +121,7 @@ public class account extends AppCompatActivity {
     }
 
 
-    private void loadUserDetails(TextView editName, TextView controlNumber, ImageView avatarImageView,ImageView borderImageView) {
+    private void loadUserDetails(TextView editName, TextView controlNumber, ImageView avatarImageView, ImageView borderImageView) {
         Executors.newSingleThreadExecutor().execute(() -> {
             User user = userDao.getFirstUser();
             runOnUiThread(() -> {
@@ -130,29 +131,47 @@ public class account extends AppCompatActivity {
 
                     // Set control ID or fallback, and hide the control number if it's empty
                     if (user.getControlid() == null || user.getControlid().isEmpty()) {
-                        controlNumber.setVisibility(View.GONE);  // Hide if no control ID
+                        controlNumber.setVisibility(View.GONE);
                     } else {
                         controlNumber.setText("ID: " + user.getControlid());
-                        controlNumber.setVisibility(View.VISIBLE);  // Show and set value if present
+                        controlNumber.setVisibility(View.VISIBLE);
                     }
 
                     // Load avatar or placeholder
                     if (user.getAvatarImage() != null) {
                         Glide.with(this)
                                 .load(user.getAvatarImage())
-                                .placeholder(R.drawable.lion) // Default avatar resource
+                                .placeholder(R.drawable.lion)
                                 .into(avatarImageView);
                     } else {
-                        avatarImageView.setImageResource(R.drawable.lion); // Fallback
+                        avatarImageView.setImageResource(R.drawable.lion);
                     }
 
+                    // Enhanced border image loading logic
                     if (user.getBorderImage() != null) {
+                        // If borderImage exists in database, load it directly
                         Glide.with(this)
                                 .load(user.getBorderImage())
-                                .placeholder(R.drawable.bronze) // Default avatar resource
+                                .placeholder(R.drawable.bronze)
                                 .into(borderImageView);
+                    } else if (user.getBorderName() != null && !user.getBorderName().isEmpty()) {
+                        // If borderImage is null but borderName exists, load from drawable
+                        int resourceId = getResources().getIdentifier(
+                                user.getBorderName().toLowerCase(),
+                                "drawable",
+                                getPackageName()
+                        );
+
+                        if (resourceId != 0) {
+                            // Resource found, load it
+                            borderImageView.setImageResource(resourceId);
+                        } else {
+                            // Resource not found, use default
+                            borderImageView.setImageResource(R.drawable.bronze);
+                        }
                     } else {
-                        borderImageView.setImageResource(R.drawable.bronze); // Fallback
+                        // No border image or name, use default
+                        borderImageView.setImageResource(R.drawable.bronze);
                     }
                 } else {
                     // No user found
@@ -240,6 +259,7 @@ public class account extends AppCompatActivity {
 
         dialog.show();
     }
+
     private void showEditProfileDialog() {
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
@@ -252,7 +272,7 @@ public class account extends AppCompatActivity {
         builder.setView(dialogView);
 
         AppCompatButton changepassword = dialogView.findViewById(R.id.changepassbtn);
-        if (changepassword != null) {  // Add null check for safety
+        if (changepassword != null) {
             changepassword.setOnClickListener(v -> showChangePasswordDialog());
         }
 
@@ -260,7 +280,7 @@ public class account extends AppCompatActivity {
         ImageView borderImageView = dialogView.findViewById(R.id.border);
         EditText editName = dialogView.findViewById(R.id.Editname);
         EditText editAge = dialogView.findViewById(R.id.Editage);
-        editemail = dialogView.findViewById(R.id.google); // Email field
+        editemail = dialogView.findViewById(R.id.google);
         TextView controlNumber = dialogView.findViewById(R.id.controlnumber);
         AppCompatButton connectButton = dialogView.findViewById(R.id.connect);
         AppCompatButton saveButton = dialogView.findViewById(R.id.save);
@@ -272,24 +292,72 @@ public class account extends AppCompatActivity {
             User user = userDao.getFirstUser();
             runOnUiThread(() -> {
                 if (user != null) {
+                    // Set basic user information
                     editName.setText(user.getChildName());
                     editAge.setText(String.valueOf(user.getChildBirthday()));
                     editemail.setText(user.getEmail());
                     controlNumber.setText(user.getControlid());
 
+                    // Handle connect button visibility
                     if (user.getEmail() == null || user.getEmail().isEmpty() || "Null".equalsIgnoreCase(user.getEmail())) {
                         connectButton.setVisibility(View.VISIBLE);
                     } else {
                         connectButton.setVisibility(View.GONE);
                     }
 
-                    Glide.with(this)
-                            .load(user.getAvatarResourceId())
-                            .into(avatarImageView);
+                    // Handle avatar image loading
+                    if (user.getAvatarImage() != null) {
+                        // Load direct image data if available
+                        Glide.with(this)
+                                .load(user.getAvatarImage())
+                                .placeholder(R.drawable.lion)
+                                .into(avatarImageView);
+                    } else if (user.getAvatarName() != null && !user.getAvatarName().isEmpty()) {
+                        // Load from drawable using avatarName
+                        int avatarResourceId = getResources().getIdentifier(
+                                user.getAvatarName().toLowerCase(),
+                                "drawable",
+                                getPackageName()
+                        );
+                        if (avatarResourceId != 0) {
+                            Glide.with(this)
+                                    .load(avatarResourceId)
+                                    .placeholder(R.drawable.lion)
+                                    .into(avatarImageView);
+                        } else {
+                            avatarImageView.setImageResource(R.drawable.lion);
+                        }
+                    } else {
+                        // Default avatar
+                        avatarImageView.setImageResource(R.drawable.lion);
+                    }
 
-                    Glide.with(this)
-                            .load(user.getBorderResourceId())
-                            .into(borderImageView);
+                    // Handle border image loading
+                    if (user.getBorderImage() != null) {
+                        // Load direct border image data if available
+                        Glide.with(this)
+                                .load(user.getBorderImage())
+                                .placeholder(R.drawable.bronze)
+                                .into(borderImageView);
+                    } else if (user.getBorderName() != null && !user.getBorderName().isEmpty()) {
+                        // Load from drawable using borderName
+                        int borderResourceId = getResources().getIdentifier(
+                                user.getBorderName().toLowerCase(),
+                                "drawable",
+                                getPackageName()
+                        );
+                        if (borderResourceId != 0) {
+                            Glide.with(this)
+                                    .load(borderResourceId)
+                                    .placeholder(R.drawable.bronze)
+                                    .into(borderImageView);
+                        } else {
+                            borderImageView.setImageResource(R.drawable.bronze);
+                        }
+                    } else {
+                        // Default border
+                        borderImageView.setImageResource(R.drawable.bronze);
+                    }
                 }
             });
         });
@@ -325,7 +393,6 @@ public class account extends AppCompatActivity {
                     });
                 }
             });
-
             dialog.dismiss();
         });
 

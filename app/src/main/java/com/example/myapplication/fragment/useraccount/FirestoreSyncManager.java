@@ -182,25 +182,12 @@ public class FirestoreSyncManager {
                 FirebaseFirestore firestore = FirebaseFirestore.getInstance();
                 WriteBatch batch = firestore.batch();
 
-                // Sync game data first
-                DocumentReference gameAchievementsRef = firestore.collection("gameachievements")
-                        .document(firebaseUser.getEmail())
-                        .collection("gamesdata")
-                        .document("gameInfo");
-
-                Map<String, Object> gameDataMap = new HashMap<>();
-                gameDataMap.put("userId", gameData.getUserId());
-                gameDataMap.put("email", gameData.getEmail());
-                gameDataMap.put("points", gameData.getPoints());
-                gameDataMap.put("currentLevel", gameData.getCurrentLevel());
-                batch.set(gameAchievementsRef, gameDataMap, SetOptions.merge());
-
                 // Sync achievements
                 for (GameAchievementModel achievement : achievements) {
                     DocumentReference achievementRef = firestore.collection("gameachievements")
                             .document(firebaseUser.getEmail())
-                            .collection("gamesdata")
-                            .document("achievements_" + achievement.getId());
+                            .collection("gamedata")
+                            .document(String.valueOf(achievement.getId()));
 
                     Map<String, Object> data = new HashMap<>();
                     data.put("uid", firebaseUser.getUid());
@@ -239,7 +226,6 @@ public class FirestoreSyncManager {
                     return;
                 }
 
-                // Change to use the instance method
                 List<StoryAchievementModel> achievements = storyAchievementDao.getAllStoryAchievements();
                 if (achievements.isEmpty()) {
                     Log.w("FirestoreSync", "No story achievements found for user");
@@ -249,12 +235,11 @@ public class FirestoreSyncManager {
                 FirebaseFirestore firestore = FirebaseFirestore.getInstance();
                 WriteBatch batch = firestore.batch();
 
-                // Rest of the code remains the same
                 for (StoryAchievementModel achievement : achievements) {
                     DocumentReference achievementRef = firestore.collection("storyachievements")
                             .document(firebaseUser.getEmail())
-                            .collection("storiesdata")
-                            .document("achievements_" + achievement.getId());
+                            .collection("achievements")
+                            .document(String.valueOf(achievement.getId()));
 
                     Map<String, Object> data = new HashMap<>();
                     data.put("uid", firebaseUser.getUid());

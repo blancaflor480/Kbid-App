@@ -360,7 +360,7 @@ public class FragmentHome extends Fragment {
 
                     requireActivity().runOnUiThread(() -> {
                         // Show or hide based on age eligibility
-                        if (userAge >= 8 && userAge <= 12) {
+                        if (userAge >= 0 && userAge <= 60) {
                             clickDevoional.setVisibility(View.VISIBLE);
                         } else {
                             clickDevoional.setVisibility(View.GONE);

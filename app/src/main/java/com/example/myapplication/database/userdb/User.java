@@ -120,9 +120,11 @@ public class User {
     public byte[] getBorderImage() {
         return borderImage;
     }
+
     public void setBorderImage(byte[] borderImage) {
         this.borderImage = borderImage;
     }
+
     public int getBorderResourceId() {
         return borderResourceId;
     }
@@ -132,9 +134,11 @@ public class User {
     public String getBorderName() {
         return borderName;
     }
+
     public void setBorderName(String borderName) {
         this.borderName = borderName;
     }
+
         // Convert the object to a map
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();

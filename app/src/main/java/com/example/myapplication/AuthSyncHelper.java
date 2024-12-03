@@ -6,17 +6,24 @@ import android.os.Looper;
 import android.util.Log;
 
 import com.example.myapplication.database.AppDatabase;
+import com.example.myapplication.database.achievement.GameAchievementDao;
+import com.example.myapplication.database.achievement.StoryAchievementDao;
 import com.example.myapplication.database.userdb.User;
 import com.example.myapplication.database.userdb.UserDao;
 import com.example.myapplication.database.fourpicsdb.FourPicsOneWord;
 import com.example.myapplication.database.fourpicsdb.FourPicsOneWordDao;
+import com.example.myapplication.fragment.achievement.GameAchievementModel;
+import com.example.myapplication.fragment.achievement.StoryAchievementModel;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -24,6 +31,8 @@ public class AuthSyncHelper {
     private final Context context;
     private final UserDao userDao;
     private final FourPicsOneWordDao fourPicsOneWordDao;
+    private final GameAchievementDao gameAchievementDao;
+    private final StoryAchievementDao storyAchievementDao;
     private final Executor executor;
     private final Handler mainHandler;
     private final FirebaseFirestore firestore;
@@ -33,6 +42,8 @@ public class AuthSyncHelper {
         AppDatabase db = AppDatabase.getDatabase(context);
         this.userDao = db.userDao();
         this.fourPicsOneWordDao = db.fourPicsOneWordDao();
+        this.gameAchievementDao = db.gameAchievementDao();
+        this.storyAchievementDao = db.storyAchievementDao();
         this.executor = Executors.newSingleThreadExecutor();
         this.mainHandler = new Handler(Looper.getMainLooper());
         this.firestore = FirebaseFirestore.getInstance();
@@ -257,6 +268,236 @@ public class AuthSyncHelper {
                 runOnMainThread(() -> callback.onError("Fallback user handling failed: " + e.getMessage()));
             }
         });
+    }
+
+    public void syncGameAchievements(String email, long userId) {
+        // First get all documents in the gamesdata collection
+        firestore.collection("gameachievements")
+                .document(email)
+                .collection("gamedata")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        executor.execute(() -> {
+                            try {
+                                // Clear existing achievements first
+                                gameAchievementDao.deleteAllGameAchievements();
+
+                                // Process each achievement document
+                                int achievementsInserted = 0;
+                                for (DocumentSnapshot document : task.getResult().getDocuments()) {
+                                    Map<String, Object> documentData = document.getData();
+                                    if (documentData != null) {
+
+                                        if (isValidGameAchievementData(documentData)) {
+                                            String gameId = getStringValue(documentData, "gameId");
+                                            String title = getStringValue(documentData, "title");
+                                            String level = getStringValue(documentData, "level");
+                                            String points = getStringValue(documentData, "points");
+                                            String isCompleted = getStringValue(documentData, "isCompleted");
+
+
+                                            GameAchievementModel achievement = new GameAchievementModel(
+                                                    gameId,title,level,points,isCompleted
+                                            );
+                                            long insertedId = gameAchievementDao.insert(achievement);
+                                            if (insertedId != -1) {
+                                                achievementsInserted++;
+                                                Log.d("AuthSyncHelper", "Inserted achievement with ID: " + insertedId +
+                                                        ", gameId ID: " + gameId +
+                                                        ", Title: " + title);
+                                            } else {
+                                                Log.w("AuthSyncHelper", "Failed to insert achievement: " + title);
+                                            }
+                                        }
+                                    }
+                                }
+                                Log.d("AuthSyncHelper", "Successfully synced game achievements for: " + email);
+                            } catch (Exception e) {
+                                Log.e("AuthSyncHelper", "Error syncing game achievements", e);
+                                createDefaultGameAchievements(email);
+                            }
+                        });
+                    } else {
+                        Log.e("AuthSyncHelper", "Error fetching game achievements: " +
+                                (task.getException() != null ? task.getException().getMessage() : "Unknown error"));
+                        executor.execute(() -> createDefaultGameAchievements(email));
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("AuthSyncHelper", "Error fetching game achievements from Firestore", e);
+                    executor.execute(() -> createDefaultGameAchievements(email));
+                });
+    }
+
+    private boolean isValidGameAchievementData(Map<String, Object> data) {
+        boolean isValid = data != null &&
+                data.containsKey("gameId") &&
+                data.containsKey("title") &&
+                data.containsKey("level") &&
+                data.containsKey("points") &&
+                data.containsKey("isCompleted");
+
+        if (!isValid) {
+            Log.w("AuthSyncHelper", "Invalid achievement data validation:");
+            for (String key : new String[]{"gameId", "title", "level", "points", "isCompleted"}) {
+                Log.w("AuthSyncHelper", "Key: " + key + ", Present: " + data.containsKey(key));
+            }
+        }
+
+        return isValid;
+    }
+    private void createDefaultGameAchievements(String email) {
+        try {
+            // Create default achievements if needed
+            List<GameAchievementModel> defaultAchievements = new ArrayList<>();
+            defaultAchievements.add(new GameAchievementModel("game_1", "First Win", "1", "100", "false"));
+            defaultAchievements.add(new GameAchievementModel("game_2", "Perfect Score", "1", "200", "false"));
+            // Add more default achievements as needed
+
+            for (GameAchievementModel achievement : defaultAchievements) {
+                gameAchievementDao.insert(achievement);
+            }
+            Log.d("AuthSyncHelper", "Created default game achievements for: " + email);
+        } catch (Exception e) {
+            Log.e("AuthSyncHelper", "Error creating default game achievements", e);
+        }
+    }
+
+    public void syncStoryAchievements(String email, long userId) {
+        Log.d("AuthSyncHelper", "Starting story achievements sync for: " + email);
+        firestore.collection("storyachievements")
+                .document(email)
+                .collection("achievements")
+                .get()
+                .addOnCompleteListener(task -> {
+                    Log.d("AuthSyncHelper", "Firestore query completed. Successful: " + task.isSuccessful());
+
+                    if (task.isSuccessful()) {
+                        Log.d("AuthSyncHelper", "Number of documents retrieved: " + task.getResult().size());
+
+                        executor.execute(() -> {
+                            try {
+                                // Delete existing achievements first
+                                Log.d("AuthSyncHelper", "Deleting existing achievements");
+                                storyAchievementDao.deleteAllUserAchievements();
+
+                                int achievementsInserted = 0;
+                                for (DocumentSnapshot document : task.getResult().getDocuments()) {
+                                    Map<String, Object> documentData = document.getData();
+                                    Log.d("AuthSyncHelper", "Processing document: " + document.getId());
+
+                                    if (documentData != null) {
+                                        // Validate and insert achievement
+                                        if (isValidAchievementData(documentData)) {
+                                            String storyId = getStringValue(documentData, "storyId");
+                                            String title = getStringValue(documentData, "title");
+                                            String type = getStringValue(documentData, "type");
+                                            String isCompleted = getStringValue(documentData, "isCompleted");
+                                            int count = getIntValue(documentData, "count");
+
+                                            Log.d("AuthSyncHelper", "Extracted achievement details:");
+                                            Log.d("AuthSyncHelper", "StoryId: " + storyId);
+                                            Log.d("AuthSyncHelper", "Title: " + title);
+                                            Log.d("AuthSyncHelper", "Type: " + type);
+                                            Log.d("AuthSyncHelper", "IsCompleted: " + isCompleted);
+                                            Log.d("AuthSyncHelper", "Count: " + count);
+
+                                            StoryAchievementModel achievement = new StoryAchievementModel(
+                                                    title,
+                                                    type,
+                                                    isCompleted,
+                                                    count,
+                                                    storyId
+                                            );
+
+                                            long insertedId = storyAchievementDao.insert(achievement);
+                                            if (insertedId != -1) {
+                                                achievementsInserted++;
+                                                Log.d("AuthSyncHelper", "Inserted achievement with ID: " + insertedId +
+                                                        ", Story ID: " + storyId +
+                                                        ", Title: " + title);
+                                            } else {
+                                                Log.w("AuthSyncHelper", "Failed to insert achievement: " + title);
+                                            }
+                                        } else {
+                                            Log.w("AuthSyncHelper", "Invalid achievement data: " + documentData);
+                                        }
+                                    } else {
+                                        Log.w("AuthSyncHelper", "No achievements found in document");
+                                    }
+                                }
+
+                                // Check total achievements count after insertion
+                                int totalAchievementsCount = storyAchievementDao.getAchievementsCount();
+                                Log.d("AuthSyncHelper", "Total achievements inserted: " + achievementsInserted);
+                                Log.d("AuthSyncHelper", "Total achievements in database: " + totalAchievementsCount);
+
+                                Log.d("AuthSyncHelper", "Story achievements sync completed successfully");
+                            } catch (Exception e) {
+                                Log.e("AuthSyncHelper", "Error during story achievements sync", e);
+                                createDefaultStoryAchievements(email);
+                            }
+                        });
+                    } else {
+                        Log.e("AuthSyncHelper", "Firestore query failed", task.getException());
+                        executor.execute(() -> createDefaultStoryAchievements(email));
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("AuthSyncHelper", "Firestore query failure", e);
+                    executor.execute(() -> createDefaultStoryAchievements(email));
+                });
+    }
+
+    // Modify validation method to be more verbose
+    private boolean isValidAchievementData(Map<String, Object> data) {
+        boolean isValid = data != null &&
+                data.containsKey("storyId") &&
+                data.containsKey("title") &&
+                data.containsKey("type") &&
+                data.containsKey("isCompleted") &&
+                data.containsKey("count");
+
+        if (!isValid) {
+            Log.w("AuthSyncHelper", "Invalid achievement data validation:");
+            for (String key : new String[]{"storyId", "title", "type", "isCompleted", "count"}) {
+                Log.w("AuthSyncHelper", "Key: " + key + ", Present: " + data.containsKey(key));
+            }
+        }
+
+        return isValid;
+    }
+
+    // Helper method to safely get string value
+    private String getStringValue(Map<String, Object> data, String key) {
+        Object value = data.get(key);
+        return value != null ? value.toString() : "";
+    }
+
+    // Helper method to safely get integer value
+    private int getIntValue(Map<String, Object> data, String key) {
+        Object value = data.get(key);
+        if (value instanceof Number) {
+            return ((Number) value).intValue();
+        }
+        return 0;
+    }
+    private void createDefaultStoryAchievements(String email) {
+        try {
+            // Create default achievements if needed
+            List<StoryAchievementModel> defaultAchievements = new ArrayList<>();
+            defaultAchievements.add(new StoryAchievementModel("First Story", "read", "false", 0, "story_1"));
+            defaultAchievements.add(new StoryAchievementModel("Story Master", "complete", "false", 0, "story_2"));
+            // Add more default achievements as needed
+
+            for (StoryAchievementModel achievement : defaultAchievements) {
+                storyAchievementDao.insert(achievement);
+            }
+            Log.d("AuthSyncHelper", "Created default story achievements for: " + email);
+        } catch (Exception e) {
+            Log.e("AuthSyncHelper", "Error creating default story achievements", e);
+        }
     }
 
     private void checkAdminCollection(FirebaseUser firebaseUser, SyncCallback callback) {

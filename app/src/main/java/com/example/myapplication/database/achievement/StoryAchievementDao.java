@@ -14,12 +14,14 @@ import java.util.List;
 public interface StoryAchievementDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insert(StoryAchievementModel achievement);
+    long insert(StoryAchievementModel achievement);
 
     // Query to get all achievements for Story
     @Query("SELECT * FROM achievements WHERE type = 'Story Achievement' ORDER BY count ASC")
     List<StoryAchievementModel> getAchievementsForStory();
 
+    @Query("DELETE FROM achievements")
+    void deleteAllUserAchievements();
     // Query to get all achievements for Games
     @Query("SELECT * FROM achievements WHERE type = 'Games Achievement'")
     List<StoryAchievementModel> getAchievementsForGames();
@@ -27,6 +29,8 @@ public interface StoryAchievementDao {
     @Query("DELETE FROM achievements")
     void deleteAllStoryAchievements();
 
+    @Query("SELECT COUNT(*) FROM achievements")
+    int getAchievementsCount();
 
     // Delete achievement by ID
     @Query("DELETE FROM achievements WHERE id = :achievementId")

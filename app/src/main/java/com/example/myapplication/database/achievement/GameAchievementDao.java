@@ -5,13 +5,12 @@ import androidx.room.Query;
 import androidx.room.Update;
 
 import com.example.myapplication.fragment.achievement.GameAchievementModel;
-import com.example.myapplication.fragment.biblestories.ModelBible;
 
 import java.util.List;
 @Dao
 public interface GameAchievementDao {
     @Insert
-    void insert(GameAchievementModel achievement);
+    long insert(GameAchievementModel achievement);
 
     @Update
     void update(GameAchievementModel achievement);

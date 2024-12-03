@@ -83,17 +83,17 @@ public class LeaderBoard extends AppCompatActivity {
                     String imageUrl = userDoc.getString("avatarName");
 
                     // Count story achievements
-                    long storyCompletedCount = Tasks.await(db.collection("storyAchievement")
+                    long storyCompletedCount = Tasks.await(db.collection("storyachievements")
                             .document(userEmail)
-                            .collection("storiesdata")
+                            .collection("achievements")
                             .whereEqualTo("isCompleted", "completed")
                             .count()
                             .get(AggregateSource.SERVER)).getCount();
 
                     // Count game achievements
-                    long gameCompletedCount = Tasks.await(db.collection("gameAchievements")
+                    long gameCompletedCount = Tasks.await(db.collection("gameachievements")
                             .document(userEmail)
-                            .collection("gamesdata")
+                            .collection("gamedata")
                             .whereEqualTo("isCompleted", "completed")
                             .count()
                             .get(AggregateSource.SERVER)).getCount();
