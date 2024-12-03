@@ -1,9 +1,11 @@
 package com.example.myapplication.fragment.achievement;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -14,7 +16,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import java.util.List;
 
 public class AdapterLeaderboard extends RecyclerView.Adapter<AdapterLeaderboard.ViewHolder> {
-
     private Context context;
     private List<leaderboardmodel> leaderboardList;
 
@@ -34,18 +35,67 @@ public class AdapterLeaderboard extends RecyclerView.Adapter<AdapterLeaderboard.
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         leaderboardmodel leaderboardModel = leaderboardList.get(position);
 
-        // Set rank
-        holder.rank.setText("#" + leaderboardModel.getRank());
-        // Set user name (childName)
-        holder.name.setText(leaderboardModel.getUserName());
-        // Set total achievements (total count)
-        holder.points.setText("Points: " + leaderboardModel.getTotalPoints()); // Display total points
+        // Ensure ranks are displayed continuously
+        // Assign rank explicitly for each position
+        String rankText = "#" + (position + 1);
+        holder.rank.setText(rankText);
+        holder.rank.setVisibility(View.VISIBLE);
 
-        // Set user profile image (if any)
-        Glide.with(context)
-                .load(leaderboardModel.getImageUrl())
-                .placeholder(R.drawable.lion) // Default placeholder
-                .into(holder.profileImage);
+        // Debug: Verify rank is set correctly
+        Log.d("AdapterLeaderboard", "Setting rank TextView: " + rankText + " for position: " + position);
+
+        // Set user name
+        holder.name.setText(leaderboardModel.getUserName() != null ? leaderboardModel.getUserName() : "Unknown User");
+
+        // Set points
+        holder.points.setText("Points: " + leaderboardModel.getTotalPoints());
+
+        // Handle border image loading
+        if (leaderboardModel.getBorderImage() != null && !leaderboardModel.getBorderImage().isEmpty()) {
+            try {
+                int drawableResourceId = context.getResources().getIdentifier(
+                        leaderboardModel.getBorderImage(), "drawable", context.getPackageName()
+                );
+
+                if (drawableResourceId != 0) {
+                    Glide.with(context)
+                            .load(drawableResourceId)
+                            .placeholder(R.drawable.bronze)
+                            .into(holder.border);
+                } else {
+                    holder.border.setImageResource(R.drawable.bronze);
+                }
+            } catch (Exception e) {
+                holder.border.setImageResource(R.drawable.bronze);
+            }
+        } else {
+            holder.border.setImageResource(R.drawable.bronze);
+        }
+
+        // Handle profile image loading
+        if (leaderboardModel.getImageUrl() != null && !leaderboardModel.getImageUrl().isEmpty()) {
+            try {
+                int drawableResourceId = context.getResources().getIdentifier(
+                        leaderboardModel.getImageUrl(), "drawable", context.getPackageName()
+                );
+
+                if (drawableResourceId != 0) {
+                    Glide.with(context)
+                            .load(drawableResourceId)
+                            .placeholder(R.drawable.lion)
+                            .into(holder.profileImage);
+                } else {
+                    Glide.with(context)
+                            .load(leaderboardModel.getImageUrl())
+                            .placeholder(R.drawable.lion)
+                            .into(holder.profileImage);
+                }
+            } catch (Exception e) {
+                holder.profileImage.setImageResource(R.drawable.lion);
+            }
+        } else {
+            holder.profileImage.setImageResource(R.drawable.lion);
+        }
     }
 
 
@@ -57,12 +107,14 @@ public class AdapterLeaderboard extends RecyclerView.Adapter<AdapterLeaderboard.
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView rank, name, points;
         CircleImageView profileImage;
+        ImageView border;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             rank = itemView.findViewById(R.id.rank);
             name = itemView.findViewById(R.id.namep);
             points = itemView.findViewById(R.id.points);
+            border = itemView.findViewById(R.id.border);
             profileImage = itemView.findViewById(R.id.imagenon);
         }
     }

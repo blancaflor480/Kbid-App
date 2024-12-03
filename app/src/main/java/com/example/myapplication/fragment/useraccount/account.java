@@ -143,8 +143,23 @@ public class account extends AppCompatActivity {
                                 .load(user.getAvatarImage())
                                 .placeholder(R.drawable.lion)
                                 .into(avatarImageView);
+                    } else if (user.getAvatarName() != null && !user.getAvatarName().isEmpty()) {
+                        int resourceId = getResources().getIdentifier(
+                                user.getAvatarName().toLowerCase(),
+                                "drawable",
+                                getPackageName()
+                        );
+                        if (resourceId != 0) {
+                            // Resource found, load it
+                            avatarImageView.setImageResource(resourceId);
+                        } else {
+                            // Resource not found, use default
+                            avatarImageView.setImageResource(R.drawable.lion);
+                        }
+
                     } else {
                         avatarImageView.setImageResource(R.drawable.lion);
+
                     }
 
                     // Enhanced border image loading logic

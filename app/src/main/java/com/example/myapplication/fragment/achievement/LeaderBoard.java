@@ -81,6 +81,7 @@ public class LeaderBoard extends AppCompatActivity {
 
                     String childName = userDoc.getString("childName") != null ? userDoc.getString("childName") : "Unknown User";
                     String imageUrl = userDoc.getString("avatarName");
+                    String borderImage = userDoc.getString("borderName");
 
                     // Count story achievements
                     long storyCompletedCount = Tasks.await(db.collection("storyachievements")
@@ -111,11 +112,13 @@ public class LeaderBoard extends AppCompatActivity {
                     leaderboardList.add(new leaderboardmodel(
                             childName,
                             imageUrl,
+                            borderImage,
                             (int) totalAchievements
                     ));
                 }
                 // After loading all data, store top 3
                 leaderboardList.sort((o1, o2) -> Integer.compare(o2.getTotalPoints(), o1.getTotalPoints()));
+
                 topThreeList.clear();
                 for (int i = 0; i < Math.min(3, leaderboardList.size()); i++) {
                     topThreeList.add(leaderboardList.get(i));
@@ -137,13 +140,16 @@ public class LeaderBoard extends AppCompatActivity {
 
     private void updateLeaderboard() {
         // Sort recyclerViewList based on current sorting order
+        recyclerViewList.clear();
+        recyclerViewList.addAll(leaderboardList);
+
         if (isHighestFirst) {
             recyclerViewList.sort((o1, o2) -> Integer.compare(o2.getTotalPoints(), o1.getTotalPoints()));
         } else {
             recyclerViewList.sort((o1, o2) -> Integer.compare(o1.getTotalPoints(), o2.getTotalPoints()));
         }
 
-        // Update ranks for recyclerViewList
+        // Assign ranks explicitly
         for (int i = 0; i < recyclerViewList.size(); i++) {
             recyclerViewList.get(i).setRank(String.valueOf(i + 1));
         }
@@ -160,26 +166,20 @@ public class LeaderBoard extends AppCompatActivity {
 
             if (topThreeList.size() > 0) {
                 firstRankName.setText(topThreeList.get(0).getUserName());
-                Glide.with(this)
-                        .load(topThreeList.get(0).getImageUrl())
-                        .placeholder(R.drawable.lion)
-                        .into(rank1Image);
+                int resourceId = getResources().getIdentifier(topThreeList.get(0).getImageUrl(), "drawable", getPackageName());
+                rank1Image.setImageResource(resourceId != 0 ? resourceId : R.drawable.lion);
             }
 
             if (topThreeList.size() > 1) {
                 secondRankName.setText(topThreeList.get(1).getUserName());
-                Glide.with(this)
-                        .load(topThreeList.get(1).getImageUrl())
-                        .placeholder(R.drawable.lion)
-                        .into(rank2Image);
+                int resourceId = getResources().getIdentifier(topThreeList.get(1).getImageUrl(), "drawable", getPackageName());
+                rank2Image.setImageResource(resourceId != 0 ? resourceId : R.drawable.lion);
             }
 
             if (topThreeList.size() > 2) {
                 thirdRankName.setText(topThreeList.get(2).getUserName());
-                Glide.with(this)
-                        .load(topThreeList.get(2).getImageUrl())
-                        .placeholder(R.drawable.lion)
-                        .into(rank3Image);
+                int resourceId = getResources().getIdentifier(topThreeList.get(2).getImageUrl(), "drawable", getPackageName());
+                rank3Image.setImageResource(resourceId != 0 ? resourceId : R.drawable.lion);
             }
         });
 
@@ -190,4 +190,5 @@ public class LeaderBoard extends AppCompatActivity {
             adapterLeaderboard.notifyDataSetChanged();
         }
     }
+
 }

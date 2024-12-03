@@ -42,10 +42,23 @@ public class AdapterSummary extends RecyclerView.Adapter<AdapterSummary.SummaryM
         holder.totalachievement.setText("Total Achievements: " + record.getTotalachievements());
 
         if (record.getImageUrl() != null && !record.getImageUrl().isEmpty()) {
-            Glide.with(context)
-                    .load(record.getImageUrl())
-                    .placeholder(R.drawable.userkids)
-                    .into(holder.profileImageView);
+            int drawableResourceId = context.getResources().getIdentifier(
+                    record.getImageUrl(),
+                    "drawable",
+                    context.getPackageName()
+            );
+
+            if (drawableResourceId != 0) {
+                Glide.with(context)
+                        .load(drawableResourceId)
+                        .placeholder(R.drawable.userkids)
+                        .into(holder.profileImageView);
+            } else {
+                // Fallback to default image if drawable not found
+                Glide.with(context)
+                        .load(R.drawable.userkids)
+                        .into(holder.profileImageView);
+            }
         }
     }
 

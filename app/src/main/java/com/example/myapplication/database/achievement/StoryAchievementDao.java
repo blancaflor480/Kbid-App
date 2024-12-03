@@ -56,4 +56,13 @@ public interface StoryAchievementDao {
 
     @Update
     void update(StoryAchievementModel achievement);
+
+    @Query("DELETE FROM sqlite_sequence WHERE name = 'achievements'")
+    void resetStoryTableAutoIncrement();
+
+    // After deleting all users, call this method to reset the sequence
+    default void clearStoryAndResetSequence() {
+        deleteAllStoryAchievements();
+        resetStoryTableAutoIncrement();
+    }
 }

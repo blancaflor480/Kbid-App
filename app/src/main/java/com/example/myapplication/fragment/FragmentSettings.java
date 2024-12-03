@@ -144,15 +144,17 @@ public class FragmentSettings extends Fragment {
         AlertDialog dialog = builder.create();
 
         btnYes.setOnClickListener(v -> {
+            // Sign out from Firebase
+            FirebaseAuth.getInstance().signOut();
             // Show loading dialog while processing
             showLoadingDialog();
 
             // Execute database operations in background
             executor.execute(() -> {
                 // Clear all tables
-                db.userDao().deleteAllUsers();
-                db.gameAchievementDao().deleteAllGameAchievements();
-                db.storyAchievementDao().deleteAllStoryAchievements();
+                db.userDao().clearUsersAndResetSequence();
+                db.gameAchievementDao().clearGameAndResetSequence();
+                db.storyAchievementDao().clearStoryAndResetSequence();
 
                 // Update UI on main thread
                 getActivity().runOnUiThread(() -> {

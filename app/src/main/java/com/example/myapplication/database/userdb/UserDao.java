@@ -29,4 +29,13 @@ public interface UserDao {
     // Optional: Add a query to get user by UID
     @Query("SELECT * FROM user WHERE uid = :uid LIMIT 1")
     User getUserByUid(String uid);
+
+    @Query("DELETE FROM sqlite_sequence WHERE name = 'user'")
+    void resetUserTableAutoIncrement();
+
+    // After deleting all users, call this method to reset the sequence
+    default void clearUsersAndResetSequence() {
+        deleteAllUsers();
+        resetUserTableAutoIncrement();
+    }
 }

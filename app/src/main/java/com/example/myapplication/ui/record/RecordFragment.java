@@ -123,38 +123,28 @@ public class RecordFragment extends Fragment {
 
                     RecordModel record = new RecordModel();
                     record.setEmail(userEmail);
-                    record.setImageUrl(userDoc.getString("imageUrl"));
+                    record.setImageUrl(userDoc.getString("avatarName"));
 
-                    // Count story achievements
                     long storyCompletedCount = 0;
                     QuerySnapshot storyAchievements = Tasks.await(db.collection("storyachievements")
                             .document(userEmail)
-                            .collection("storiesdata")
+                            .collection("achievements")
+                            .whereEqualTo("isCompleted", "completed")  // Add this line
                             .get());
 
-                    for (DocumentSnapshot achievementDoc : storyAchievements.getDocuments()) {
-                        if (Boolean.TRUE.equals(achievementDoc.getBoolean("completed"))) {
-                            storyCompletedCount++;
-                        }
-                    }
+                    storyCompletedCount = storyAchievements.size();  // Or use this simplified approach
                     record.setStoryId(String.valueOf(storyCompletedCount));
 
-                    // Count game achievements where 'isCompleted' = "completed"
+
                     long gameCompletedCount = 0;
                     QuerySnapshot gameAchievements = Tasks.await(db.collection("gameachievements")
                             .document(userEmail)
-                            .collection("gamesdata")
-                            .whereEqualTo("isCompleted", "completed") // Query for isCompleted = "completed"
+                            .collection("gamedata")
+                            .whereEqualTo("isCompleted", "completed")  // Add this line
                             .get());
 
-                    // Alternatively, iterate through documents and count manually
-                    for (DocumentSnapshot achievementDoc : gameAchievements.getDocuments()) {
-                        if ("completed".equals(achievementDoc.getString("isCompleted"))) {
-                            gameCompletedCount++;
-                        }
-                    }
+                    gameCompletedCount = gameAchievements.size();  // Or use this simplified approach
                     record.setGameId(String.valueOf(gameCompletedCount));
-
                     // Count kids reflections (unchanged)
                     long reflectionCount = Tasks.await(db.collection("kidsReflection")
                             .whereEqualTo("email", userEmail)
@@ -203,20 +193,20 @@ public class RecordFragment extends Fragment {
 
                     RecordModel record = new RecordModel();
                     record.setEmail(userEmail);
-                    record.setImageUrl(userDoc.getString("imageUrl"));
+                    record.setImageUrl(userDoc.getString("avatarName"));
 
                     // Count story achievements
                     long storyCompletedCount = Tasks.await(db.collection("storyachievements")
                             .document(userEmail)
-                            .collection("storiesdata")
-                            .whereEqualTo("completed", true)
+                            .collection("achievements")
+                            .whereEqualTo("isCompleted", "completed")
                             .count()
                             .get(AggregateSource.SERVER)).getCount();
 
                     // Count game achievements
                     long gameCompletedCount = Tasks.await(db.collection("gameachievements")
                             .document(userEmail)
-                            .collection("gamesdata")
+                            .collection("gamedata")
                             .whereEqualTo("isCompleted", "completed")
                             .count()
                             .get(AggregateSource.SERVER)).getCount();

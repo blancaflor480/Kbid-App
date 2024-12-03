@@ -3,12 +3,14 @@ package com.example.myapplication.fragment.achievement;
 public class leaderboardmodel {
     private String userName;
     private String imageUrl;
+    private String borderImage;
     private int totalPoints;
     private String rank;
 
-    public leaderboardmodel(String userName, String imageUrl, int totalPoints) {
+    public leaderboardmodel(String userName, String imageUrl, String borderImage,int totalPoints) {
         this.userName = userName;
         this.imageUrl = imageUrl;
+        this.borderImage = borderImage;
         this.totalPoints = totalPoints;
     }
 
@@ -30,6 +32,10 @@ public class leaderboardmodel {
 
     public int getTotalPoints() {
         return totalPoints;
+    }
+
+    public String getBorderImage() {
+        return borderImage;
     }
 }
 

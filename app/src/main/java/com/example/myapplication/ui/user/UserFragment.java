@@ -60,8 +60,10 @@ import com.google.firebase.storage.UploadTask;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 public class UserFragment extends Fragment {
 
@@ -433,43 +435,35 @@ public class UserFragment extends Fragment {
         final FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
         CollectionReference usersRef = db.collection("user");
 
+        final Set<String> uniqueUserIds = new HashSet<>(); // Use a Set to track unique users
         final List<ModelUser> combinedList = new ArrayList<>();
 
-        usersRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                if (error != null) {
-                    // Handle the error
-                    return;
-                }
-                combinedList.clear();
-                for (QueryDocumentSnapshot doc : value) {
-                    ModelUser modelUser = doc.toObject(ModelUser.class);
-                    if (modelUser.getUid() != null && !modelUser.getUid().equals(firebaseUser.getUid())) {
-                        combinedList.add(modelUser);
-                    }
-                }
-                usersRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                        if (error != null) {
-                            // Handle the error
-                            return;
-                        }
-                        for (QueryDocumentSnapshot doc : value) {
-                            ModelUser modelUser = doc.toObject(ModelUser.class);
-                            if (modelUser.getUid() != null && !modelUser.getUid().equals(firebaseUser.getUid())) {
-                                combinedList.add(modelUser);
-                            }
-                        }
-                        usersList.clear();
-                        usersList.addAll(combinedList);
-                        adapterUsers = new AdapterUser(getActivity(), usersList);
-                        recyclerView.setAdapter(adapterUsers
-                        );
-                    }
-                });
+        usersRef.addSnapshotListener((value, error) -> {
+            if (error != null) {
+                // Handle the error
+                return;
             }
+
+            combinedList.clear();
+            uniqueUserIds.clear(); // Clear the set before populating
+
+            for (QueryDocumentSnapshot doc : value) {
+                ModelUser modelUser = doc.toObject(ModelUser.class);
+
+                // Check if user is not the current user and not already added
+                if (modelUser.getUid() != null
+                        && !modelUser.getUid().equals(firebaseUser.getUid())
+                        && !uniqueUserIds.contains(modelUser.getUid())) {
+
+                    combinedList.add(modelUser);
+                    uniqueUserIds.add(modelUser.getUid()); // Track added user IDs
+                }
+            }
+
+            usersList.clear();
+            usersList.addAll(combinedList);
+            adapterUsers = new AdapterUser(getActivity(), usersList);
+            recyclerView.setAdapter(adapterUsers);
         });
     }
 

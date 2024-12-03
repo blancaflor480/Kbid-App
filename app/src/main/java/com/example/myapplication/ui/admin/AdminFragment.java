@@ -57,8 +57,10 @@ import com.google.firebase.storage.UploadTask;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 public class AdminFragment extends Fragment {
     private static final int PICK_IMAGE_REQUEST = 1;
@@ -377,47 +379,37 @@ public class AdminFragment extends Fragment {
         final FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
         CollectionReference adminsRef = db.collection("admin");
 
+        final Set<String> uniqueAdminIds = new HashSet<>(); // Use a Set to track unique admin IDs
         final List<ModelAdmin> combinedList = new ArrayList<>();
 
-        adminsRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                if (error != null) {
-                    // Handle the error
-                    return;
-                }
-                combinedList.clear();
-                for (QueryDocumentSnapshot doc : value) {
-                    ModelAdmin modelAdmin = doc.toObject(ModelAdmin.class);
-                    if (modelAdmin.getUid() != null && !modelAdmin.getUid().equals(firebaseUser.getUid())) {
-                        combinedList.add(modelAdmin);
-                    }
-                }
-                adminsRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                        if (error != null) {
-                            // Handle the error
-                            return;
-                        }
-                        for (QueryDocumentSnapshot doc : value) {
-                            ModelAdmin modelAdmin = doc.toObject(ModelAdmin.class);
-                            if (modelAdmin.getUid() != null && !modelAdmin.getUid().equals(firebaseUser.getUid())) {
-                                combinedList.add(modelAdmin);
-                            }
-                        }
-                        usersList.clear();
-                        usersList.addAll(combinedList);
-                        adapterUsers = new AdapterAdmin(getActivity(), usersList);
-                        recyclerView.setAdapter(adapterUsers
-                        );
-                    }
-                });
+        adminsRef.addSnapshotListener((value, error) -> {
+            if (error != null) {
+                // Handle the error
+                return;
             }
+
+            combinedList.clear();
+            uniqueAdminIds.clear(); // Clear the set before populating
+
+            for (QueryDocumentSnapshot doc : value) {
+                ModelAdmin modelAdmin = doc.toObject(ModelAdmin.class);
+
+                // Check if admin is not the current user and not already added
+                if (modelAdmin.getUid() != null
+                        && !modelAdmin.getUid().equals(firebaseUser.getUid())
+                        && !uniqueAdminIds.contains(modelAdmin.getUid())) {
+
+                    combinedList.add(modelAdmin);
+                    uniqueAdminIds.add(modelAdmin.getUid()); // Track added admin IDs
+                }
+            }
+
+            usersList.clear();
+            usersList.addAll(combinedList);
+            adapterUsers = new AdapterAdmin(getActivity(), usersList);
+            recyclerView.setAdapter(adapterUsers);
         });
     }
-
-
 
     private void getTeacher() {
         CollectionReference usersRef = db.collection("admin");

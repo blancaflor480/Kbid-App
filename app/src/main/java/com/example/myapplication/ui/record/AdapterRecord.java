@@ -62,10 +62,23 @@ public class AdapterRecord extends RecyclerView.Adapter<AdapterRecord.RecordMyHo
 
         // Set the profile image if available
         if (record.getImageUrl() != null && !record.getImageUrl().isEmpty()) {
-            Glide.with(context)
-                    .load(record.getImageUrl())
-                    .placeholder(R.drawable.userkids) // Add a placeholder image if required
-                    .into(holder.profileImageView);
+            int drawableResourceId = context.getResources().getIdentifier(
+                    record.getImageUrl(),
+                    "drawable",
+                    context.getPackageName()
+            );
+
+            if (drawableResourceId != 0) {
+                Glide.with(context)
+                        .load(drawableResourceId)
+                        .placeholder(R.drawable.userkids)
+                        .into(holder.profileImageView);
+            } else {
+                // Fallback to default image if drawable not found
+                Glide.with(context)
+                        .load(R.drawable.userkids)
+                        .into(holder.profileImageView);
+            }
         }
 
         // Set the counts for story achievements, game achievements, and kids reflections

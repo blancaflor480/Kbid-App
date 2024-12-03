@@ -52,5 +52,13 @@ public interface GameAchievementDao {
     @Query("SELECT COUNT(*) FROM gamesachievements WHERE isCompleted = 'completed'")
     int getCompletedGamesCount();
 
+    @Query("DELETE FROM sqlite_sequence WHERE name = 'gamesachievements'")
+    void resetGameTableAutoIncrement();
+
+    // After deleting all users, call this method to reset the sequence
+    default void clearGameAndResetSequence() {
+        deleteAllGameAchievements();
+        resetGameTableAutoIncrement();
+    }
 
 }
