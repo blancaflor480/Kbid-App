@@ -28,6 +28,8 @@ public interface GameAchievementDao {
     void deleteAllGameAchievements();
     // @Query("SELECT * FROM gamesachievements WHERE gameId = :gameId")
    // GameAchievementModel getAchievementsForGames(String gameId);
+    @Query("SELECT COUNT(*) FROM gamesachievements WHERE isCompleted = 'completed'")
+    int getCompletedAchievementsCount();
 
     @Query("UPDATE gamesachievements SET points = :points, isCompleted = :isCompleted WHERE gameId = :gameId AND level = :level")
     void updateAchievement(String gameId, String level, String points, String isCompleted);

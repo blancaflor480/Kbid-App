@@ -20,6 +20,9 @@ public interface StoryAchievementDao {
     @Query("SELECT * FROM achievements WHERE type = 'Story Achievement' ORDER BY count ASC")
     List<StoryAchievementModel> getAchievementsForStory();
 
+    @Query("SELECT COUNT(*) FROM achievements WHERE isCompleted = 'completed'")
+    int getCompletedAchievementsCount();
+
     @Query("DELETE FROM achievements")
     void deleteAllUserAchievements();
     // Query to get all achievements for Games
