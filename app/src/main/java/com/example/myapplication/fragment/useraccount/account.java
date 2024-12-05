@@ -311,7 +311,12 @@ public class account extends AppCompatActivity {
                     editName.setText(user.getChildName());
                     editAge.setText(String.valueOf(user.getChildBirthday()));
                     editemail.setText(user.getEmail());
-                    controlNumber.setText(user.getControlid());
+                    if (user.getControlid() == null || user.getControlid().isEmpty()) {
+                        controlNumber.setVisibility(View.GONE);
+                    } else {
+                        controlNumber.setText("ID: " + user.getControlid());
+                        controlNumber.setVisibility(View.VISIBLE);
+                    }
 
                     // Handle connect button visibility
                     if (user.getEmail() == null || user.getEmail().isEmpty() || "Null".equalsIgnoreCase(user.getEmail())) {

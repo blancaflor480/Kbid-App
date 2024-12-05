@@ -2,14 +2,18 @@ package com.example.myapplication.ui.record;
 
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.SearchView;
 import android.widget.TextView;
 
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.WriteBatch;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -26,8 +30,16 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.AggregateSource;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -37,7 +49,9 @@ public class RecordFragment extends Fragment {
     private AdapterRecord adapterRecord;
     private AdapterSummary adapterSummary;
     private List<RecordModel> recordList;
+    private boolean isHighSort = true;
 
+    private ImageButton filterButton;
     private FirebaseAuth firebaseAuth;
     private FirebaseFirestore db;
     private RadioGroup switchMemoryVerse;
@@ -53,13 +67,56 @@ public class RecordFragment extends Fragment {
 
         db = FirebaseFirestore.getInstance();
         executorService = Executors.newFixedThreadPool(4);
-
+        filterButton = view.findViewById(R.id.filter);
+        filterButton.setOnClickListener(v -> toggleSort());
         initializeViews(view);
         setupRadioButtonListeners();
         loadUserAchievements();
-
+        scheduleWeeklySaving();
         return view;
     }
+
+    private void toggleSort() {
+        isHighSort = !isHighSort;
+        filterButton.setBackgroundResource(isHighSort ? R.drawable.highsort : R.drawable.lowsort);
+
+        if (recordList != null && !recordList.isEmpty()) {
+            recordList.sort((a, b) -> {
+                int totalA = calculateTotal(a);
+                int totalB = calculateTotal(b);
+                return isHighSort ? Integer.compare(totalB, totalA) : Integer.compare(totalA, totalB);
+            });
+            updateRanks();
+            updateAdapter();
+        }
+    }
+
+    private int calculateTotal(RecordModel record) {
+        try {
+            int story = Integer.parseInt(record.getStoryId());
+            int game = Integer.parseInt(record.getGameId());
+            int reflection = Integer.parseInt(record.getKidsreflectionId());
+            return story + game + reflection;
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+    private void updateRanks() {
+        // Update ranks based on the current list order
+        for (int i = 0; i < recordList.size(); i++) {
+            recordList.get(i).setRank(String.valueOf(i + 1));
+        }
+    }
+
+    private void updateAdapter() {
+        // Notify the correct adapter based on the checked state
+        if (summaryreport.isChecked() && adapterSummary != null) {
+            adapterSummary.notifyDataSetChanged();
+        } else if (adapterRecord != null) {
+            adapterRecord.notifyDataSetChanged();
+        }
+    }
+
 
     private void initializeViews(View view) {
         SearchView searchBar = view.findViewById(R.id.search_bar);
@@ -112,11 +169,17 @@ public class RecordFragment extends Fragment {
         executorService.submit(() -> {
             try {
                 List<RecordModel> aggregatedRecords = new ArrayList<>();
-
+                aggregatedRecords.sort((a, b) -> Integer.compare(
+                        calculateTotal(b), calculateTotal(a)
+                ));
                 QuerySnapshot usersSnapshot = Tasks.await(db.collection("user")
                         .orderBy("email")
                         .get());
-
+                for (int i = 0; i < aggregatedRecords.size(); i++) {
+                    RecordModel record = aggregatedRecords.get(i);
+                    record.setRank(String.valueOf(i + 1));
+                    record.setTotalachievements(String.valueOf(calculateTotal(record)));
+                }
                 for (DocumentSnapshot userDoc : usersSnapshot.getDocuments()) {
                     String userEmail = userDoc.getString("email");
                     if (userEmail == null) continue;
@@ -264,6 +327,91 @@ public class RecordFragment extends Fragment {
         });
     }
 
+    private void triggerWeeklyReportSave() {
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat weekFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        String weekStartDate = weekFormat.format(calendar.getTime());
+
+        executorService.submit(() -> {
+            try {
+                List<Map<String, Object>> weeklyReports = new ArrayList<>();
+                QuerySnapshot usersSnapshot = Tasks.await(db.collection("user").get());
+
+                for (DocumentSnapshot userDoc : usersSnapshot.getDocuments()) {
+                    String userEmail = userDoc.getString("email");
+                    if (userEmail == null) continue;
+
+                    // Real-time achievement counting
+                    long storyCount = Tasks.await(db.collection("storyachievements")
+                            .document(userEmail)
+                            .collection("achievements")
+                            .whereEqualTo("isCompleted", "completed")
+                            .count()
+                            .get(AggregateSource.SERVER)).getCount();
+
+                    long gameCount = Tasks.await(db.collection("gameachievements")
+                            .document(userEmail)
+                            .collection("gamedata")
+                            .whereEqualTo("isCompleted", "completed")
+                            .count()
+                            .get(AggregateSource.SERVER)).getCount();
+
+                    long reflectionCount = Tasks.await(db.collection("kidsReflection")
+                            .whereEqualTo("email", userEmail)
+                            .count()
+                            .get(AggregateSource.SERVER)).getCount();
+
+                    Map<String, Object> reportData = new HashMap<>();
+                    reportData.put("email", userEmail);
+                    reportData.put("storyCount", storyCount);
+                    reportData.put("gameCount", gameCount);
+                    reportData.put("reflectionCount", reflectionCount);
+                    reportData.put("totalCount", storyCount + gameCount + reflectionCount);
+                    reportData.put("timestamp", new Date());
+
+                    weeklyReports.add(reportData);
+                }
+
+                // Batch write all reports for the week
+                WriteBatch batch = db.batch();
+                CollectionReference weekReportRef = db.collection("reports").document(weekStartDate).collection("userReports");
+
+                for (Map<String, Object> reportData : weeklyReports) {
+                    DocumentReference docRef = weekReportRef.document((String) reportData.get("email"));
+                    batch.set(docRef, reportData);
+                }
+
+                // Commit the batch
+                Tasks.await(batch.commit());
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.e("WeeklyReport", "Error saving weekly report: " + e.getMessage());
+            }
+        });
+    }
+
+    // Method to schedule weekly reporting
+    private void scheduleWeeklySaving() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 0);
+        triggerWeeklyReportSave();
+        // If today is past Sunday, move to next week
+        if (calendar.getTime().before(new Date())) {
+            calendar.add(Calendar.DATE, 7);
+        }
+
+        Timer timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                triggerWeeklyReportSave();
+            }
+        }, calendar.getTime(), 7 * 24 * 60 * 60 * 1000); // Weekly interval
+    }
 
 
     private void filterContent(String query) {
@@ -281,8 +429,8 @@ public class RecordFragment extends Fragment {
     private void setRadioButtonStyle(RadioButton radioButton, boolean isSelected) {
         if (isSelected) {
             radioButton.setTypeface(null, Typeface.BOLD);
-            radioButton.setTextColor(getResources().getColor(android.R.color.black));
-            radioButton.setBackgroundResource(R.drawable.bg_selected_achievement);
+            radioButton.setTextColor(getResources().getColor(R.color.black));
+            radioButton.setBackgroundResource(R.drawable.bg_selected_devotional);
         } else {
             radioButton.setTypeface(null, Typeface.NORMAL);
             radioButton.setTextColor(getResources().getColor(android.R.color.darker_gray));

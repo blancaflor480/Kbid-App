@@ -135,7 +135,7 @@ public class KidsDevotionalFragment extends Fragment {
         if (isSelected) {
             radioButton.setTypeface(null, Typeface.BOLD);
             radioButton.setTextColor(getResources().getColor(android.R.color.black));
-            radioButton.setBackgroundResource(R.drawable.bg_selected_achievement);
+            radioButton.setBackgroundResource(R.drawable.bg_selected_devotional);
         } else {
             radioButton.setTypeface(null, Typeface.NORMAL);
             radioButton.setTextColor(getResources().getColor(android.R.color.darker_gray));

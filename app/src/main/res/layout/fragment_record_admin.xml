@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/main"
+    android:background="@color/lightgreenshadow"
     tools:context=".ui.content.stories.StoriesFragment">
 
     <androidx.viewpager2.widget.ViewPager2
@@ -34,13 +35,14 @@
                 android:layout_height="25dp"
                 android:queryHint="Search"
                 android:layout_weight="1"
+
                 android:iconifiedByDefault="false" />
             <ImageButton
                 android:id="@+id/filter"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_marginEnd="15dp"
-                android:background="@drawable/filter_list"/>
+                android:background="@drawable/highsort"/>
         </LinearLayout>
         <!-- Stories Card with RadioGroup -->
         <androidx.cardview.widget.CardView
@@ -110,7 +112,7 @@
         android:textSize="18sp"
         android:textColor="@color/black" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+   <!-- <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -119,6 +121,6 @@
         android:layout_marginBottom="16dp"
         app:backgroundTint="@color/blue"
         app:srcCompat="@drawable/add"
-        app:tint="@android:color/white" />
+        app:tint="@android:color/white" />-->
 
 </FrameLayout>

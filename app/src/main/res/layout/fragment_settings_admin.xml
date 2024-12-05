@@ -10,18 +10,7 @@
     tools:context=".ui.settings.SettingsFragment">
 
     <!-- Title -->
-    <TextView
-        android:id="@+id/tv_settings_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Manage Your Settings"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="@color/black"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+
 
     <!-- Edit Profile Option -->
     <androidx.cardview.widget.CardView
@@ -32,8 +21,7 @@
         app:cardCornerRadius="8dp"
         app:cardElevation="4dp"
         app:cardBackgroundColor="@color/blue"
-        app:layout_constraintTop_toBottomOf="@id/tv_settings_title"
-        app:layout_constraintStart_toStartOf="parent"
+         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
@@ -48,8 +36,8 @@
                 android:padding="16dp">
 
                 <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
                     android:src="@drawable/editdetails"
                     android:contentDescription="Edit Profile Icon" />
 
@@ -58,10 +46,20 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:layout_marginStart="16dp"
+                    android:layout_weight="1"
                     android:text="Edit Profile"
                     android:fontFamily="@font/poppinsmedium"
                     android:textSize="18sp"
                     android:textColor="@color/white" />
+
+                <ImageView
+                    android:id="@+id/ivDropdown"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_weight="0.2"
+                    android:src="@drawable/select_down" />
+
             </LinearLayout>
 
             <LinearLayout
@@ -173,8 +171,8 @@
                 android:padding="16dp">
 
                 <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
                     android:src="@drawable/password"
                     android:contentDescription="Change Password Icon" />
 
@@ -186,7 +184,16 @@
                     android:text="Change Password"
                     android:fontFamily="@font/poppinsmedium"
                     android:textSize="18sp"
+                    android:layout_weight="1"
                     android:textColor="@color/white" />
+
+                <ImageView
+                    android:id="@+id/ivDropdown2"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_weight="0.2"
+                    android:src="@drawable/select_down" />
             </LinearLayout>
 
             <LinearLayout
