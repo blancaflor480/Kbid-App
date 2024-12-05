@@ -82,15 +82,7 @@
 
 
         </LinearLayout>
-        <ImageView
-            android:id="@+id/optionsMenu"
-            android:layout_width="wrap_content"
-            android:layout_height="60dp"
-            android:src="@drawable/more_vert"
-            android:clickable="true"
-            android:focusable="true"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true" />
+
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>

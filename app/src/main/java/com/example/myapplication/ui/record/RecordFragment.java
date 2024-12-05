@@ -1,5 +1,6 @@
 package com.example.myapplication.ui.record;
 
+import android.app.DatePickerDialog;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
@@ -44,13 +45,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class RecordFragment extends Fragment {
-    private TextView notFoundTextView;
+    private TextView notFoundTextView,not_found_message;
     private RecyclerView recyclerView;
     private AdapterRecord adapterRecord;
     private AdapterSummary adapterSummary;
     private List<RecordModel> recordList;
     private boolean isHighSort = true;
-
+    private ImageButton calendarButton;
+    private TextView dateTextView;
+    private Date selectedDate;
     private ImageButton filterButton;
     private FirebaseAuth firebaseAuth;
     private FirebaseFirestore db;
@@ -73,7 +76,39 @@ public class RecordFragment extends Fragment {
         setupRadioButtonListeners();
         loadUserAchievements();
         scheduleWeeklySaving();
+
+        calendarButton = view.findViewById(R.id.calendar);
+        dateTextView = view.findViewById(R.id.date);
+
+        calendarButton.setOnClickListener(v -> showDatePicker());
+
+        // Set default to current date
+        selectedDate = new Date();
+        updateDateDisplay();
         return view;
+    }
+
+    private void showDatePicker() {
+        Calendar calendar = Calendar.getInstance();
+        DatePickerDialog datePickerDialog = new DatePickerDialog(
+                requireContext(),
+                (view, year, month, dayOfMonth) -> {
+                    Calendar selectedCalendar = Calendar.getInstance();
+                    selectedCalendar.set(year, month, dayOfMonth);
+                    selectedDate = selectedCalendar.getTime();
+                    updateDateDisplay();
+                    loadUserSummary(); // Reload summary with selected date
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+        );
+        datePickerDialog.show();
+    }
+
+    private void updateDateDisplay() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault());
+        dateTextView.setText(dateFormat.format(selectedDate));
     }
 
     private void toggleSort() {
@@ -120,6 +155,7 @@ public class RecordFragment extends Fragment {
 
     private void initializeViews(View view) {
         SearchView searchBar = view.findViewById(R.id.search_bar);
+        not_found_message = view.findViewById(R.id.not_found_message);
         notFoundTextView = view.findViewById(R.id.not_found_message);
         switchMemoryVerse = view.findViewById(R.id.switch_memoryverse);
         userachievement = view.findViewById(R.id.userachievement);
@@ -188,6 +224,7 @@ public class RecordFragment extends Fragment {
                     record.setEmail(userEmail);
                     record.setImageUrl(userDoc.getString("avatarName"));
 
+
                     long storyCompletedCount = 0;
                     QuerySnapshot storyAchievements = Tasks.await(db.collection("storyachievements")
                             .document(userEmail)
@@ -247,6 +284,21 @@ public class RecordFragment extends Fragment {
         executorService.submit(() -> {
             try {
                 List<RecordModel> aggregatedRecords = new ArrayList<>();
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(selectedDate);
+
+                // Determine date range for filtering
+                Calendar startOfDay = (Calendar) calendar.clone();
+                startOfDay.set(Calendar.HOUR_OF_DAY, 0);
+                startOfDay.set(Calendar.MINUTE, 0);
+                startOfDay.set(Calendar.SECOND, 0);
+
+                Calendar endOfDay = (Calendar) calendar.clone();
+                endOfDay.set(Calendar.HOUR_OF_DAY, 23);
+                endOfDay.set(Calendar.MINUTE, 59);
+                endOfDay.set(Calendar.SECOND, 59);
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                String formattedDate = dateFormat.format(selectedDate);
 
                 QuerySnapshot usersSnapshot = Tasks.await(db.collection("user").get());
 
@@ -254,9 +306,20 @@ public class RecordFragment extends Fragment {
                     String userEmail = userDoc.getString("email");
                     if (userEmail == null) continue;
 
+                    QuerySnapshot reportSnapshot = Tasks.await(
+                            db.collection("reports")
+                                    .document(formattedDate)
+                                    .collection("userReports")
+                                    .whereEqualTo("email", userEmail)
+                                    .get()
+                    );
+                    if (reportSnapshot.isEmpty()) continue;
+                    DocumentSnapshot reportDoc = reportSnapshot.getDocuments().get(0);
+
                     RecordModel record = new RecordModel();
                     record.setEmail(userEmail);
                     record.setImageUrl(userDoc.getString("avatarName"));
+                    record.setName(userDoc.getString("name"));
 
                     // Count story achievements
                     long storyCompletedCount = Tasks.await(db.collection("storyachievements")
@@ -287,6 +350,10 @@ public class RecordFragment extends Fragment {
                     record.setKidsreflectionId(String.valueOf(reflectionCount));
                     record.setTotalachievements(String.valueOf(totalAchievements));
 
+                    record.setStoryId(String.valueOf(reportDoc.getLong("storyCount")));
+                    record.setGameId(String.valueOf(reportDoc.getLong("gameCount")));
+                    record.setKidsreflectionId(String.valueOf(reportDoc.getLong("reflectionCount")));
+                    record.setTotalachievements(String.valueOf(reportDoc.getLong("totalCount")));
                     aggregatedRecords.add(record);
                 }
 
@@ -307,10 +374,11 @@ public class RecordFragment extends Fragment {
                     recordList.addAll(aggregatedRecords);
 
                     if (recordList.isEmpty()) {
-                        notFoundTextView.setVisibility(View.VISIBLE);
+                        not_found_message.setText("No reports found for " + dateTextView.getText());
+                        not_found_message.setVisibility(View.VISIBLE);
                         recyclerView.setVisibility(View.GONE);
                     } else {
-                        notFoundTextView.setVisibility(View.GONE);
+                        not_found_message.setVisibility(View.GONE);
                         recyclerView.setVisibility(View.VISIBLE);
                         adapterSummary = new AdapterSummary(requireContext(), recordList);
                         recyclerView.setAdapter(adapterSummary);
@@ -320,8 +388,8 @@ public class RecordFragment extends Fragment {
             } catch (Exception e) {
                 e.printStackTrace();
                 requireActivity().runOnUiThread(() -> {
-                    notFoundTextView.setText("Error loading summary: " + e.getMessage());
-                    notFoundTextView.setVisibility(View.VISIBLE);
+                    not_found_message.setText("Error loading summary: " + e.getMessage());
+                    not_found_message.setVisibility(View.VISIBLE);
                 });
             }
         });

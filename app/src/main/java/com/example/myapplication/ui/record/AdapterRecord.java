@@ -85,15 +85,9 @@ public class AdapterRecord extends RecyclerView.Adapter<AdapterRecord.RecordMyHo
         holder.storyachievments.setText("Story Achievements: " + record.getStoryId());
         holder.gameachievements.setText("Game Achievements: " + record.getGameId());
         holder.KidsReflection.setText("Kids Reflections: " + record.getKidsreflectionId());
-
-        // Optionally, you can set a timestamp if required (assuming you want to display one)
-        // holder.timestampTextView.setText(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date()));
-
-        // Handle the options menu or any other logic if required
-        holder.optionsMenu.setOnClickListener(v -> {
-            // Handle options menu click
-        });
     }
+
+
 
     @Override
     public int getItemCount() {
@@ -107,7 +101,7 @@ public class AdapterRecord extends RecyclerView.Adapter<AdapterRecord.RecordMyHo
     static class RecordMyHolder extends RecyclerView.ViewHolder {
         CircleImageView profileImageView;
         TextView emailTextView, storyachievments, KidsReflection, gameachievements;
-        ImageView optionsMenu;
+
 
         public RecordMyHolder(@NonNull View itemView) {
             super(itemView);
@@ -116,7 +110,7 @@ public class AdapterRecord extends RecyclerView.Adapter<AdapterRecord.RecordMyHo
             storyachievments = itemView.findViewById(R.id.storyachievments);
             KidsReflection = itemView.findViewById(R.id.KidsReflection);
             gameachievements = itemView.findViewById(R.id.gameachievements);
-            optionsMenu = itemView.findViewById(R.id.optionsMenu); // Options menu button
+             // Options menu button
         }
     }
 }

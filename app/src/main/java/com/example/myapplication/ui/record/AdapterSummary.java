@@ -1,5 +1,6 @@
 package com.example.myapplication.ui.record;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -60,6 +61,53 @@ public class AdapterSummary extends RecyclerView.Adapter<AdapterSummary.SummaryM
                         .into(holder.profileImageView);
             }
         }
+        holder.itemView.setOnClickListener(v -> showUserDetailsDialog(record));
+    }
+    private void showUserDetailsDialog(RecordModel record) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_userreport_details, null);
+
+        // Initialize dialog views
+        TextView rankText = dialogView.findViewById(R.id.rank);
+        CircleImageView thumbnail = dialogView.findViewById(R.id.thumbnail);
+        TextView fullNameText = dialogView.findViewById(R.id.Fullname);
+        TextView emailText = dialogView.findViewById(R.id.email);
+        TextView storyCountText = dialogView.findViewById(R.id.storycount);
+        TextView gameCountText = dialogView.findViewById(R.id.gamecount);
+        TextView reflectionCountText = dialogView.findViewById(R.id.reflectioncount);
+        TextView totalAchievementText = dialogView.findViewById(R.id.totalachievement);
+
+        // Set values
+        rankText.setText("RANK# " + record.getRank());
+        fullNameText.setText("Fullname: " + record.getName());
+        emailText.setText("Email: " + record.getEmail());
+        storyCountText.setText("Story Achievements: " + record.getStoryId());
+        gameCountText.setText("Game Achievements: " + record.getGameId());
+        reflectionCountText.setText("Reflection Achievements: " + record.getKidsreflectionId());
+        totalAchievementText.setText("Total Achievements: " +
+                (Integer.parseInt(record.getStoryId()) +
+                        Integer.parseInt(record.getGameId()) +
+                        Integer.parseInt(record.getKidsreflectionId())));
+
+        // Set profile image
+        if (record.getImageUrl() != null && !record.getImageUrl().isEmpty()) {
+            int drawableResourceId = context.getResources().getIdentifier(
+                    record.getImageUrl(),
+                    "drawable",
+                    context.getPackageName()
+            );
+            if (drawableResourceId != 0) {
+                Glide.with(context)
+                        .load(drawableResourceId)
+                        .placeholder(R.drawable.userkids)
+                        .into(thumbnail);
+            }
+        }
+
+        builder.setView(dialogView);
+        builder.setPositiveButton("Close", (dialog, which) -> dialog.dismiss());
+
+        builder.create().show();
     }
 
 
@@ -75,7 +123,7 @@ public class AdapterSummary extends RecyclerView.Adapter<AdapterSummary.SummaryM
     static class SummaryMyHolder extends RecyclerView.ViewHolder {
         CircleImageView profileImageView;
         TextView emailTextView, rank, totalachievement;
-        ImageView optionsMenu;
+
 
         public SummaryMyHolder(@NonNull View itemView) {
             super(itemView);
@@ -83,7 +131,7 @@ public class AdapterSummary extends RecyclerView.Adapter<AdapterSummary.SummaryM
             emailTextView = itemView.findViewById(R.id.namep); // Email text view
             rank = itemView.findViewById(R.id.rank);
             totalachievement = itemView.findViewById(R.id.totalachievement);
-            optionsMenu = itemView.findViewById(R.id.optionsMenu); // Options menu button
+            // Options menu button
         }
     }
 }

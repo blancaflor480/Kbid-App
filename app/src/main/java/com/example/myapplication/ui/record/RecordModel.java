@@ -14,8 +14,18 @@ public class RecordModel {
     private String kidsreflectionId;
     private String rank;
     private String totalachievements;
-
+    private String name;
     // Getter and Setter methods
+
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
     public String getEmail() {
         return email;
     }
