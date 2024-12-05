@@ -37,12 +37,9 @@ public class AdapterLeaderboard extends RecyclerView.Adapter<AdapterLeaderboard.
 
         // Ensure ranks are displayed continuously
         // Assign rank explicitly for each position
-        String rankText = "#" + (position + 1);
-        holder.rank.setText(rankText);
-        holder.rank.setVisibility(View.VISIBLE);
 
-        // Debug: Verify rank is set correctly
-        Log.d("AdapterLeaderboard", "Setting rank TextView: " + rankText + " for position: " + position);
+        holder.rank.setText("#" + leaderboardModel.getRank());
+        holder.rank.setVisibility(View.VISIBLE);
 
         // Set user name
         holder.name.setText(leaderboardModel.getUserName() != null ? leaderboardModel.getUserName() : "Unknown User");

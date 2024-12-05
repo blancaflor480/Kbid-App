@@ -50,13 +50,13 @@ public class BorderSelection extends AppCompatActivity {
 
     private static final Map<String, Integer> BORDER_REQUIREMENTS = new HashMap<String, Integer>() {{
         put("covenant", 0);  // Default border - always unlocked
-        put("shekinah", 2);  // Requires 2 achievements
-        put("zion", 3);
-        put("elohim", 4);
-        put("promise", 6);
-        put("celestine", 8);
-        put("eden", 10);
-        put("christmas", 12); // Requires all achievements
+        put("shekinah", 10);  // Requires 2 achievements
+        put("zion", 20);
+        put("elohim", 30);
+        put("promise", 40);
+        put("celestine", 50);
+        put("eden", 60);
+        put("christmas", 70); // Requires all achievements
     }};
     @Override
     protected void onCreate(Bundle savedInstanceState) {

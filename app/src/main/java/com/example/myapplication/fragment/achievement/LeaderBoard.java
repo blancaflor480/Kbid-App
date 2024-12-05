@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.myapplication.R;
+import com.example.myapplication.ui.record.RecordModel;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.AggregateQuerySnapshot;
@@ -73,6 +74,8 @@ public class LeaderBoard extends AppCompatActivity {
         executorService.submit(() -> {
             try {
                 leaderboardList.clear();
+                List<LeaderBoard> aggregatedRecords = new ArrayList<>();
+
                 QuerySnapshot usersSnapshot = Tasks.await(db.collection("user").get());
 
                 for (DocumentSnapshot userDoc : usersSnapshot.getDocuments()) {
@@ -143,16 +146,44 @@ public class LeaderBoard extends AppCompatActivity {
         recyclerViewList.clear();
         recyclerViewList.addAll(leaderboardList);
 
-        if (isHighestFirst) {
-            recyclerViewList.sort((o1, o2) -> Integer.compare(o2.getTotalPoints(), o1.getTotalPoints()));
-        } else {
-            recyclerViewList.sort((o1, o2) -> Integer.compare(o1.getTotalPoints(), o2.getTotalPoints()));
+        recyclerViewList.sort((o1, o2) -> Integer.compare(o2.getTotalPoints(), o1.getTotalPoints()));
+
+
+        int currentRank = 1;
+        int previousPoints = -1;
+        int sameRankCount = 0;
+
+        for (int i = 0; i < recyclerViewList.size(); i++) {
+            leaderboardmodel current = recyclerViewList.get(i);
+
+            if (i > 0 && current.getTotalPoints() == previousPoints) {
+                // Same points as previous user, assign same rank
+                current.setRank(String.valueOf(currentRank));
+                sameRankCount++;
+            } else {
+                // Different points, assign new rank
+                currentRank = i + 1;
+                current.setRank(String.valueOf(currentRank));
+                sameRankCount = 0;
+            }
+
+            previousPoints = current.getTotalPoints();
+        }
+        if (!isHighestFirst) {
+            recyclerViewList.sort((o1, o2) -> {
+                // First sort by points (lowest first)
+                int pointsCompare = Integer.compare(o1.getTotalPoints(), o2.getTotalPoints());
+                if (pointsCompare != 0) {
+                    return pointsCompare;
+                }
+                // If points are equal, sort by rank (lowest first)
+                return Integer.compare(
+                        Integer.parseInt(o1.getRank()),
+                        Integer.parseInt(o2.getRank())
+                );
+            });
         }
 
-        // Assign ranks explicitly
-        for (int i = 0; i < recyclerViewList.size(); i++) {
-            recyclerViewList.get(i).setRank(String.valueOf(i + 1));
-        }
 
         // Update UI with fixed top 3
         runOnUiThread(() -> {
