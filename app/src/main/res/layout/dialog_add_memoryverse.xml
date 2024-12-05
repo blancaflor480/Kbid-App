@@ -18,7 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Add New Memory Verse"
-            android:textSize="24sp"
+            android:textSize="20sp"
             android:textStyle="bold"
             android:gravity="center"
             android:textColor="@color/black"
@@ -30,7 +30,7 @@
             android:layout_width="120dp"
             android:layout_height="120dp"
             android:layout_gravity="center"
-            android:src="@drawable/ic_launcher_background"
+            android:src="@drawable/image"
             android:contentDescription="Thumbnail"
             android:layout_marginBottom="20dp" />
 

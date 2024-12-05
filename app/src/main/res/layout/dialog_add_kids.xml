@@ -28,7 +28,7 @@
             android:layout_width="120dp"
             android:layout_height="120dp"
             android:layout_gravity="center"
-            android:src="@drawable/ic_launcher_background"
+            android:src="@drawable/user"
             android:contentDescription="Thumbnail"
             android:layout_marginBottom="20dp" />
 
@@ -36,7 +36,7 @@
             android:id="@+id/textVieww"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="User Information"
+            android:text="Kids Information"
             android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="@color/black"

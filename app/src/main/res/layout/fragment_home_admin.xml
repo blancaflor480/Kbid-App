@@ -76,20 +76,21 @@
                 android:layout_alignParentStart="true"
                 android:padding="2dp"
                 android:text="Role"
+                android:textStyle="bold"
                 android:textColor="@color/black"
                 android:textSize="13sp"
                 android:fontFamily="@font/poppinsmedium"/>
 
-            <Button
-                android:id="@+id/editProfileButton"
+            <TextView
+                android:id="@+id/datetime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/userRole"
-                android:layout_marginTop="8dp"
-                android:backgroundTint="@color/lightgreenshadow"
+                android:layout_marginTop="0dp"
                 android:fontFamily="@font/poppinsmedium"
-                android:textColor="@color/white"
-                android:text="Edit Profile" />
+                android:textColor="@color/black"
+                android:textSize="13sp"
+                />
         </RelativeLayout>
 
         <de.hdodenhof.circleimageview.CircleImageView

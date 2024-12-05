@@ -44,7 +44,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
         android:fontFamily="@font/gothamroundedmedium"
-        android:text="Create an account to track \n your child’s progress"
+        android:text="Create an account to track \n your progress"
         android:textAlignment="center"
         android:textColor="@color/black"
         android:textSize="15sp"

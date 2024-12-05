@@ -22,7 +22,9 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
-
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class HomeFragment extends Fragment {
@@ -32,7 +34,7 @@ public class HomeFragment extends Fragment {
     private CircleImageView profileImageView;
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
-
+    private TextView dateTimeTextView;
     public HomeFragment() {
         // Required empty public constructor
     }
@@ -56,6 +58,8 @@ public class HomeFragment extends Fragment {
         profileImageView = view.findViewById(R.id.profile);
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
+        dateTimeTextView = view.findViewById(R.id.datetime);
+        updateDateTime();
 
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
@@ -70,6 +74,12 @@ public class HomeFragment extends Fragment {
         }
 
         return view;
+    }
+
+    private void updateDateTime() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy", Locale.getDefault());
+        String currentDate = dateFormat.format(new Date());
+        dateTimeTextView.setText(currentDate);
     }
 
     private void fetchAdminData(String uid) {
