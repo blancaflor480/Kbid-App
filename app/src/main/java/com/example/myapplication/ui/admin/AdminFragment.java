@@ -171,13 +171,13 @@ public class AdminFragment extends Fragment {
 
         // Set up the gender spinner
         ArrayAdapter<CharSequence> genderAdapter = ArrayAdapter.createFromResource(getContext(),
-                R.array.gender_array, android.R.layout.simple_spinner_item);
-        genderAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                R.array.gender_array, R.layout.spinner_item);
+        genderAdapter.setDropDownViewResource(R.layout.spinner_dropdown);
         spinnerGender.setAdapter(genderAdapter);
 
         ArrayAdapter<CharSequence> roleAdapter = ArrayAdapter.createFromResource(getContext(),
-                R.array.admin_roles_array, android.R.layout.simple_spinner_item);
-        roleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                R.array.admin_roles_array, R.layout.spinner_item);
+        roleAdapter.setDropDownViewResource(R.layout.spinner_dropdown);
         spinnerRole.setAdapter(roleAdapter);
 
         // Set up date picker

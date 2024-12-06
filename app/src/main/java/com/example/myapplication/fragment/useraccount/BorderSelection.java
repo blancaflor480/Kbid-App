@@ -33,7 +33,9 @@ import com.example.myapplication.fragment.FragmentSettings;
 import com.google.android.material.button.MaterialButton;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -145,43 +147,43 @@ public class BorderSelection extends AppCompatActivity {
                 new BorderInfo(
                         "Shekinah Border",
                         "Named after the divine presence of God. This border symbolizes the first steps of commitment in your spiritual journey.",
-                        "2 achievements - Represents taking initial steps in faith",
+                        "10 achievements - Represents taking initial steps in faith",
                         R.drawable.silver
                 ),
                 new BorderInfo(
                         "Zion Border",
                         "Represents the holy city and dwelling place of God. The blue color symbolizes heavenly wisdom and divine guidance.",
-                        "3 achievements - Shows growing spiritual understanding",
+                        "20 achievements - Shows growing spiritual understanding",
                         R.drawable.angelblue
                 ),
                 new BorderInfo(
                         "Elohim Border",
                         "Named after one of God's names meaning Creator. The pink hue represents God's tender love and care for His creation.",
-                        "4 achievements - Indicates deepening spiritual awareness",
+                        "30 achievements - Indicates deepening spiritual awareness",
                         R.drawable.angelpink
                 ),
                 new BorderInfo(
                         "Promise Border",
                         "Inspired by God's rainbow covenant with Noah. The rainbow colors symbolize God's faithfulness to His promises.",
-                        "6 achievements - Marks significant spiritual progress",
+                        "40 achievements - Marks significant spiritual progress",
                         R.drawable.angelrainbow
                 ),
                 new BorderInfo(
                         "Celestine Border",
                         "Represents the celestial realm and heavenly places. The sky blue color symbolizes the expanse of God's kingdom.",
-                        "8 achievements - Shows advanced spiritual growth",
+                        "50 achievements - Shows advanced spiritual growth",
                         R.drawable.angelskyblue
                 ),
                 new BorderInfo(
                         "Eden Border",
                         "Named after the perfect garden where God walked with humanity. Gold represents divine perfection and glory.",
-                        "10 achievements - Symbolizes exceptional spiritual dedication",
+                        "60 achievements - Symbolizes exceptional spiritual dedication",
                         R.drawable.angelgold
                 ),
                 new BorderInfo(
                         "Christmas Border",
                         "A special border celebrating the birth of Christ. Reserved for those who have completed all achievements, representing the ultimate gift.",
-                        "12 achievements - Ultimate accomplishment showing complete dedication",
+                        "70 achievements - Ultimate accomplishment showing complete dedication",
                         R.drawable.exclusive
                 )
         };
@@ -334,6 +336,7 @@ public class BorderSelection extends AppCompatActivity {
     private void updateBorderLockStatus() {
         AsyncTask.execute(() -> {
             int totalAchievements = getTotalCompletedAchievements();
+            List<String> newlyUnlockedBorders = new ArrayList<>();
 
             runOnUiThread(() -> {
                 for (Map.Entry<String, Integer> entry : BORDER_REQUIREMENTS.entrySet()) {
@@ -342,19 +345,94 @@ public class BorderSelection extends AppCompatActivity {
                     CircleImageView borderView = findViewById(getResources().getIdentifier(
                             borderNameToViewId(borderName), "id", getPackageName()));
 
+                    // Check if the border was previously locked and is now unlocked
+                    if (totalAchievements >= requirement && borderView.getAlpha() == 0.5f) {
+                        newlyUnlockedBorders.add(borderName);
+                    }
+
                     if (totalAchievements < requirement) {
                         // Add lock overlay and disable the view
                         addLockOverlay(borderView);
-                        borderView.setEnabled(false); // Disable the view
-                        borderView.setAlpha(0.5f); // Make it appear disabled
+                        borderView.setEnabled(false);
+                        borderView.setAlpha(0.5f);
                     } else {
                         borderView.setEnabled(true);
                         borderView.setAlpha(1.0f);
                     }
                 }
+
+                // Show unlock notifications for newly unlocked borders
+                if (!newlyUnlockedBorders.isEmpty()) {
+                    showNewBorderUnlockDialog(newlyUnlockedBorders.get(0));
+                }
             });
         });
     }
+    private void showNewBorderUnlockDialog(String borderName) {
+        // Create the dialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.CustomAlertDialog);
+        View dialogView = getLayoutInflater().inflate(R.layout.popup_rewardborder, null);
+        builder.setView(dialogView);
+        AlertDialog dialog = builder.create();
+
+        // Find views in the dialog
+        ImageView newBorderImage = dialogView.findViewById(R.id.newBorderImage);
+        TextView borderNameText = dialogView.findViewById(R.id.borderNameText);
+        TextView borderDescriptionText = dialogView.findViewById(R.id.borderDescriptionText);
+        TextView achievementRequirementText = dialogView.findViewById(R.id.achievementRequirementText);
+        AppCompatButton continueButton = dialogView.findViewById(R.id.continueButton);
+
+        // Set border details based on the unlocked border
+        int borderResourceId = getResources().getIdentifier(
+                borderNameToViewId(borderName), "drawable", getPackageName());
+        int requirement = BORDER_REQUIREMENTS.get(borderName);
+
+        newBorderImage.setImageResource(borderResourceId);
+
+        // Set descriptive text based on the border
+        switch (borderName) {
+            case "covenant":
+                borderNameText.setText("Covenant Border");
+                borderDescriptionText.setText("The starting border representing the beginning of your spiritual journey.");
+                break;
+            case "shekinah":
+                borderNameText.setText("Shekinah Border");
+                borderDescriptionText.setText("Symbolizes the divine presence of God and your first steps of commitment.");
+                break;
+            case "zion":
+                borderNameText.setText("Zion Border");
+                borderDescriptionText.setText("Represents the holy city and God's dwelling place, showing your growing spiritual understanding.");
+                break;
+            case "elohim":
+                borderNameText.setText("Elohim Border");
+                borderDescriptionText.setText("Named after God the Creator, representing His tender love and care.");
+                break;
+            case "promise":
+                borderNameText.setText("Promise Border");
+                borderDescriptionText.setText("Inspired by God's rainbow covenant, symbolizing His faithfulness.");
+                break;
+            case "celestine":
+                borderNameText.setText("Celestine Border");
+                borderDescriptionText.setText("Representing the celestial realm and the expanse of God's kingdom.");
+                break;
+            case "eden":
+                borderNameText.setText("Eden Border");
+                borderDescriptionText.setText("Named after the perfect garden, symbolizing divine perfection.");
+                break;
+            case "christmas":
+                borderNameText.setText("Christmas Border");
+                borderDescriptionText.setText("A special border celebrating the birth of Christ and ultimate dedication.");
+                break;
+        }
+
+        achievementRequirementText.setText(String.format("Unlocked at: %d Achievements", requirement));
+
+        continueButton.setOnClickListener(v -> dialog.dismiss());
+
+        // Show the dialog
+        dialog.show();
+    }
+
     private void addLockOverlay(CircleImageView borderView) {
         // Create an overlay with a lock icon
         ImageView lockOverlay = new ImageView(this);

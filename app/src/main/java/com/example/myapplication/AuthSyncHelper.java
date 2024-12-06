@@ -60,9 +60,12 @@ public class AuthSyncHelper {
 
     public void syncUserDataFromFirestore(FirebaseUser firebaseUser, SyncCallback callback) {
         if (firebaseUser == null) {
+            Log.d("AuthSyncHelper", "FirebaseUser is null");
             runOnMainThread(() -> callback.onError("No authenticated user"));
             return;
         }
+        Log.d("AuthSyncHelper", "Starting sync for user: " + firebaseUser.getEmail());
+
 
         firestore.collection("user")
                 .document(firebaseUser.getUid())
@@ -71,6 +74,8 @@ public class AuthSyncHelper {
                     if (task.isSuccessful()) {
                         DocumentSnapshot document = task.getResult();
                         if (document.exists()) {
+                            Log.d("AuthSyncHelper", "Firestore document exists for user: " + firebaseUser.getEmail());
+
                             // Extract user data
                             String childName = document.getString("childName");
                             String childBirthday = document.getString("childBirthday");
@@ -83,8 +88,18 @@ public class AuthSyncHelper {
                             Integer borderResourceId = document.getLong("borderResourceId") != null ?
                                     document.getLong("borderResourceId").intValue() : null;
 
+                            Log.d("AuthSyncHelper", "Extracted data from Firestore:");
+                            Log.d("AuthSyncHelper", "childName: " + childName);
+                            Log.d("AuthSyncHelper", "childBirthday: " + childBirthday);
+                            Log.d("AuthSyncHelper", "avatarName: " + avatarName);
+                            Log.d("AuthSyncHelper", "controlId: " + controlId);
+                            Log.d("AuthSyncHelper", "borderName: " + borderName);
+                            Log.d("AuthSyncHelper", "avatarResourceId: " + avatarResourceId);
+                            Log.d("AuthSyncHelper", "borderResourceId: " + borderResourceId);
+
                             if (childName == null || childBirthday == null ||
-                                    avatarName == null || borderName == null || controlId == null) {
+                                    avatarName == null || controlId == null) {
+                                Log.d("AuthSyncHelper", "Incomplete profile detected");
                                 runOnMainThread(() -> callback.onSuccess("incomplete_profile"));
                                 return;
                             }
@@ -104,6 +119,10 @@ public class AuthSyncHelper {
                             if (borderResourceId != null) {
                                 user.setAvatarResourceId(borderResourceId);
                             }
+                            Log.d("AuthSyncHelper", "Created User object with data:");
+                            Log.d("AuthSyncHelper", "UID: " + user.getUid());
+                            Log.d("AuthSyncHelper", "Email: " + user.getEmail());
+                            Log.d("AuthSyncHelper", "Child Name: " + user.getChildName());
 
                             // Insert into SQLite on background thread
                             executor.execute(() -> {
@@ -113,6 +132,7 @@ public class AuthSyncHelper {
 
                                     // Insert new user data
                                     long userId = userDao.insert(user);
+                                    Log.d("AuthSyncHelper", "Inserted new user with ID: " + userId);
 
                                     // Sync FourPicsOneWord data
                                     syncFourPicsOneWordData(userId, firebaseUser.getEmail());
@@ -120,13 +140,16 @@ public class AuthSyncHelper {
                                     runOnMainThread(() -> callback.onSuccess("user"));
                                 } catch (Exception e) {
                                     Log.e("AuthSyncHelper", "Error inserting user data", e);
+                                    Log.e("AuthSyncHelper", "Stack trace: ", e);
                                     runOnMainThread(() -> callback.onError("Failed to save user data: " + e.getMessage()));
                                 }
                             });
                         } else {
+                            Log.d("AuthSyncHelper", "No user document found in Firestore, checking admin");
                             checkAdminCollection(firebaseUser, callback);
                         }
                     } else {
+                        Log.e("AuthSyncHelper", "Firestore task failed", task.getException());
                         handleFirestoreFailure(firebaseUser, callback);
                     }
                 });

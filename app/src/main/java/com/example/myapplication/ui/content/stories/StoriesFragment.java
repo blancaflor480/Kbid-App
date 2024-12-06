@@ -379,6 +379,7 @@ public class StoriesFragment extends Fragment {
                                 // Update the Firestore document with the model containing the ID
                                 db.collection("stories").document(documentReference.getId()).set(story)
                                         .addOnSuccessListener(aVoid -> {
+                                            showUploadSuccessDialog();
                                             Snackbar.make(getView(), "Story added.", Snackbar.LENGTH_SHORT).show();
                                             getAllStories(); // Refresh the list of stories
                                         })
@@ -395,6 +396,16 @@ public class StoriesFragment extends Fragment {
                 });
     }
 
+    private void showUploadSuccessDialog() {
+        View dialogView = getLayoutInflater().inflate(R.layout.uploadedsucessfully, null);
 
+        AlertDialog dialog = new AlertDialog.Builder(getContext(), R.style.CustomAlertDialog)
+                .setView(dialogView)
+                .create();
 
+        Button btnOkay = dialogView.findViewById(R.id.play);
+        btnOkay.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
+    }
 }

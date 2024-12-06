@@ -29,6 +29,7 @@ import com.example.myapplication.SignupUser;
 import com.example.myapplication.database.AppDatabase;
 import com.example.myapplication.database.Converters;
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -92,13 +93,14 @@ public class DevotionalKids extends AppCompatActivity {
             loadDevotional(devotionalId, controlId, email);
         }
 
+        if (email != null && controlId != null) {
+            checkAndShowBadge(email, controlId);
+        }
+
+
         updateCardColors();
         speechToTextButton.setOnClickListener(v -> startSpeechToText());
-
-        // Set up the alarm for 6 AM daily
-        //scheduleDailyNotification();
-        // Setup SwipeRefreshLayout listener
-        swipeRefreshLayout.setOnRefreshListener(() -> loadDevotional(devotionalId, controlId, email));
+   swipeRefreshLayout.setOnRefreshListener(() -> loadDevotional(devotionalId, controlId, email));
 
         // Handle submit button click
         submit.setOnClickListener(v -> {
@@ -267,65 +269,77 @@ public class DevotionalKids extends AppCompatActivity {
     }
 
     private void checkAndShowBadge(String email, String controlId) {
-        // Query Firestore to check for badges
         db.collection("kidsReflection")
                 .whereEqualTo("email", email)
                 .whereEqualTo("controlId", controlId)
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
                     if (!querySnapshot.isEmpty()) {
-                        // Get the badge from the first document
-                        String badge = querySnapshot.getDocuments().get(0).getString("badge");
+                        // Get the most recent document manually
+                        DocumentSnapshot mostRecent = null;
+                        for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                            if (mostRecent == null ||
+                                    doc.getTimestamp("timestamp").compareTo(mostRecent.getTimestamp("timestamp")) > 0) {
+                                mostRecent = doc;
+                            }
+                        }
 
-                        if (badge != null && !badge.isEmpty()) {
-                            // Show the corresponding badge popup
-                            showBadgePopup(badge);
+                        if (mostRecent != null) {
+                            String badge = mostRecent.getString("badge");
+                            if (badge != null && !badge.isEmpty() && !"no badge".equals(badge)) {
+                                showBadgePopup(badge);
+                            }
                         }
                     }
                 })
                 .addOnFailureListener(e -> {
                     Log.e("DevotionalKids", "Error checking badge", e);
+                    Toast.makeText(DevotionalKids.this,
+                            "Failed to check badge status", Toast.LENGTH_SHORT).show();
                 });
     }
 
+
     private void showBadgePopup(String badge) {
-        // Create the dialog
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.badge, null);
-        builder.setView(dialogView);
+        runOnUiThread(() -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            LayoutInflater inflater = getLayoutInflater();
+            View dialogView = inflater.inflate(R.layout.badge, null);
+            builder.setView(dialogView);
 
-        AlertDialog dialog = builder.create();
+            AlertDialog dialog = builder.create();
+            dialog.setCancelable(false); // Prevent dismissal by tapping outside
 
-        // Find the badge ImageView
-        ImageView badgeImageView = dialogView.findViewById(R.id.badge);
-        TextView badgeTextView = dialogView.findViewById(R.id.badgeTextView);
+            ImageView badgeImageView = dialogView.findViewById(R.id.badge);
+            TextView badgeTextView = dialogView.findViewById(R.id.badgeTextView);
 
-        // Set the badge image and text based on the badge type
-        switch (badge) {
-            case "Star Thinker":
-                badgeImageView.setImageResource(R.drawable.startthinker);
-                badgeTextView.setText("Star Thinker");
-                break;
-            case "Creative Contributor":
-                badgeImageView.setImageResource(R.drawable.creativecontributiion);
-                badgeTextView.setText("Creative Contributor");
-                break;
-            case "Consistent Reflector":
-                badgeImageView.setImageResource(R.drawable.consistentreflector);
-                badgeTextView.setText("Consistent Reflector");
-                break;
-            default:
-                // If badge doesn't match known types, don't show the popup
-                return;
-        }
+            // Set the badge image and text based on the badge type
+            switch (badge) {
+                case "Star Thinker":
+                    badgeImageView.setImageResource(R.drawable.startthinker);
+                    badgeTextView.setText("Star Thinker");
+                    break;
+                case "Creative Contributor":
+                    badgeImageView.setImageResource(R.drawable.creativecontributiion);
+                    badgeTextView.setText("Creative Contributor");
+                    break;
+                case "Consistent Reflector":
+                    badgeImageView.setImageResource(R.drawable.consistentreflector);
+                    badgeTextView.setText("Consistent Reflector");
+                    break;
+                default:
+                    dialog.dismiss();
+                    return;
+            }
 
-        // Add a button to dismiss the dialog
-        AppCompatButton closeButton = dialogView.findViewById(R.id.button_done);
-        closeButton.setOnClickListener(v -> dialog.dismiss());
+            AppCompatButton closeButton = dialogView.findViewById(R.id.button_done);
+            closeButton.setOnClickListener(v -> dialog.dismiss());
 
-        // Show the dialog
-        dialog.show();
+            // Show the dialog if the activity hasn't been destroyed
+            if (!isFinishing()) {
+                dialog.show();
+            }
+        });
     }
 
     // Load devotional data from Firestore
@@ -336,7 +350,6 @@ public class DevotionalKids extends AppCompatActivity {
             return;
         }
 
-        checkAndShowBadge(email, controlId);
         swipeRefreshLayout.setRefreshing(true);
 
         // Fetch devotional data from Firestore

@@ -23,5 +23,12 @@
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/nav_header_side_navigation_admin"
         app:menu="@menu/side_navigation_admin_drawer"
+
+        android:fontFamily="@font/poppinsmedium"
+        app:itemTextColor="@color/green"
+        app:subheaderColor="@color/green"
+        app:itemIconTint="#575757"
+        android:background="@color/white"
+        app:itemBackground="@color/white"
         />
 </androidx.drawerlayout.widget.DrawerLayout>

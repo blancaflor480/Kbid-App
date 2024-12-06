@@ -3,6 +3,7 @@ package com.example.myapplication.fragment.useraccount;
 public class DevotionalAchievementModel {
     private String id;
     private int badge;
+    private String badgename;
     private String email;
     private String controlId;
 
@@ -12,11 +13,20 @@ public class DevotionalAchievementModel {
     }
 
     // Full constructor for more detailed model
-    public DevotionalAchievementModel(String id, int badge, String email, String controlId) {
+    public DevotionalAchievementModel(String id, int badge, String badgename, String email, String controlId) {
         this.id = id;
         this.badge = badge;
+        this.badgename = badgename;
         this.email = email;
         this.controlId = controlId;
+    }
+
+    public String getBadgename() {
+        return badgename;
+    }
+
+    public void setBadgename(String badgename) {
+        this.badgename = badgename;
     }
 
     // Getters and setters

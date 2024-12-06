@@ -324,6 +324,7 @@
                         .document(id)
                         .set(newGame)
                         .addOnSuccessListener(aVoid -> {
+                            showUploadSuccessDialog();
                             Snackbar.make(getView(), "Game added successfully.", Snackbar.LENGTH_SHORT).show();
 
                             // Insert the game into SQLite
@@ -331,6 +332,18 @@
                         })
                         .addOnFailureListener(e -> Snackbar.make(getView(), "Failed to add game.", Snackbar.LENGTH_SHORT).show());
             });
+        }
+        private void showUploadSuccessDialog() {
+            View dialogView = getLayoutInflater().inflate(R.layout.uploadedsucessfully, null);
+
+            AlertDialog dialog = new AlertDialog.Builder(getContext(), R.style.CustomAlertDialog)
+                    .setView(dialogView)
+                    .create();
+
+            Button btnOkay = dialogView.findViewById(R.id.play);
+            btnOkay.setOnClickListener(v -> dialog.dismiss());
+
+            dialog.show();
         }
 
         private void insertGameIntoSQLite(ModelGames modelGames) {

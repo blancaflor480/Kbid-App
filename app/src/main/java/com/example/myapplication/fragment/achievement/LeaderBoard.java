@@ -150,39 +150,20 @@ public class LeaderBoard extends AppCompatActivity {
 
 
         int currentRank = 1;
-        int previousPoints = -1;
-        int sameRankCount = 0;
-
         for (int i = 0; i < recyclerViewList.size(); i++) {
             leaderboardmodel current = recyclerViewList.get(i);
-
-            if (i > 0 && current.getTotalPoints() == previousPoints) {
-                // Same points as previous user, assign same rank
-                current.setRank(String.valueOf(currentRank));
-                sameRankCount++;
-            } else {
-                // Different points, assign new rank
-                currentRank = i + 1;
-                current.setRank(String.valueOf(currentRank));
-                sameRankCount = 0;
-            }
-
-            previousPoints = current.getTotalPoints();
+            current.setRank(String.valueOf(currentRank));
+            currentRank++;
         }
+
         if (!isHighestFirst) {
+            // When sorting lowest first, sort by points in ascending order first
             recyclerViewList.sort((o1, o2) -> {
-                // First sort by points (lowest first)
-                int pointsCompare = Integer.compare(o1.getTotalPoints(), o2.getTotalPoints());
-                if (pointsCompare != 0) {
-                    return pointsCompare;
-                }
-                // If points are equal, sort by rank (lowest first)
-                return Integer.compare(
-                        Integer.parseInt(o1.getRank()),
-                        Integer.parseInt(o2.getRank())
-                );
+                // Sort by points (lowest first)
+                return Integer.compare(o1.getTotalPoints(), o2.getTotalPoints());
             });
         }
+
 
 
         // Update UI with fixed top 3

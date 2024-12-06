@@ -57,6 +57,7 @@ import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 public class account extends AppCompatActivity {
     private AppDatabase db;
@@ -196,6 +197,8 @@ public class account extends AppCompatActivity {
         });
     }
 
+
+
     private void showChangePasswordDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = getLayoutInflater();
@@ -295,6 +298,7 @@ public class account extends AppCompatActivity {
         ImageView borderImageView = dialogView.findViewById(R.id.border);
         EditText editName = dialogView.findViewById(R.id.Editname);
         EditText editAge = dialogView.findViewById(R.id.Editage);
+        TextView titlebirthday = dialogView.findViewById(R.id.titlebirthday);
         editemail = dialogView.findViewById(R.id.google);
         TextView controlNumber = dialogView.findViewById(R.id.controlnumber);
         AppCompatButton connectButton = dialogView.findViewById(R.id.connect);
@@ -303,19 +307,28 @@ public class account extends AppCompatActivity {
         ImageButton closeButton = dialogView.findViewById(R.id.close);
         ImageButton changeProfileButton = dialogView.findViewById(R.id.changepf);
 
+
         executor.execute(() -> {
             User user = userDao.getFirstUser();
             runOnUiThread(() -> {
                 if (user != null) {
                     // Set basic user information
                     editName.setText(user.getChildName());
+
                     editAge.setText(String.valueOf(user.getChildBirthday()));
+
                     editemail.setText(user.getEmail());
+
                     if (user.getControlid() == null || user.getControlid().isEmpty()) {
                         controlNumber.setVisibility(View.GONE);
+                        editAge.setVisibility(View.GONE);
+                        titlebirthday.setVisibility(View.GONE);
                     } else {
                         controlNumber.setText("ID: " + user.getControlid());
                         controlNumber.setVisibility(View.VISIBLE);
+                        editAge.setVisibility(View.VISIBLE);  // Show editAge when controlId exists
+                        titlebirthday.setVisibility(View.VISIBLE);
+                        editAge.setText(String.valueOf(user.getChildBirthday()));
                     }
 
                     // Handle connect button visibility
@@ -714,78 +727,105 @@ public class account extends AppCompatActivity {
         GridLayoutManager layoutManager = new GridLayoutManager(this, 3);
         recyclerView.setLayoutManager(layoutManager);
 
-        List<DevotionalAchievementModel> devotionalList = new ArrayList<>();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         AsyncTask.execute(() -> {
             User user = userDao.getFirstUser();
-            if (user != null) {
-                String userEmail = user.getEmail();
-
-                // Additional null and empty checks
-                if (userEmail == null || userEmail.trim().isEmpty()) {
-                    Log.e("DevotionalBadges", "User email is null or empty");
-                    runOnUiThread(() -> {
-                        Toast.makeText(this, "No email found for user", Toast.LENGTH_SHORT).show();
-                    });
-                    return;
-                }
-
+            if (user != null && user.getEmail() != null && !user.getEmail().trim().isEmpty()) {
                 runOnUiThread(() -> {
                     db.collection("kidsReflection")
-                            .whereEqualTo("email", userEmail)
+                            .whereEqualTo("email", user.getEmail())
                             .get()
                             .addOnSuccessListener(queryDocumentSnapshots -> {
+                                List<DevotionalAchievementModel> devotionalBadges = new ArrayList<>();
+
                                 if (!queryDocumentSnapshots.isEmpty()) {
                                     DocumentSnapshot document = queryDocumentSnapshots.getDocuments().get(0);
 
-                                    // Log the document data for debugging
-                                    Log.d("DevotionalBadges", "Document data: " + document.getData());
-
-                                    // Check badge conditions with additional logging
+                                    // Add Consistent Reflector badge
                                     boolean consistentReflector = Boolean.TRUE.equals(document.getBoolean("Consistent Reflector"));
+                                    devotionalBadges.add(new DevotionalAchievementModel(
+                                            UUID.randomUUID().toString(),
+                                            getDrawableResourceByName("consistentreflector"),
+                                            "Consistent Reflector",
+                                            user.getEmail(),
+                                            user.getControlid()
+                                    ));
+
+                                    // Add Creative Contribution badge
                                     boolean creativeContribution = Boolean.TRUE.equals(document.getBoolean("Creative Contribution"));
+                                    devotionalBadges.add(new DevotionalAchievementModel(
+                                            UUID.randomUUID().toString(),
+                                            getDrawableResourceByName("creativecontribution"),
+                                            "Creative Contribution",
+                                            user.getEmail(),
+                                            user.getControlid()
+                                    ));
+
+                                    // Add Start Thinker badge
                                     boolean startThinker = Boolean.TRUE.equals(document.getBoolean("Start Thinker"));
-
-                                    Log.d("DevotionalBadges", "Badges: Consistent=" + consistentReflector +
-                                            ", Creative=" + creativeContribution +
-                                            ", StartThinker=" + startThinker);
-
-                                    // Create badge models based on Firestore data
-                                    if (consistentReflector) {
-                                        devotionalList.add(new DevotionalAchievementModel(R.drawable.consistentreflector));
-                                    }
-                                    if (creativeContribution) {
-                                        devotionalList.add(new DevotionalAchievementModel(R.drawable.creativecontributiion));
-                                    }
-                                    if (startThinker) {
-                                        devotionalList.add(new DevotionalAchievementModel(R.drawable.startthinker));
-                                    }
-
-                                    // Add logging to check list
-                                    Log.d("DevotionalBadges", "Badges list size: " + devotionalList.size());
-
-                                    // Update the adapter
-                                    if (!devotionalList.isEmpty()) {
-                                        DevotionalAchievementAdapter adapter = new DevotionalAchievementAdapter(account.this, devotionalList);
-                                        recyclerView.setAdapter(adapter);
-                                    } else {
-                                        Log.w("DevotionalBadges", "No badges to display");
-                                    }
+                                    devotionalBadges.add(new DevotionalAchievementModel(
+                                            UUID.randomUUID().toString(),
+                                            getDrawableResourceByName("startthinker"),
+                                            "Start Thinker",
+                                            user.getEmail(),
+                                            user.getControlid()
+                                    ));
                                 } else {
-                                    Log.w("DevotionalBadges", "No documents found for email: " + userEmail);
+                                    // Add locked badges if no achievements found
+                                    for (int i = 0; i < 3; i++) {
+                                        devotionalBadges.add(new DevotionalAchievementModel(R.raw.lock));
+                                    }
                                 }
+
+                                DevotionalAchievementAdapter adapter = new DevotionalAchievementAdapter(account.this, convertToBadges(devotionalBadges));
+                                recyclerView.setAdapter(adapter);
                             })
                             .addOnFailureListener(e -> {
                                 Log.e("DevotionalBadges", "Failed to load achievements", e);
-                                Toast.makeText(account.this, "Failed to load achievements", Toast.LENGTH_SHORT).show();
+                                // Add locked badges on failure
+                                List<DevotionalAchievementModel> lockedBadges = new ArrayList<>();
+                                for (int i = 0; i < 3; i++) {
+                                    lockedBadges.add(new DevotionalAchievementModel(R.raw.lock));
+                                }
+                                DevotionalAchievementAdapter adapter = new DevotionalAchievementAdapter(account.this, convertToBadges(lockedBadges));
+                                recyclerView.setAdapter(adapter);
                             });
                 });
             } else {
-                Log.e("DevotionalBadges", "No user found");
+                runOnUiThread(() -> {
+                    // Show locked badges when no user or email found
+                    List<DevotionalAchievementModel> lockedBadges = new ArrayList<>();
+                    for (int i = 0; i < 3; i++) {
+                        lockedBadges.add(new DevotionalAchievementModel(R.raw.lock));
+                    }
+                    DevotionalAchievementAdapter adapter = new DevotionalAchievementAdapter(account.this, convertToBadges(lockedBadges));
+                    recyclerView.setAdapter(adapter);
+                });
             }
         });
     }
 
+    // Helper method to get drawable resource by name
+    private int getDrawableResourceByName(String resourceName) {
+        int resourceId = getResources().getIdentifier(
+                resourceName.toLowerCase(),
+                "drawable",
+                getPackageName()
+        );
+        return resourceId != 0 ? resourceId : R.raw.lock;
+    }
+
+    // Helper method to convert DevotionalAchievementModel to Badge
+    private List<Badge> convertToBadges(List<DevotionalAchievementModel> devotionalModels) {
+        return devotionalModels.stream()
+                .map(model -> new Badge(
+                        model.getBadge(),
+                        model.getBadge() != R.raw.lock,
+                        true,
+                        model.getBadge() != R.raw.lock
+                ))
+                .collect(Collectors.toList());
+    }
 
 }

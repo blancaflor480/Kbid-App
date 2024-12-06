@@ -234,6 +234,7 @@ public class SongFragment extends Fragment {
                     video.setId(documentReference.getId());
                     db.collection("video").document(documentReference.getId()).set(video)
                             .addOnSuccessListener(aVoid -> {
+                                showUploadSuccessDialog();
                                 Snackbar.make(getView(), "Video added.", Snackbar.LENGTH_SHORT).show();
                                 getAllVideo();
                             });
@@ -241,6 +242,18 @@ public class SongFragment extends Fragment {
                 .addOnFailureListener(e -> Snackbar.make(getView(), "Failed to add video.", Snackbar.LENGTH_SHORT).show());
     }
 
+    private void showUploadSuccessDialog() {
+        View dialogView = getLayoutInflater().inflate(R.layout.uploadedsucessfully, null);
+
+        AlertDialog dialog = new AlertDialog.Builder(getContext(), R.style.CustomAlertDialog)
+                .setView(dialogView)
+                .create();
+
+        Button btnOkay = dialogView.findViewById(R.id.play);
+        btnOkay.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
+    }
     private void filterContent(String query) {
         List<ModelSong> filteredList = new ArrayList<>();
         for (ModelSong song : contentList) {

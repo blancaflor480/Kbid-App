@@ -13,32 +13,34 @@ import com.example.myapplication.R;
 
 import java.util.List;
 
-public class DevotionalAchievementAdapter extends RecyclerView.Adapter<DevotionalAchievementAdapter.DevotionalViewHolder>{
-
-    private List<DevotionalAchievementModel> devotionalList;
+public class DevotionalAchievementAdapter extends RecyclerView.Adapter<DevotionalAchievementAdapter.DevotionalViewHolder> {
+    private List<Badge> badges;
     private Context context;
 
-    public DevotionalAchievementAdapter(Context context, List<DevotionalAchievementModel> devotionalList) {
+    public DevotionalAchievementAdapter(Context context, List<Badge> badges) {
         this.context = context;
-        this.devotionalList = devotionalList;
+        this.badges = badges;
     }
 
     @NonNull
     @Override
     public DevotionalViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_achievement_story, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_badge, parent, false);
         return new DevotionalViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull DevotionalViewHolder holder, int position) {
-        DevotionalAchievementModel achievement = devotionalList.get(position);
-        holder.thumbnailp.setImageResource(achievement.getBadge());
+        Badge badge = badges.get(position);
+        holder.thumbnailp.setImageResource(badge.getBadgeImage());
+
+        // Optional: Set alpha for locked badges
+        holder.thumbnailp.setAlpha(badge.isUnlocked() ? 1.0f : 0.5f);
     }
 
     @Override
     public int getItemCount() {
-        return devotionalList.size();
+        return badges.size();
     }
 
     static class DevotionalViewHolder extends RecyclerView.ViewHolder {

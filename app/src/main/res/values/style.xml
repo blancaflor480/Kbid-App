@@ -8,7 +8,9 @@
         <item name="android:shape">oval</item>
     </style>
 
-
+    <style name="CustomAlertDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
 
     <style name="Bottomquizsize" parent="@style/Widget.Material3.BottomNavigationView.ActiveIndicator">
         <item name="android:color">@color/white</item>
@@ -28,7 +30,8 @@
 
     <style name="NavigationViewStyle">
         <item name="android:background">@color/white</item>
-       </style>
+    </style>
+
 
     <style name="ContinueButton" parent="@style/Widget.Material3.BottomNavigationView">
 

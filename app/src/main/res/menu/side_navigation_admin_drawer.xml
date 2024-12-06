@@ -8,57 +8,57 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_home"
-            android:icon="@drawable/baseline_house_24"
+            android:icon="@drawable/houselatest"
             android:title="@string/menu_home"
             />
         <item
             android:id="@+id/nav_user"
-            android:icon="@drawable/people"
+            android:icon="@drawable/userlatest"
             android:title="@string/menu_user" />
         <item
             android:id="@+id/nav_admin"
-            android:icon="@drawable/people"
+            android:icon="@drawable/userlatest"
             android:title="@string/menu_adminaccount" />
 
         <item
-            android:icon="@drawable/camera_roll"
             android:title="@string/menu_content">
             <menu>
                 <item
                     android:id="@+id/nav_stories"
-                    android:icon="@drawable/stories"
+                    android:icon="@drawable/booklatest"
                     android:title="@string/menu_stories"/>
                 <item
                     android:id="@+id/nav_video"
-                    android:icon="@drawable/video"
+                    android:icon="@drawable/playlatest"
                     android:title="@string/menu_video"/>
                 <item
                     android:id="@+id/nav_games"
-                    android:icon="@drawable/games"
+                    android:icon="@drawable/gamelatest"
                     android:title="@string/menu_game"/>
                 <item
                     android:id="@+id/nav_devotional"
-                    android:icon="@drawable/chatdevotional"
+                    android:icon="@drawable/devotionalates"
                     android:title="@string/menu_devotional"/>
 
 
             </menu>
         </item>
         <item
+            android:id="@+id/others"
             android:title="Others">
             <menu>
 
             <item
             android:id="@+id/nav_record"
-            android:icon="@drawable/analytics"
+            android:icon="@drawable/recordlatest"
             android:title="@string/menu_record" />
         <item
             android:id="@+id/nav_feedback"
-            android:icon="@drawable/feedback"
+            android:icon="@drawable/feedbacklatest"
             android:title="@string/menu_feedback" />
         <item
             android:id="@+id/nav_setting"
-            android:icon="@drawable/settings"
+            android:icon="@drawable/settingslatest"
             android:title="@string/menu_settings" />
             </menu>
         </item>
