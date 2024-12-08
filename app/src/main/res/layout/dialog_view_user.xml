@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:padding="16dp"
+    android:background="@color/white"
     android:id="@+id/views">
 
     <LinearLayout
@@ -15,7 +16,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="User Profile"
-            android:textSize="20sp"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
             android:layout_marginBottom="10dp"
             android:gravity="center" />
 
@@ -31,67 +34,105 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="User Information"
-            android:textSize="15sp"
-            android:layout_marginBottom="10dp"
-            android:layout_marginTop="10dp" />
+            android:textSize="18sp"
+            android:layout_marginTop="15dp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:layout_marginBottom="10dp" />
 
         <TextView
             android:id="@+id/firstNameTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="First Name: "
-            android:layout_marginBottom="5dp" />
+            android:textColorHint="@color/black"
+            android:textColor="@color/black"
+            android:background="@drawable/rounded_input_name"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp"
+            />
 
         <TextView
             android:id="@+id/middleNameTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Middle Name: "
-            android:layout_marginBottom="5dp" />
+            android:textColorHint="@color/black"
+            android:textColor="@color/black"
+            android:background="@drawable/rounded_input_name"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp"
+            />
 
         <TextView
             android:id="@+id/lastNameTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Last Name: "
-            android:layout_marginBottom="5dp" />
+            android:textColorHint="@color/black"
+            android:textColor="@color/black"
+            android:background="@drawable/rounded_input_name"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp"
+            />
 
         <TextView
             android:id="@+id/birthdayTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Birthday: "
-            android:layout_marginBottom="10dp" />
+            android:textColorHint="@color/black"
+            android:textColor="@color/black"
+            android:background="@drawable/rounded_input_name"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp"
+            />
 
         <TextView
             android:id="@+id/genderTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Gender: "
-            android:layout_marginBottom="10dp" />
+            android:textColorHint="@color/black"
+            android:textColor="@color/black"
+            android:background="@drawable/rounded_input_name"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp"
+            />
 
         <TextView
             android:id="@+id/roleTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Role: "
-            android:layout_marginBottom="10dp" />
+            android:textColorHint="@color/black"
+            android:textColor="@color/black"
+            android:background="@drawable/rounded_input_name"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp"
+            />
 
         <TextView
             android:id="@+id/tvAccountInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Account Information"
-            android:textSize="15sp"
-            android:layout_marginBottom="10dp"
-            android:layout_marginTop="10dp" />
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:layout_marginBottom="10dp" />
 
         <TextView
             android:id="@+id/emailTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Email: "
-            android:layout_marginBottom="5dp" />
+            android:textColorHint="@color/black"
+            android:textColor="@color/black"
+            android:background="@drawable/rounded_input_name"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp"
+            />
 
 
     </LinearLayout>

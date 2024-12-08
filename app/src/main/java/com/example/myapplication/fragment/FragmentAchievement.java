@@ -145,10 +145,22 @@ public class FragmentAchievement extends Fragment {
             // Fetch all game achievements
             List<GameAchievementModel> gameAchievements = appDatabase.gameAchievementDao().getAchievementsForGames();
 
+            // Sort the achievements by level number
+            gameAchievements.sort((a, b) -> {
+                try {
+                    int levelA = Integer.parseInt(a.getLevel());
+                    int levelB = Integer.parseInt(b.getLevel());
+                    return Integer.compare(levelA, levelB);
+                } catch (NumberFormatException e) {
+                    // Handle cases where level might not be a number
+                    return a.getLevel().compareTo(b.getLevel());
+                }
+            });
+
             for (GameAchievementModel achievement : gameAchievements) {
-                // Create a unique key based on gameId and level (or other unique fields)
                 achievement.setIsCompleted(appDatabase.gameAchievementDao().isGameCompleted(achievement.getGameId()) ? "completed" : "locked");
             }
+
             requireActivity().runOnUiThread(() -> updateGameAchievements(gameAchievements));
         });
     }

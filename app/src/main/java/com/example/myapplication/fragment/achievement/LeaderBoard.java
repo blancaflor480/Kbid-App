@@ -156,13 +156,26 @@ public class LeaderBoard extends AppCompatActivity {
             currentRank++;
         }
 
-        if (!isHighestFirst) {
-            // When sorting lowest first, sort by points in ascending order first
-            recyclerViewList.sort((o1, o2) -> {
-                // Sort by points (lowest first)
-                return Integer.compare(o1.getTotalPoints(), o2.getTotalPoints());
-            });
+        // Sort the list based on points
+        if (isHighestFirst) {
+            // Highest first: sort descending (highest to lowest)
+            recyclerViewList.sort((o1, o2) -> Integer.compare(o2.getTotalPoints(), o1.getTotalPoints()));
+
+            // Assign ranks 1, 2, 3, ...
+            for (int i = 0; i < recyclerViewList.size(); i++) {
+                recyclerViewList.get(i).setRank(String.valueOf(i + 1));
+            }
+        } else {
+            // Lowest first: sort ascending (lowest to highest)
+            recyclerViewList.sort((o1, o2) -> Integer.compare(o1.getTotalPoints(), o2.getTotalPoints()));
+
+            // Assign ranks n, n-1, n-2, ... (where n is the size of the list)
+            int totalParticipants = recyclerViewList.size();
+            for (int i = 0; i < recyclerViewList.size(); i++) {
+                recyclerViewList.get(i).setRank(String.valueOf(totalParticipants - i));
+            }
         }
+
 
 
 

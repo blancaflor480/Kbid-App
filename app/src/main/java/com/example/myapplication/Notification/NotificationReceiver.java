@@ -22,15 +22,26 @@ public class NotificationReceiver extends BroadcastReceiver {
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        long startOfDay = getTodayStartTimestamp();
-        long endOfDay = getTodayEndTimestamp();
+        // Get today's date range as Date objects
+        Calendar today = Calendar.getInstance();
+        today.set(Calendar.HOUR_OF_DAY, 6);
+        today.set(Calendar.MINUTE, 0);
+        today.set(Calendar.SECOND, 0);
+        today.set(Calendar.MILLISECOND, 0);
 
-        Log.d(TAG, "Searching for devotional between timestamps: "
-                + startOfDay + " - " + endOfDay);
+        Calendar endOfToday = (Calendar) today.clone();
+        endOfToday.add(Calendar.DAY_OF_MONTH, 1);
+        endOfToday.add(Calendar.MILLISECOND, -1);
+
+        // Log the date range for debugging
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        Log.d(TAG, "Searching for devotional between:");
+        Log.d(TAG, "Start: " + sdf.format(today.getTime()));
+        Log.d(TAG, "End: " + sdf.format(endOfToday.getTime()));
 
         db.collection("devotional")
-                .whereGreaterThanOrEqualTo("timestamp", startOfDay)
-                .whereLessThanOrEqualTo("timestamp", endOfDay)
+                .whereGreaterThanOrEqualTo("timestamp", today.getTime())
+                .whereLessThanOrEqualTo("timestamp", endOfToday.getTime())
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     Log.d(TAG, "Query successful. Documents found: "
@@ -42,6 +53,12 @@ public class NotificationReceiver extends BroadcastReceiver {
                         String memoryVerse = devotionalDoc.getString("memoryverse");
                         String verse = devotionalDoc.getString("verse");
                         String title = devotionalDoc.getString("title");
+
+                        // Log timestamp for debugging
+                        Date timestamp = devotionalDoc.getDate("timestamp");
+                        if (timestamp != null) {
+                            Log.d(TAG, "Devotional Timestamp: " + sdf.format(timestamp));
+                        }
 
                         Log.d(TAG, "Devotional Details:");
                         Log.d(TAG, "Title: " + title);
@@ -56,23 +73,5 @@ public class NotificationReceiver extends BroadcastReceiver {
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Error fetching devotional", e);
                 });
-    }
-
-    private long getTodayStartTimestamp() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-        return calendar.getTimeInMillis();
-    }
-
-    private long getTodayEndTimestamp() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 23);
-        calendar.set(Calendar.MINUTE, 59);
-        calendar.set(Calendar.SECOND, 59);
-        calendar.set(Calendar.MILLISECOND, 999);
-        return calendar.getTimeInMillis();
     }
 }

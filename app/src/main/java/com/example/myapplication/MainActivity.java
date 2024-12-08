@@ -4,6 +4,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -12,10 +13,17 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.widget.Toast;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.airbnb.lottie.LottieAnimationView;
+import com.example.myapplication.Notification.DevotionalNotificationScheduler;
 import com.example.myapplication.Notification.NotificationReceiver;
 import com.example.myapplication.database.AppDatabase;
 import com.example.myapplication.database.userdb.User;
@@ -26,7 +34,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class MainActivity extends AppCompatActivity {
-
+    private static final int NOTIFICATION_PERMISSION_REQUEST_CODE = 1;
     private FirebaseAuth mAuth;
     private FirebaseFirestore firestore;
     private LottieAnimationView loader;
@@ -36,8 +44,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        scheduleDevotionalNotifications(this);
-        triggerDevotionalNotification();
+        requestNotificationPermission();
+        DevotionalNotificationScheduler.checkDevotionalForToday(this);
         // Initialize Firebase Auth and Firestore
         mAuth = FirebaseAuth.getInstance();
         firestore = FirebaseFirestore.getInstance();
@@ -85,32 +93,30 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
-    private void triggerDevotionalNotification() {
-        Intent intent = new Intent(this, NotificationReceiver.class);
-        sendBroadcast(intent);
+    private void requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                    != PackageManager.PERMISSION_GRANTED) {
+                // Request the permission
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                        NOTIFICATION_PERMISSION_REQUEST_CODE);
+            }
+        }
     }
-    public void scheduleDevotionalNotifications(Context context) {
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(context, NotificationReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                context,
-                0,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-        );
 
-        // Trigger every hour
-        long intervalMillis = AlarmManager.INTERVAL_HOUR;
-        long triggerTime = System.currentTimeMillis() + intervalMillis;
-
-        // Use setRepeating for consistent hourly notifications
-        alarmManager.setRepeating(
-                AlarmManager.RTC_WAKEUP,
-                triggerTime,
-                intervalMillis,
-                pendingIntent
-        );
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == NOTIFICATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted, you can schedule notifications
+                DevotionalNotificationScheduler.scheduleNotificationCheck(this);
+            } else {
+                // Permission denied, show a message to the user
+                Toast.makeText(this, "Notification permission is required for daily devotionals", Toast.LENGTH_LONG).show();
+            }
+        }
     }
 
     private void checkUserRecord() {
