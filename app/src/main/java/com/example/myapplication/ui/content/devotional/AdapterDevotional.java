@@ -97,35 +97,47 @@ public class AdapterDevotional extends RecyclerView.Adapter<AdapterDevotional.My
     }
 
     private void showPopupMenu(View view, int position, String id) {
+        // Validate position before creating menu
+        if (position < 0 || position >= list.size()) {
+            return;
+        }
+
         PopupMenu popup = new PopupMenu(context, view);
         MenuInflater inflater = popup.getMenuInflater();
-        inflater.inflate(R.menu.option_devotional, popup.getMenu());
+        inflater.inflate(R.menu.optional_edit_delete_latest, popup.getMenu());
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
+                // Revalidate position before getting content
+                if (position >= list.size()) {
+                    Toast.makeText(context, "Item no longer exists", Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+
                 ModelDevotional content = list.get(position);
                 int itemId = item.getItemId();
 
-                if (itemId == R.id.Viewprof) {
-                    // showViewDialog(content);
-                    return true;
-                } else if (itemId == R.id.Feedback) {
-                    // showEditDialog(content);
+                if (itemId == R.id.Editprof) {
+                    // Implement view functionality if needed
+                    showEditDialog(content);
                     return true;
                 } else if (itemId == R.id.Deleteprof) {
                     new AlertDialog.Builder(context)
-                            .setTitle("Delete Reflection")
-                            .setMessage("Are you sure you want to delete this reflection?")
+                            .setTitle("Delete Devotional")
+                            .setMessage("Are you sure you want to delete this devotional?")
                             .setPositiveButton("Delete", (dialog, which) -> {
-                                // Perform deletion
-                                //           deleteReflection(content, position);
+                                // Revalidate position before deletion
+                                if (position < list.size()) {
+                                    deleteDevetional(content, position);
+                                } else {
+                                    Toast.makeText(context, "Item no longer exists", Toast.LENGTH_SHORT).show();
+                                }
                             })
                             .setNegativeButton("Cancel", null)
                             .show();
                     return true;
-                } else {
-                    return false;
                 }
+                return false;
             }
         });
         popup.show();
@@ -183,7 +195,6 @@ public class AdapterDevotional extends RecyclerView.Adapter<AdapterDevotional.My
 
         new AlertDialog.Builder(context)
                 .setView(editView)
-                .setTitle("Edit Devotional")
                 .setPositiveButton("Update", (dialog, which) -> {
                     String title = etTitle.getText().toString().trim();
                     String verse = etVerse.getText().toString().trim();
@@ -282,6 +293,77 @@ public class AdapterDevotional extends RecyclerView.Adapter<AdapterDevotional.My
         etDate.setText(sdf.format(calendar.getTime()));
     }
 
+
+    private void deleteDevetional(ModelDevotional content, int position) {
+        // Validate position before proceeding
+        if (position < 0 || position >= list.size()) {
+            Toast.makeText(context, "Invalid item position", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Reference to Firestore
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        try {
+            // First, check if there's an image to delete
+            if (content.getImageUrl() != null && !content.getImageUrl().isEmpty()) {
+                // Create reference to the image in Storage
+                FirebaseStorage storage = FirebaseStorage.getInstance();
+                StorageReference imageRef = storage.getReferenceFromUrl(content.getImageUrl());
+
+                // Delete the image first
+                imageRef.delete()
+                        .addOnSuccessListener(aVoid -> {
+                            // After image is deleted, proceed to delete the document
+                            deleteFirestoreDocument(db, content, position);
+                        })
+                        .addOnFailureListener(e -> {
+                            // If image deletion fails, still try to delete the document
+                            Toast.makeText(context, "Failed to delete image, proceeding with entry deletion",
+                                    Toast.LENGTH_SHORT).show();
+                            deleteFirestoreDocument(db, content, position);
+                        });
+            } else {
+                // If no image, directly delete the document
+                deleteFirestoreDocument(db, content, position);
+            }
+        } catch (Exception e) {
+            Toast.makeText(context, "Error during deletion: " + e.getMessage(),
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void deleteFirestoreDocument(FirebaseFirestore db, ModelDevotional content, int position) {
+        if (content.getId() == null) {
+            Toast.makeText(context, "Invalid document ID", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        db.collection("devotional")
+                .document(content.getId())
+                .delete()
+                .addOnSuccessListener(aVoid -> {
+                    try {
+                        // Verify position is still valid
+                        if (position >= 0 && position < list.size()) {
+                            // Remove item from local list
+                            list.remove(position);
+                            // Notify adapter of item removal
+                            notifyItemRemoved(position);
+                            // Notify of change in range to update remaining items
+                            notifyItemRangeChanged(position, list.size());
+                        }
+                        Toast.makeText(context, "Devotional deleted successfully", Toast.LENGTH_SHORT).show();
+                    } catch (Exception e) {
+                        Toast.makeText(context, "Error updating list: " + e.getMessage(),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(context, "Error deleting devotional: " + e.getMessage(),
+                            Toast.LENGTH_SHORT).show();
+                });
+    }
 
 
 

@@ -109,13 +109,13 @@ public class HomeFragment extends Fragment {
                         if (imageUrl != null && !imageUrl.isEmpty()) {
                             Glide.with(getActivity())
                                     .load(imageUrl)
-                                    .placeholder(R.drawable.user) // Default image while loading
-                                    .error(R.drawable.user) // Default image in case of error
+                                    .placeholder(R.drawable.userprofiledashboard) // Default image while loading
+                                    .error(R.drawable.userprofiledashboard) // Default image in case of error
                                     .into(profileImageView);
                         } else {
                             // Ensure Glide gets a fallback image if imageUrl is null or empty
                             Glide.with(getActivity())
-                                    .load(R.drawable.user)  // Use the default image directly
+                                    .load(R.drawable.userprofiledashboard)  // Use the default image directly
                                     .into(profileImageView);
                         }
 

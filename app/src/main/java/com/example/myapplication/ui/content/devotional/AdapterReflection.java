@@ -2,6 +2,9 @@ package com.example.myapplication.ui.content.devotional;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.graphics.Color;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
@@ -71,13 +74,14 @@ public class AdapterReflection extends RecyclerView.Adapter<AdapterReflection.My
                 new SimpleDateFormat("MMM dd, yyyy hh:mm a", Locale.getDefault()).format(timestamp) : "N/A");
 
         // Load image (if available) or show a placeholder
-        String imageUrl = reflection.getImageUrl(); // Assuming `ModelReflection` has `getImageUrl()`.
-        if (imageUrl != null && !imageUrl.isEmpty()) {
-            Glide.with(context)
-                    .load(imageUrl)
-                    .placeholder(R.drawable.userkids) // Replace with your placeholder drawable
-                    .into(holder.profileImageView);
-        } else {
+        try {
+            if (reflection.getImageUrl() != null && !reflection.getImageUrl().isEmpty()) {
+                int avatarResourceId = Integer.parseInt(reflection.getImageUrl());
+                holder.profileImageView.setImageResource(avatarResourceId);
+            } else {
+                holder.profileImageView.setImageResource(R.drawable.userkids);
+            }
+        } catch (NumberFormatException e) {
             holder.profileImageView.setImageResource(R.drawable.userkids);
         }
 
@@ -131,29 +135,70 @@ public class AdapterReflection extends RecyclerView.Adapter<AdapterReflection.My
         builder.setView(dialogView);
 
         // Initialize views
-        CircleImageView profileImageView = dialogView.findViewById(R.id.profileImageView);
+        ImageButton closeButton = dialogView.findViewById(R.id.close);
         TextView controlId = dialogView.findViewById(R.id.controlid);
-        TextView refelectionAnswer = dialogView.findViewById(R.id.reflectionanswer);
+        TextView reflectionAnswer = dialogView.findViewById(R.id.reflectionanswer);
         TextView devotionalId = dialogView.findViewById(R.id.devotelid);
         TextView emailTextView = dialogView.findViewById(R.id.emailTextView);
+        TextView memoryVerseTextView = dialogView.findViewById(R.id.memoryverse);
+        TextView verseTextView = dialogView.findViewById(R.id.verse);
 
         // Populate user data
         devotionalId.setText("Devotional ID: " + reflection.getId());
         controlId.setText("Control ID user: " + reflection.getControlId());
         emailTextView.setText("Email: " + reflection.getEmail());
-        refelectionAnswer.setText("Reflection Answer: " + reflection.getReflectionanswer());
+        reflectionAnswer.setText("Reflection Answer: " + reflection.getReflectionanswer());
 
-        // Load profile image
-        if (reflection.getImageUrl() != null && !reflection.getImageUrl().isEmpty()) {
-            Glide.with(context).load(reflection.getImageUrl()).into(profileImageView);
-        } else {
-            profileImageView.setImageResource(R.drawable.user); // Replace with your default image
-        }
+       // Fetch devotional details from Firestore
+        fetchDevotionalDetailsFirestore(reflection.getId(), memoryVerseTextView, verseTextView);
 
         // Show the dialog
-        builder.setPositiveButton("Close", (dialog, which) -> dialog.dismiss());
+
+
+        builder.setView(dialogView);
         AlertDialog dialog = builder.create();
+
+        // Close button action
+        closeButton.setOnClickListener(v -> dialog.dismiss());
         dialog.show();
+    }
+
+    private void fetchDevotionalDetailsFirestore(String id, TextView memoryVerseTextView, TextView verseTextView) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("devotional")
+                .document(id)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        // Assuming these are the field names in your Firestore document
+                        String memoryVerse = documentSnapshot.getString("memoryverse");
+                        String verse = documentSnapshot.getString("verse");
+
+                        // Update UI on the main thread
+                        new Handler(Looper.getMainLooper()).post(() -> {
+                            memoryVerseTextView.setText("Memory Verse: " +
+                                    (memoryVerse != null ? memoryVerse : "Not Available"));
+                            verseTextView.setText("Verse: " +
+                                    (verse != null ? verse : "Not Available"));
+                        });
+                    } else {
+                        // Document not found
+                        new Handler(Looper.getMainLooper()).post(() -> {
+                            memoryVerseTextView.setText("Memory Verse: Not Found");
+                            verseTextView.setText("Verse: Not Found");
+                        });
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    // Handle any errors
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        memoryVerseTextView.setText("Memory Verse: Error Fetching");
+                        verseTextView.setText("Verse: Error Fetching");
+                        // Optionally log the error
+                        Log.e("FirestoreFetch", "Error fetching devotional", e);
+                    });
+                });
     }
 
     private void showFeedbackDialog(ModelReflection reflection) {
@@ -176,15 +221,49 @@ public class AdapterReflection extends RecyclerView.Adapter<AdapterReflection.My
         memoryVerseTextView.setText(reflection.getReflectionanswer());
         verseTextView.setText(reflection.getVerse());
         feedbackEditText.setText(reflection.getFeedback());
-        badgeSpinner.setSelection(reflection.getBadge().equals("Star Thinker") ? 0 :
-                reflection.getBadge().equals("Creative Contributor") ? 1 : 2);
         dateDailyTextView.setText(new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(reflection.getTimestamp()));
 
-        // Setup spinner
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(context, R.layout.spinner_item,
-                new String[]{"Star Thinker", "Creative Contributor", "Consistent Reflector"});
+        // Setup spinner with disabled "Select here" option
+        String[] badgeOptions = {"Select here Badge", "Star Thinker", "Creative Contributor", "Consistent Reflector"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(context, R.layout.spinner_item, badgeOptions) {
+            @Override
+            public boolean isEnabled(int position) {
+                // Disable the "Select here" option at position 0
+                return position != 0;
+            }
+
+            @Override
+            public View getDropDownView(int position, View convertView, ViewGroup parent) {
+                View view = super.getDropDownView(position, convertView, parent);
+                TextView textView = (TextView) view;
+
+                if (position == 0) {
+                    // Set gray color for disabled "Select here" option
+                    textView.setTextColor(Color.GRAY);
+                } else {
+                    // Set black color for other options
+                    textView.setTextColor(Color.WHITE);
+                }
+
+                return view;
+            }
+        };
+
         adapter.setDropDownViewResource(R.layout.spinner_dropdown);
         badgeSpinner.setAdapter(adapter);
+
+        // Set initial spinner selection based on existing badge
+        if (reflection.getBadge() == null || reflection.getBadge().isEmpty()) {
+            badgeSpinner.setSelection(0); // Select the "Select here" option
+        } else {
+            // Find and select the existing badge
+            for (int i = 0; i < badgeOptions.length; i++) {
+                if (badgeOptions[i].equals(reflection.getBadge())) {
+                    badgeSpinner.setSelection(i);
+                    break;
+                }
+            }
+        }
 
         // Create the dialog
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -205,6 +284,12 @@ public class AdapterReflection extends RecyclerView.Adapter<AdapterReflection.My
                 return;
             }
 
+            // Validate badge selection
+            if (selectedBadge.equals("Select here")) {
+                Toast.makeText(context, "Please select a badge", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             // Firestore reference to find the specific document
             FirebaseFirestore firestore = FirebaseFirestore.getInstance();
             firestore.collection("kidsReflection")
@@ -215,7 +300,7 @@ public class AdapterReflection extends RecyclerView.Adapter<AdapterReflection.My
                     .get()
                     .addOnSuccessListener(queryDocumentSnapshots -> {
                         if (!queryDocumentSnapshots.isEmpty()) {
-                            // Get the first matching document (assuming unique combination)
+                            // Get the first matching document
                             DocumentSnapshot documentSnapshot = queryDocumentSnapshots.getDocuments().get(0);
 
                             // Prepare data to update
@@ -228,7 +313,7 @@ public class AdapterReflection extends RecyclerView.Adapter<AdapterReflection.My
                                     .addOnSuccessListener(aVoid -> {
                                         Toast.makeText(context, "Feedback submitted successfully", Toast.LENGTH_SHORT).show();
 
-                                        // Update the local model to reflect changes
+                                        // Update the local model
                                         reflection.setFeedback(feedback);
                                         reflection.setBadge(selectedBadge);
 
@@ -290,7 +375,11 @@ public class AdapterReflection extends RecyclerView.Adapter<AdapterReflection.My
     }
 
 
-
+    public void filterList(List<ModelReflection> filteredList) {
+        list.clear();
+        list.addAll(filteredList);
+        notifyDataSetChanged();
+    }
     @Override
     public int getItemCount() {
         return list.size();

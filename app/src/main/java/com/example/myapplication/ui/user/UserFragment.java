@@ -173,7 +173,7 @@ public class UserFragment extends Fragment {
         Spinner spinnerGender = dialogView.findViewById(R.id.spinnerGender);
         EditText etEmail = dialogView.findViewById(R.id.etEmail);
         EditText etPassword = dialogView.findViewById(R.id.etPassword);
-        ivProfileImage = dialogView.findViewById(R.id.ivProfileImage);
+        ivProfileImage = dialogView.findViewById(R.id.thumbnail);
         Button btnUploadImage = dialogView.findViewById(R.id.btnUploadImage);
 
         // Set up the gender spinner
@@ -408,9 +408,6 @@ public class UserFragment extends Fragment {
             Snackbar.make(getView(), "Error: User is null. Cannot send verification email.", Snackbar.LENGTH_LONG).show();
         }
     }
-
-
-
 
     private void saveUserToFirestore(ModelUser newUser, String uid) {
         // Save to the "user" collection for all roles

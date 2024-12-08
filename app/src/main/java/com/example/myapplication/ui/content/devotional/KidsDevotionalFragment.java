@@ -3,6 +3,7 @@ package com.example.myapplication.ui.content.devotional;
 
 import android.app.Activity;
 import android.app.DatePickerDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.net.Uri;
@@ -36,6 +37,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -61,12 +63,16 @@ public class KidsDevotionalFragment extends Fragment {
     private RecyclerView recyclerView;
     private AdapterDevotional adapterDevotional;
     private List<ModelDevotional> contentList;
+    private AdapterReflection adapterReflection;
+    private List<ModelReflection> reflectionList;
     private FirebaseAuth firebaseAuth;
     private FirebaseFirestore db;
     private RadioGroup switchMemoryVerse;
     private RadioButton allMemoryVerse;
     private RadioButton viewReflection;
     private ImageView ivImagePreview;
+    private boolean isShowingMemoryVerse = true;
+
 
     public KidsDevotionalFragment() {
         // Required empty public constructor
@@ -84,7 +90,8 @@ public class KidsDevotionalFragment extends Fragment {
         allMemoryVerse = view.findViewById(R.id.Allmemoryverse);
         viewReflection = view.findViewById(R.id.viewreflection);
 
-        // Set initial style for RadioButtons
+
+      // Set initial style for RadioButtons
         setRadioButtonStyle(allMemoryVerse, true);
         setRadioButtonStyle(viewReflection, false);
 
@@ -94,20 +101,31 @@ public class KidsDevotionalFragment extends Fragment {
 
             if (checkedId == R.id.Allmemoryverse) {
                 setRadioButtonStyle(allMemoryVerse, true);
-                loadAllmemoryverse(); // Load achievements for All Memory Verse
+                isShowingMemoryVerse = true;
+                recyclerView.setAdapter(adapterDevotional);
+                loadAllmemoryverse();
             } else if (checkedId == R.id.viewreflection) {
                 setRadioButtonStyle(viewReflection, true);
-                loadViewReflection(); // Load achievements for View Reflection
+                isShowingMemoryVerse = false;
+                recyclerView.setAdapter(adapterReflection);
+                loadViewReflection();
             }
         });
 
         // Load initial achievements
         loadAllmemoryverse();
 
+        contentList = new ArrayList<>();
+        reflectionList = new ArrayList<>();
+
+        adapterDevotional = new AdapterDevotional(getActivity(), contentList);
+        adapterReflection = new AdapterReflection(getActivity(), reflectionList);
+
         recyclerView = view.findViewById(R.id.recyclep);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        contentList = new ArrayList<>();
+        recyclerView.setAdapter(adapterDevotional); // Start with devotional adapter
+
         firebaseAuth = FirebaseAuth.getInstance();
         storageRef = FirebaseStorage.getInstance().getReference();
 
@@ -130,6 +148,7 @@ public class KidsDevotionalFragment extends Fragment {
 
         return view;
     }
+
 
     private void setRadioButtonStyle(RadioButton radioButton, boolean isSelected) {
         if (isSelected) {
@@ -170,8 +189,12 @@ public class KidsDevotionalFragment extends Fragment {
                         ModelDevotional devotional = document.toObject(ModelDevotional.class);
                         contentList.add(devotional);
                     }
-                    adapterDevotional = new AdapterDevotional(getActivity(), contentList);
-                    recyclerView.setAdapter(adapterDevotional);
+                    if (adapterDevotional == null) {
+                        adapterDevotional = new AdapterDevotional(getActivity(), contentList);
+                        recyclerView.setAdapter(adapterDevotional);
+                    } else {
+                        adapterDevotional.notifyDataSetChanged();
+                    }
                 }
             }
         });
@@ -193,31 +216,66 @@ public class KidsDevotionalFragment extends Fragment {
                 notFoundTextView.setVisibility(View.GONE);
                 recyclerView.setVisibility(View.VISIBLE);
 
-                List<ModelReflection> reflectionList = new ArrayList<>(); // Use the correct type
+                reflectionList.clear();
                 for (QueryDocumentSnapshot document : value) {
                     ModelReflection reflection = document.toObject(ModelReflection.class);
-                    reflectionList.add(reflection);
-                }
 
-                // Initialize AdapterReflection with the correct data type
-                AdapterReflection adapterReflection = new AdapterReflection(getActivity(), reflectionList);
-                recyclerView.setAdapter(adapterReflection);
+                    // Fetch user's avatar from Firestore
+                    db.collection("user")
+                            .whereEqualTo("email", reflection.getEmail())
+                            .get()
+                            .addOnSuccessListener(userSnapshots -> {
+                                if (!userSnapshots.isEmpty()) {
+                                    DocumentSnapshot userDoc = userSnapshots.getDocuments().get(0);
+                                    String avatarName = userDoc.getString("avatarName");
+
+                                    if (avatarName != null && !avatarName.isEmpty()) {
+                                        // Get the resource ID for the avatar
+                                        int avatarResourceId = getResources().getIdentifier(
+                                                avatarName, "drawable", requireContext().getPackageName()
+                                        );
+
+                                        // Set the avatar resource ID to the reflection object
+                                        reflection.setImageUrl(String.valueOf(avatarResourceId));
+                                    }
+                                }
+
+                                reflectionList.add(reflection);
+                                adapterReflection.notifyDataSetChanged();
+                            })
+                            .addOnFailureListener(e -> {
+                                // Add reflection even if avatar fetch fails
+                                reflectionList.add(reflection);
+                                adapterReflection.notifyDataSetChanged();
+                            });
+                }
             }
         });
     }
 
-
-
-
     private void filterContent(String query) {
-        List<ModelDevotional> filteredList = new ArrayList<>();
-        for (ModelDevotional item : contentList) {
-            if (item.getTitle().toLowerCase().contains(query.toLowerCase()) ||
-                    item.getVerse().toLowerCase().contains(query.toLowerCase())) {
-                filteredList.add(item);
+        if (isShowingMemoryVerse) {
+            // Filter devotional content
+            List<ModelDevotional> filteredList = new ArrayList<>();
+            for (ModelDevotional item : contentList) {
+                if (item.getTitle().toLowerCase().contains(query.toLowerCase()) ||
+                        item.getVerse().toLowerCase().contains(query.toLowerCase())) {
+                    filteredList.add(item);
+                }
             }
+            adapterDevotional.filterList(filteredList);
+        } else {
+            // Filter reflection content
+            List<ModelReflection> filteredList = new ArrayList<>();
+            for (ModelReflection item : reflectionList) {
+                // Adjust these fields based on your ModelReflection class
+                if (item.getEmail().toLowerCase().contains(query.toLowerCase()) ||
+                        item.getReflectionanswer().toLowerCase().contains(query.toLowerCase())) {
+                    filteredList.add(item);
+                }
+            }
+            adapterReflection.filterList(filteredList);
         }
-        adapterDevotional.filterList(filteredList);
     }
 
     private void showAddContentDialog() {
