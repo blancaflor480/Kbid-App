@@ -100,13 +100,10 @@ public class AdapterGames extends RecyclerView.Adapter<AdapterGames.MyHolder> {
             ModelGames content = list.get(position);
             int itemId = item.getItemId();
 
-            if (itemId == R.id.Viewprof) {
+            if (itemId == R.id.Editprof) {
                 // Implement view profile logic if needed
                 return true;
-            } else if (itemId == R.id.Editprof) {
-               // showEditDialog(content, position); // Call edit dialog
-                return true;
-            } else if (itemId == R.id.Deleteprof) {
+            }  else if (itemId == R.id.Deleteprof) {
                // deleteStory(content.getId(), position);
                 return true;
             } else {

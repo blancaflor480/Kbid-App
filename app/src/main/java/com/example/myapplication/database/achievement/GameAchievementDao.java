@@ -18,6 +18,14 @@ public interface GameAchievementDao {
     @Query("DELETE FROM gamesachievements")
     void deleteAll();
 
+    @Query("UPDATE gamesachievements SET isCompleted = :isCompleted, points = :points " +
+            "WHERE gameId = :gameId AND level = :level")
+    void update(String gameId, String level, String points, String isCompleted);
+
+    @Query("SELECT * FROM gamesachievements WHERE gameId = :gameId AND level = :level")
+    GameAchievementModel getAchievementByGameAndLevel(String gameId, String level);
+
+
     @Query("SELECT * FROM gamesachievements")
     List<GameAchievementModel> getAllAchievements();
 

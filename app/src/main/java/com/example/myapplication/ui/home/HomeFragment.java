@@ -29,7 +29,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class HomeFragment extends Fragment {
 
-    private TextView userNameTextView, userRoleTextView, userCountTextView, contentCountTextView, feedbackCountTextView;
+    private TextView userNameTextView, userRoleTextView, userCountTextView, contentCountTextView, feedbackCountTextView, recordCountTextView;
 
     private CircleImageView profileImageView;
     private FirebaseAuth mAuth;
@@ -55,6 +55,7 @@ public class HomeFragment extends Fragment {
         userCountTextView = view.findViewById(R.id.usercount); // For user count
         contentCountTextView = view.findViewById(R.id.contentcount); // For content count
         feedbackCountTextView = view.findViewById(R.id.feedbackcount); // For feedback count
+        recordCountTextView = view.findViewById(R.id.recordcount);
         profileImageView = view.findViewById(R.id.profile);
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
@@ -67,7 +68,8 @@ public class HomeFragment extends Fragment {
             fetchAdminData(uid);
             fetchUserCount();
             fetchContentCount(); // Fetch content count from different tables
-            fetchFeedbackCount(); // Fetch the number of feedback ratings// Call to fetch user count
+            fetchFeedbackCount();
+            fetchrecordCount();// Fetch the number of feedback ratings// Call to fetch user count
         } else {
             Toast.makeText(getActivity(), "No user is currently signed in", Toast.LENGTH_SHORT).show();
             redirectToLogin();
@@ -206,6 +208,36 @@ public class HomeFragment extends Fragment {
                         int feedbackCount = task.getResult().size();
                         feedbackCountTextView.setText(String.valueOf(feedbackCount));
                     }
+                });
+    }
+
+    private void fetchrecordCount() {
+        // Get current date in the format used in Firestore (YYYY-MM-dd)
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        String currentDate = dateFormat.format(new Date());
+
+        // Reference to the specific subcollection path: /reports/YYYY-MM-dd/userReports
+        db.collection("reports")
+                .document(currentDate)
+                .collection("userReports")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            int reportCount = task.getResult().size();
+                            recordCountTextView.setText(String.valueOf(reportCount));
+                        } else {
+                            // Handle the error case
+                            recordCountTextView.setText("0");
+                            Toast.makeText(getActivity(), "Failed to fetch today's report count", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    // Handle any errors that occur during the fetch
+                    recordCountTextView.setText("0");
+                    Toast.makeText(getActivity(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
 

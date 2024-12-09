@@ -112,11 +112,7 @@ public class AdapterStories extends RecyclerView.Adapter<AdapterStories.MyHolder
                 ModelStories content = list.get(position);
                 int itemId = item.getItemId();
 
-                if (itemId == R.id.Viewprof) {
-                    // showUserProfileDialog(content);
-                    return true;
-                } else if (itemId == R.id.Editprof) {
-                    // Handle edit profile action
+                if (itemId == R.id.Editprof) {
                     showEditDialog(content, position); // Call edit dialog
                     return true;
                 } else if (itemId == R.id.Deleteprof) {

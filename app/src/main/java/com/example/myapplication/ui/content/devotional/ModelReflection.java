@@ -73,8 +73,9 @@ public class ModelReflection extends ModelDevotional {
     }
 
     public String getFeedback() {
-        return feedback;
+        return feedback != null ? feedback : "no feedback";
     }
+
 
     public void setFeedback(String feedback) {
         this.feedback = feedback;

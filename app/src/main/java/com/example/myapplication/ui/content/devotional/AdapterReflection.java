@@ -73,6 +73,17 @@ public class AdapterReflection extends RecyclerView.Adapter<AdapterReflection.My
         holder.timestampTextView.setText(timestamp != null ?
                 new SimpleDateFormat("MMM dd, yyyy hh:mm a", Locale.getDefault()).format(timestamp) : "N/A");
 
+
+        String feedback = reflection.getFeedback();
+        if (feedback == null || feedback.isEmpty() || feedback.equalsIgnoreCase("no feedback")) {
+            holder.feedbackStatusTextView.setText("Give Feedback");
+            holder.feedbackStatusTextView.setTextColor(context.getResources().getColor(R.color.red)); // Use red color for no feedback
+            holder.icongivefeedback.setImageResource(R.drawable.notgiven);
+        } else {
+            holder.feedbackStatusTextView.setText("Feedback Given");
+            holder.feedbackStatusTextView.setTextColor(context.getResources().getColor(R.color.green)); // Use green color for given feedback
+            holder.icongivefeedback.setImageResource(R.drawable.given);
+        }
         // Load image (if available) or show a placeholder
         try {
             if (reflection.getImageUrl() != null && !reflection.getImageUrl().isEmpty()) {
@@ -388,8 +399,8 @@ public class AdapterReflection extends RecyclerView.Adapter<AdapterReflection.My
     // ViewHolder class
     static class MyHolder extends RecyclerView.ViewHolder {
         CircleImageView profileImageView;
-        TextView emailTextView, timestampTextView, reflectionanswer;
-        ImageView optionsMenu;
+        TextView emailTextView, timestampTextView, reflectionanswer,feedbackStatusTextView;
+        ImageView optionsMenu,icongivefeedback;
 
         public MyHolder(@NonNull View itemView) {
             super(itemView);
@@ -398,6 +409,8 @@ public class AdapterReflection extends RecyclerView.Adapter<AdapterReflection.My
             reflectionanswer = itemView.findViewById(R.id.message);
             timestampTextView = itemView.findViewById(R.id.datetimep);
             optionsMenu = itemView.findViewById(R.id.optionsMenu);// Timestamp text view
+            feedbackStatusTextView = itemView.findViewById(R.id.givefeedback);
+            icongivefeedback = itemView.findViewById(R.id.icongivefeedback);
         }
     }
 }

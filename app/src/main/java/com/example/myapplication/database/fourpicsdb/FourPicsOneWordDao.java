@@ -19,6 +19,9 @@ public interface FourPicsOneWordDao {
     @Query("SELECT * FROM fourpicsoneword WHERE userId = :userId LIMIT 1")
     LiveData<List<FourPicsOneWord>> getCurrentLevel(int userId);
 
+    @Query("SELECT * FROM fourpicsoneword WHERE userId = :userId")
+    FourPicsOneWord getUserProgress(int userId);
+
     @Query("UPDATE fourpicsoneword SET points = points + :points WHERE userId = :userId")
     void addPoints(int userId, int points);
 

@@ -94,13 +94,10 @@ public class AdapterSong extends RecyclerView.Adapter<AdapterSong.MyHolder> {
             ModelSong content = list.get(position);
             int itemId = item.getItemId();
 
-            if (itemId == R.id.Viewprof) {
-                // Add view profile functionality
-                return true;
-            } else if (itemId == R.id.Editprof) {
+            if (itemId == R.id.Editprof) {
                 showEditDialog(content, position);
                 return true;
-            } else if (itemId == R.id.Deleteprof) {
+            }  else if (itemId == R.id.Deleteprof) {
                 deleteSong(content.getId(), position);
                 return true;
             } else {
