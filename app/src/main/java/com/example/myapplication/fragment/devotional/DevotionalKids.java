@@ -1,5 +1,4 @@
 package com.example.myapplication.fragment.devotional;
-
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -20,7 +19,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.cardview.widget.CardView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
 import com.bumptech.glide.Glide;
 import com.example.myapplication.Notification.NotificationHelper;
 import com.example.myapplication.Notification.NotificationReceiver;
@@ -33,7 +31,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import java.util.ArrayList;
@@ -50,8 +47,8 @@ public class DevotionalKids extends AppCompatActivity {
     EditText answerreflection;
     ImageView devotionalThumbnail,arrowback;
     SwipeRefreshLayout swipeRefreshLayout;
-    private String feedback = "no feedback"; // Initialize with a default value or retrieve from your data source
-    private String badge = "no badge"; // Initialize with a default value or retrieve from your data source
+    private String feedback = "no feedback";
+    private String badge = "no badge";
     private FirebaseFirestore db;
     private String devotionalId;
     private AppDatabase appDatabase;
@@ -63,12 +60,8 @@ public class DevotionalKids extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.kidsdevotional);
-
-        // Initialize Firebase Firestore and Room Database
         db = FirebaseFirestore.getInstance();
         appDatabase = AppDatabase.getDatabase(this);
-
-        // Link views
         arrowback = findViewById(R.id.arrowback);
         arrowback.setOnClickListener(v -> onBackPressed());
         memoryverse = findViewById(R.id.memoryverse);
@@ -82,27 +75,20 @@ public class DevotionalKids extends AppCompatActivity {
         feedbacktitle = findViewById(R.id.feedbacktitle);
         readButton = findViewById(R.id.read);
         readButton.setOnClickListener(v -> speakMemoryVerse());
-        // Retrieve `devotionalId` from Intent, if available
         devotionalId = getIntent().getStringExtra("devotionalId");
         String controlId = getIntent().getStringExtra("controlId");
         String email = getIntent().getStringExtra("email");
-        // Fetch devotional if not provided
         if (devotionalId == null) {
             fetchTodayDevotional();
         } else {
             loadDevotional(devotionalId, controlId, email);
         }
-
         if (email != null && controlId != null) {
             checkAndShowBadge(email, controlId);
         }
-
-
         updateCardColors();
         speechToTextButton.setOnClickListener(v -> startSpeechToText());
-   swipeRefreshLayout.setOnRefreshListener(() -> loadDevotional(devotionalId, controlId, email));
-
-        // Handle submit button click
+        swipeRefreshLayout.setOnRefreshListener(() -> loadDevotional(devotionalId, controlId, email));
         submit.setOnClickListener(v -> {
             String reflection = answerreflection.getText().toString().trim();
             if (!reflection.isEmpty()) {
@@ -116,8 +102,6 @@ public class DevotionalKids extends AppCompatActivity {
                 Toast.makeText(DevotionalKids.this, "Please enter your reflection.", Toast.LENGTH_SHORT).show();
             }
         });
-
-        // Initialize TextToSpeech
         textToSpeech = new TextToSpeech(this, status -> {
             if (status == TextToSpeech.SUCCESS) {
                 int langResult = textToSpeech.setLanguage(Locale.US);
@@ -132,23 +116,17 @@ public class DevotionalKids extends AppCompatActivity {
     private void speakMemoryVerse() {
         String verseText = memoryverse.getText().toString();
         if (!verseText.isEmpty()) {
-            textToSpeech.setSpeechRate(0.7f);  // Slower speed (0.7 is 70% of normal speed)
-            textToSpeech.setPitch(1.0f);       // Normal pitch
+            textToSpeech.setSpeechRate(0.7f);
+            textToSpeech.setPitch(1.0f);
             textToSpeech.speak(verseText, TextToSpeech.QUEUE_FLUSH, null, null);
         }
     }
     private void updateCardColors() {
-        // Get the current day of the week
         Calendar calendar = Calendar.getInstance();
-        int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK); // 1 = Sunday, 2 = Monday, ..., 7 = Saturday
-
-        // Reset all card backgrounds to default (white) and text colors to black
+        int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
         resetCardViews();
-
-        // Set the background color and text color based on the current day
-        int selectedColor = getResources().getColor(R.color.blue); // Color for the current day
-        int selectedTextColor = getResources().getColor(R.color.white); // White text for selected day
-
+        int selectedColor = getResources().getColor(R.color.blue);
+        int selectedTextColor = getResources().getColor(R.color.white);
         switch (dayOfWeek) {
             case Calendar.MONDAY:
                 setCardViewColors(R.id.mon, selectedColor, selectedTextColor);
@@ -175,7 +153,6 @@ public class DevotionalKids extends AppCompatActivity {
     }
 
     private void resetCardViews() {
-        // Reset all card backgrounds to white and text colors to black
         ((CardView) findViewById(R.id.mon)).setCardBackgroundColor(getResources().getColor(R.color.white));
         ((CardView) findViewById(R.id.tue)).setCardBackgroundColor(getResources().getColor(R.color.white));
         ((CardView) findViewById(R.id.wed)).setCardBackgroundColor(getResources().getColor(R.color.white));
@@ -183,8 +160,6 @@ public class DevotionalKids extends AppCompatActivity {
         ((CardView) findViewById(R.id.fri)).setCardBackgroundColor(getResources().getColor(R.color.white));
         ((CardView) findViewById(R.id.sat)).setCardBackgroundColor(getResources().getColor(R.color.white));
         ((CardView) findViewById(R.id.sun)).setCardBackgroundColor(getResources().getColor(R.color.white));
-
-        // Set default text color (black) for all days
         setTextColor(R.id.mon, getResources().getColor(R.color.black));
         setTextColor(R.id.tue, getResources().getColor(R.color.black));
         setTextColor(R.id.wed, getResources().getColor(R.color.black));
@@ -197,18 +172,15 @@ public class DevotionalKids extends AppCompatActivity {
     private void setCardViewColors(int cardId, int backgroundColor, int textColor) {
         CardView cardView = findViewById(cardId);
         cardView.setCardBackgroundColor(backgroundColor);
-
-        // Get the TextView inside the CardView and change its text color
-        TextView textView = (TextView) cardView.getChildAt(0); // Assuming the TextView is the first child
+        TextView textView = (TextView) cardView.getChildAt(0);
         textView.setTextColor(textColor);
     }
 
     private void setTextColor(int cardId, int textColor) {
         CardView cardView = findViewById(cardId);
-        TextView textView = (TextView) cardView.getChildAt(0); // Assuming the TextView is the first child
+        TextView textView = (TextView) cardView.getChildAt(0);
         textView.setTextColor(textColor);
     }
-    // Method to start Speech Recognition
     private void startSpeechToText() {
         if (!SpeechRecognizer.isRecognitionAvailable(this)) {
             Toast.makeText(this, "Speech recognition is not available on this device.", Toast.LENGTH_SHORT).show();
@@ -218,15 +190,12 @@ public class DevotionalKids extends AppCompatActivity {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
-
-        // Start activity for result
         startActivityForResult(intent, 1000);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         if (requestCode == 1000 && resultCode == RESULT_OK && data != null) {
             ArrayList<String> results = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
             if (results != null && !results.isEmpty()) {
@@ -234,23 +203,17 @@ public class DevotionalKids extends AppCompatActivity {
             }
         }
     }
-
-    // Fetch first devotional ID
     private void fetchTodayDevotional() {
-        // Get the current date
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
-
         Date todayStart = calendar.getTime();
-
-        // Query to fetch devotional entries sorted by timestamp
         db.collection("devotional")
-                .whereGreaterThanOrEqualTo("timestamp", todayStart) // Get devotionals after today's start
+                .whereGreaterThanOrEqualTo("timestamp", todayStart)
                 .orderBy("timestamp", Query.Direction.ASCENDING)
-                .limit(1) // Get the closest devotional for today
+                .limit(1)
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
                     if (!querySnapshot.isEmpty()) {
@@ -275,7 +238,6 @@ public class DevotionalKids extends AppCompatActivity {
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
                     if (!querySnapshot.isEmpty()) {
-                        // Get the most recent document manually
                         DocumentSnapshot mostRecent = null;
                         for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
                             if (mostRecent == null ||
@@ -283,7 +245,6 @@ public class DevotionalKids extends AppCompatActivity {
                                 mostRecent = doc;
                             }
                         }
-
                         if (mostRecent != null) {
                             String badge = mostRecent.getString("badge");
                             if (badge != null && !badge.isEmpty() && !"no badge".equals(badge)) {
@@ -298,22 +259,16 @@ public class DevotionalKids extends AppCompatActivity {
                             "Failed to check badge status", Toast.LENGTH_SHORT).show();
                 });
     }
-
-
     private void showBadgePopup(String badge) {
         runOnUiThread(() -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             LayoutInflater inflater = getLayoutInflater();
             View dialogView = inflater.inflate(R.layout.badge, null);
             builder.setView(dialogView);
-
             AlertDialog dialog = builder.create();
-            dialog.setCancelable(false); // Prevent dismissal by tapping outside
-
+            dialog.setCancelable(false);
             ImageView badgeImageView = dialogView.findViewById(R.id.badge);
             TextView badgeTextView = dialogView.findViewById(R.id.badgeTextView);
-
-            // Set the badge image and text based on the badge type
             switch (badge) {
                 case "Star Thinker":
                     badgeImageView.setImageResource(R.drawable.startthinker);
@@ -331,28 +286,20 @@ public class DevotionalKids extends AppCompatActivity {
                     dialog.dismiss();
                     return;
             }
-
             AppCompatButton closeButton = dialogView.findViewById(R.id.button_done);
             closeButton.setOnClickListener(v -> dialog.dismiss());
-
-            // Show the dialog if the activity hasn't been destroyed
             if (!isFinishing()) {
                 dialog.show();
             }
         });
     }
-
-    // Load devotional data from Firestore
     private void loadDevotional(String id, String controlId, String email) {
         if (id == null) {
             Toast.makeText(this, "No devotional ID available.", Toast.LENGTH_SHORT).show();
             swipeRefreshLayout.setRefreshing(false);
             return;
         }
-
         swipeRefreshLayout.setRefreshing(true);
-
-        // Fetch devotional data from Firestore
         db.collection("devotional").document(id)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
@@ -362,10 +309,7 @@ public class DevotionalKids extends AppCompatActivity {
                             devotional.setId(id);
                             updateUIWithDevotional(devotional);
                             saveDevotionalToLocal(devotional);
-
-                            // Check if reflection is already submitted
-                            checkReflectionStatus(controlId, email, id); // Check if reflection exists for this devotional
-
+                            checkReflectionStatus(controlId, email, id);
                         }
                     } else {
                         Toast.makeText(DevotionalKids.this, "No such document found.", Toast.LENGTH_SHORT).show();
@@ -377,15 +321,10 @@ public class DevotionalKids extends AppCompatActivity {
                     swipeRefreshLayout.setRefreshing(false);
                 });
     }
-
-
-    // Update UI with devotional data
     private void updateUIWithDevotional(DevotionalModel devotional) {
         if (devotional == null) return;
-
         memoryverse.setText(devotional.getMemoryverse());
         verse.setText(devotional.getVerse());
-
         if (devotional.getFeedback() != null && !devotional.getFeedback().isEmpty()) {
             feedbackTextView.setText(devotional.getFeedback());
             feedbackTextView.setVisibility(View.VISIBLE);
@@ -394,7 +333,6 @@ public class DevotionalKids extends AppCompatActivity {
             feedbackTextView.setVisibility(View.GONE);
             feedbacktitle.setVisibility(View.GONE);
         }
-
         if (devotional.getImageUrl() != null && !devotional.getImageUrl().isEmpty()) {
             Glide.with(DevotionalKids.this)
                     .load(devotional.getImageUrl())
@@ -404,13 +342,9 @@ public class DevotionalKids extends AppCompatActivity {
             devotionalThumbnail.setImageResource(R.drawable.image);
         }
     }
-
-    // Save devotional locally in Room database
     private void saveDevotionalToLocal(DevotionalModel devotional) {
         Executors.newSingleThreadExecutor().execute(() -> appDatabase.devotionalDao().insert(devotional));
     }
-
-    // Check if reflection has already been submitted
     private void checkReflectionStatus(String controlId, String email, String id) {
         db.collection("kidsReflection")
                 .whereEqualTo("controlId", controlId)
@@ -419,15 +353,11 @@ public class DevotionalKids extends AppCompatActivity {
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
                     if (!querySnapshot.isEmpty()) {
-                        // Disable the EditText and Submit button if reflection already exists
-                        answerreflection.setEnabled(false); // Disable the EditText
-                        submit.setEnabled(false); // Disable the Submit button
-                        submit.setBackgroundColor(getResources().getColor(R.color.gray)); // Change button color to gray
-
-                        // Fetch the existing reflection from Firestore
+                        answerreflection.setEnabled(false);
+                        submit.setEnabled(false);
+                        submit.setBackgroundColor(getResources().getColor(R.color.gray));
                         String existingReflection = querySnapshot.getDocuments().get(0).getString("reflectionanswer");
                         String existingFeedback = querySnapshot.getDocuments().get(0).getString("feedback");
-                        // Set the existing reflection in the EditText
                         answerreflection.setText(existingReflection);
                         if (existingFeedback != null && !existingFeedback.isEmpty()) {
                             feedbackTextView.setText(existingFeedback);
@@ -439,7 +369,6 @@ public class DevotionalKids extends AppCompatActivity {
                         }
                     }
                     else {
-                        // Enable reflection input if not yet submitted
                         answerreflection.setEnabled(true);
                         submit.setEnabled(true);
                     }
@@ -448,11 +377,7 @@ public class DevotionalKids extends AppCompatActivity {
                     Log.e("DevotionalKids", "Error checking reflection status", e);
                 });
     }
-
-
-
     private void checkAndSubmitReflection(String id, String reflectionanswer, String email,String badge, String feedback,String controlId) {
-        // Step 1: Check if reflection already exists for the given devotionalId and controlId
         Map<String, Object> reflectionData = new HashMap<>();
         reflectionData.put("id", id);
         reflectionData.put("controlId", controlId);
@@ -461,18 +386,15 @@ public class DevotionalKids extends AppCompatActivity {
         reflectionData.put("badge", badge);
         reflectionData.put("feedback", feedback);
         reflectionData.put("timestamp", new Timestamp(new Date()));
-
         db.collection("kidsReflection")
                 .whereEqualTo("id", id)
                 .whereEqualTo("controlId", controlId)
-                .whereEqualTo("email", email) // Validate email as well
+                .whereEqualTo("email", email)
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
                     if (querySnapshot.isEmpty()) {
-                        // Step 2: If no existing reflection, proceed with submission
                         submitReflection(id, reflectionanswer, email, badge, feedback,controlId);
                     } else {
-                        // Step 3: Reflection already submitted, disable button and show message
                         handleExistingReflection(querySnapshot);
                     }
                 })
@@ -483,79 +405,57 @@ public class DevotionalKids extends AppCompatActivity {
     }
 
     private void handleExistingReflection(QuerySnapshot querySnapshot) {
-        // Handle existing reflection (disable button, show existing reflection, etc.)
         Toast.makeText(DevotionalKids.this, "You have already submitted your reflection.", Toast.LENGTH_SHORT).show();
         submit.setEnabled(false);
         submit.setText("Submitted");
         submit.setTextColor(getResources().getColor(R.color.white));
         submit.setBackground(getResources().getDrawable(R.drawable.shadow3dbutton));
         submit.setBackgroundColor(getResources().getColor(R.color.gray));  // Gray out button
-        answerreflection.setEnabled(false); // Disable further input
-
-        // Safely retrieve the existing reflection
+        answerreflection.setEnabled(false);
         String existingReflection = querySnapshot.getDocuments().get(0).getString("reflectionanswer");
         if (existingReflection != null) {
-            answerreflection.setText(existingReflection); // Display the existing reflection
+            answerreflection.setText(existingReflection);
         }
         Toast.makeText(DevotionalKids.this, "Reflection already submitted.", Toast.LENGTH_SHORT).show();
     }
-
     private void submitReflection(String devotionalId, String reflectionText, String email, String badge, String feedback,String controlId) {
-        // Step 1: Create a new reflection object
         Map<String, Object> reflectionData = new HashMap<>();
         DevotionalModel reflection = new DevotionalModel();
         reflection.setId(devotionalId);
         reflection.setReflectionanswer(reflectionText);
-        reflection.setTimestamp(new Timestamp(new Date())); // Capture timestamp
+        reflection.setTimestamp(new Timestamp(new Date()));
         reflection.setEmail(email);
         reflection.setBadge(badge);
         reflection.setFeedback(feedback);
         reflection.setControlId(controlId);
-
-        // Step 2: Inflate custom confirmation dialog layout
         LayoutInflater inflater = getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.areyousure, null);
-
-        // Initialize the dialog with the custom layout
         AlertDialog.Builder builder = new AlertDialog.Builder(DevotionalKids.this);
         builder.setView(dialogView);
-
-        // Create the dialog
         AlertDialog dialog = builder.create();
-
-        // Get references to the buttons
         Button confirmButton = dialogView.findViewById(R.id.confirm);
         Button cancelButton = dialogView.findViewById(R.id.cancel);
-
-        // Set the behavior for the "Confirm" button
         confirmButton.setOnClickListener(v -> {
-            // If confirmed, submit reflection to Firestore
             db.collection("kidsReflection")
                     .add(reflection)
                     .addOnSuccessListener(documentReference -> {
                         Toast.makeText(DevotionalKids.this, "Reflection submitted successfully!", Toast.LENGTH_SHORT).show();
-                        // Clear input field and update UI
                         answerreflection.setText("");
                         disableSubmitButton();
-                        answerreflection.setEnabled(false); // Disable the EditText after submission
-                        answerreflection.setText(reflectionText); // Display the submitted reflection
+                        answerreflection.setEnabled(false);
+                        answerreflection.setText(reflectionText);
                         showSubmissionSuccessDialog();
                     })
                     .addOnFailureListener(e -> {
                         Log.e("DevotionalKids", "Error submitting reflection", e);
                         Toast.makeText(DevotionalKids.this, "Failed to submit reflection. Please try again.", Toast.LENGTH_SHORT).show();
                     });
-            dialog.dismiss();  // Close the dialog
-        });
-
-        // Set the behavior for the "Cancel" button
-        cancelButton.setOnClickListener(v -> {
-            // If canceled, do nothing
             dialog.dismiss();
         });
-
-        // Show the dialog
-        dialog.setCancelable(false); // Prevent dialog from being dismissed by tapping outside
+        cancelButton.setOnClickListener(v -> {
+            dialog.dismiss();
+        });
+        dialog.setCancelable(false);
         dialog.show();
     }
 
@@ -570,35 +470,26 @@ public class DevotionalKids extends AppCompatActivity {
     private void showSubmissionSuccessDialog() {
         LayoutInflater inflater = LayoutInflater.from(DevotionalKids.this);
         View dialogView = inflater.inflate(R.layout.submitted, null);
-
         AlertDialog.Builder builder = new AlertDialog.Builder(DevotionalKids.this);
         builder.setView(dialogView);
-        builder.setCancelable(false); // Optionally make it non-cancellable
-
+        builder.setCancelable(false);
         AlertDialog successDialog = builder.create();
         successDialog.show();
-
         new Handler().postDelayed(() -> {
-            successDialog.dismiss();  // Dismiss the success dialog after 2 seconds
-            showSuccessDialog();  // Show the next success dialog
-        }, 2000);  // Dismiss after 2 seconds
+            successDialog.dismiss();
+            showSuccessDialog();
+        }, 2000);
     }
-
     private void showSuccessDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(DevotionalKids.this);
         LayoutInflater inflater = getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.reward_devotion, null);
         builder.setView(dialogView);
-
         AlertDialog dialog = builder.create();
-
         ImageView imageView = dialogView.findViewById(R.id.gifhands);
         Glide.with(this).load(R.raw.prayersign).into(imageView);
-
-
         AppCompatButton buttonOk = dialogView.findViewById(R.id.continuebutton);
         buttonOk.setOnClickListener(v -> dialog.dismiss());
-
         dialog.show();
     }
     @Override

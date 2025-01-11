@@ -15,7 +15,17 @@ public class RecordModel {
     private String rank;
     private String totalachievements;
     private String name;
+    private Date timestamp;
     // Getter and Setter methods
+
+
+    public Date getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Date timestamp) {
+        this.timestamp = timestamp;
+    }
 
 
     public void setName(String name) {

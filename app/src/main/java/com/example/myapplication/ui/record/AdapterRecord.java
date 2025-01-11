@@ -60,6 +60,15 @@ public class AdapterRecord extends RecyclerView.Adapter<AdapterRecord.RecordMyHo
         // Set the email
         holder.emailTextView.setText(record.getEmail());
 
+        if (record.getTimestamp() != null) {
+            SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy hh:mm a", Locale.getDefault());
+            String formattedTimestamp = sdf.format(record.getTimestamp());
+            holder.datetimep.setText(formattedTimestamp);
+            holder.datetimep.setVisibility(View.VISIBLE);
+        } else {
+            holder.datetimep.setVisibility(View.GONE);
+        }
+
         // Set the profile image if available
         if (record.getImageUrl() != null && !record.getImageUrl().isEmpty()) {
             int drawableResourceId = context.getResources().getIdentifier(
@@ -100,7 +109,7 @@ public class AdapterRecord extends RecyclerView.Adapter<AdapterRecord.RecordMyHo
 
     static class RecordMyHolder extends RecyclerView.ViewHolder {
         CircleImageView profileImageView;
-        TextView emailTextView, storyachievments, KidsReflection, gameachievements;
+        TextView emailTextView, storyachievments, KidsReflection, gameachievements,datetimep;
 
 
         public RecordMyHolder(@NonNull View itemView) {
@@ -110,6 +119,7 @@ public class AdapterRecord extends RecyclerView.Adapter<AdapterRecord.RecordMyHo
             storyachievments = itemView.findViewById(R.id.storyachievments);
             KidsReflection = itemView.findViewById(R.id.KidsReflection);
             gameachievements = itemView.findViewById(R.id.gameachievements);
+            datetimep = itemView.findViewById(R.id.datetimep);
              // Options menu button
         }
     }

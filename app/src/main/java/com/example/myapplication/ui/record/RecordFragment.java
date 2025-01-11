@@ -12,7 +12,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.SearchView;
 import android.widget.TextView;
-
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.WriteBatch;
 import androidx.annotation.NonNull;
@@ -208,9 +208,14 @@ public class RecordFragment extends Fragment {
                 aggregatedRecords.sort((a, b) -> Integer.compare(
                         calculateTotal(b), calculateTotal(a)
                 ));
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                String formattedDate = dateFormat.format(new Date());
+
                 QuerySnapshot usersSnapshot = Tasks.await(db.collection("user")
                         .orderBy("email")
                         .get());
+
+
                 for (int i = 0; i < aggregatedRecords.size(); i++) {
                     RecordModel record = aggregatedRecords.get(i);
                     record.setRank(String.valueOf(i + 1));
@@ -220,9 +225,24 @@ public class RecordFragment extends Fragment {
                     String userEmail = userDoc.getString("email");
                     if (userEmail == null) continue;
 
+                    QuerySnapshot reportSnapshot = Tasks.await(
+                            db.collection("reports")
+                                    .document(formattedDate)
+                                    .collection("userReports")
+                                    .whereEqualTo("email", userEmail)
+                                    .get()
+                    );
+
                     RecordModel record = new RecordModel();
                     record.setEmail(userEmail);
                     record.setImageUrl(userDoc.getString("avatarName"));
+                    if (!reportSnapshot.isEmpty()) {
+                        DocumentSnapshot reportDoc = reportSnapshot.getDocuments().get(0);
+                        Timestamp timestamp = reportDoc.getTimestamp("timestamp");
+                        if (timestamp != null) {
+                            record.setTimestamp(timestamp.toDate());
+                        }
+                    }
 
 
                     long storyCompletedCount = 0;
@@ -320,6 +340,10 @@ public class RecordFragment extends Fragment {
                     record.setEmail(userEmail);
                     record.setImageUrl(userDoc.getString("avatarName"));
                     record.setName(userDoc.getString("name"));
+                    Timestamp timestamp = reportDoc.getTimestamp("timestamp");
+                    if (timestamp != null) {
+                        record.setTimestamp(timestamp.toDate());
+                    }
 
                     // Count story achievements
                     long storyCompletedCount = Tasks.await(db.collection("storyachievements")

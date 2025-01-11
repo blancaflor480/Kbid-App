@@ -14,7 +14,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.myapplication.R;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Locale;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -41,6 +43,16 @@ public class AdapterSummary extends RecyclerView.Adapter<AdapterSummary.SummaryM
         holder.emailTextView.setText(record.getEmail());
         holder.rank.setText("Rank# : " + record.getRank());
         holder.totalachievement.setText("Total Achievements: " + record.getTotalachievements());
+
+        if (record.getTimestamp() != null) {
+            SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy hh:mm a", Locale.getDefault());
+            String formattedTimestamp = sdf.format(record.getTimestamp());
+            holder.datetimep.setText(formattedTimestamp);
+            holder.datetimep.setVisibility(View.VISIBLE);
+        } else {
+            holder.datetimep.setVisibility(View.GONE);
+        }
+
 
         if (record.getImageUrl() != null && !record.getImageUrl().isEmpty()) {
             int drawableResourceId = context.getResources().getIdentifier(
@@ -122,7 +134,7 @@ public class AdapterSummary extends RecyclerView.Adapter<AdapterSummary.SummaryM
 
     static class SummaryMyHolder extends RecyclerView.ViewHolder {
         CircleImageView profileImageView;
-        TextView emailTextView, rank, totalachievement;
+        TextView emailTextView, rank, totalachievement,datetimep;
 
 
         public SummaryMyHolder(@NonNull View itemView) {
@@ -131,6 +143,7 @@ public class AdapterSummary extends RecyclerView.Adapter<AdapterSummary.SummaryM
             emailTextView = itemView.findViewById(R.id.namep); // Email text view
             rank = itemView.findViewById(R.id.rank);
             totalachievement = itemView.findViewById(R.id.totalachievement);
+            datetimep = itemView.findViewById(R.id.datetimep);
             // Options menu button
         }
     }
